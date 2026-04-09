@@ -208,3 +208,57 @@ function revertMatchToScheduled(state, matchId) {
   };
   return { ok: true, state: nextState };
 }
+
+function listOneVsOneMatchesSorted(state) {
+  return state.matches
+    .filter(
+      (m) =>
+        m.matchKind === "oneVsOne" &&
+        m.status === "played" &&
+        m.homeScore != null &&
+        m.awayScore != null
+    )
+    .sort((a, b) => {
+      const at = new Date(a.playedAt || 0).getTime();
+      const bt = new Date(b.playedAt || 0).getTime();
+      return bt - at;
+    });
+}
+
+function recordOneVsOneMatchInState(state, homePlayerId, awayPlayerId, homeScoreInput, awayScoreInput) {
+  const homeId = String(homePlayerId || "").trim();
+  const awayId = String(awayPlayerId || "").trim();
+  if (!homeId || !awayId || homeId === awayId) {
+    return { ok: false, message: t("error.oneVsOnePickTwo") };
+  }
+  const homeScore = parseNonNegativeIntegerOrNull(homeScoreInput);
+  const awayScore = parseNonNegativeIntegerOrNull(awayScoreInput);
+  if (homeScore === null || awayScore === null) {
+    return {
+      ok: false,
+      message: t("error.scoreInt"),
+    };
+  }
+  const homePlayer = findPlayerById(state, homeId);
+  const awayPlayer = findPlayerById(state, awayId);
+  if (!homePlayer || !awayPlayer) {
+    return { ok: false, message: t("error.playerNotFound") };
+  }
+  const newMatch = {
+    id: generateUniqueId(),
+    matchKind: "oneVsOne",
+    seasonId: null,
+    round: 0,
+    homePlayerId: homeId,
+    awayPlayerId: awayId,
+    homeTeamId: homePlayer.teamId,
+    awayTeamId: awayPlayer.teamId,
+    status: "played",
+    homeScore,
+    awayScore,
+    playedAt: new Date().toISOString(),
+  };
+  const nextState = cloneDeepJson(state);
+  nextState.matches.push(newMatch);
+  return { ok: true, state: nextState };
+}

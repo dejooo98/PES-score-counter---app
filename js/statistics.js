@@ -171,14 +171,7 @@ function calculateGlobalStatisticsForSeason(state, seasonId) {
   };
 }
 
-function calculateCareerProfileStatsForPlayer(state, playerId) {
-  const playedMatches = state.matches.filter(
-    (match) =>
-      match.status === "played" &&
-      match.homeScore != null &&
-      match.awayScore != null &&
-      (match.homePlayerId === playerId || match.awayPlayerId === playerId)
-  );
+function aggregateCareerStatsFromPlayedMatches(playedMatches, playerId) {
   let wins = 0;
   let draws = 0;
   let losses = 0;
@@ -220,4 +213,41 @@ function calculateCareerProfileStatsForPlayer(state, playerId) {
     mostPlayedAgainstPlayerId,
     mostPlayedAgainstCount,
   };
+}
+
+function filterPlayedCareerMatchesForPlayer(state, playerId, kind) {
+  return state.matches.filter((match) => {
+    if (
+      match.status !== "played" ||
+      match.homeScore == null ||
+      match.awayScore == null
+    ) {
+      return false;
+    }
+    if (match.homePlayerId !== playerId && match.awayPlayerId !== playerId) {
+      return false;
+    }
+    const isDuel = match.matchKind === "oneVsOne";
+    if (kind === "league" && isDuel) {
+      return false;
+    }
+    if (kind === "oneVsOne" && !isDuel) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function calculateCareerProfileStatsForPlayer(state, playerId) {
+  const playedMatches = filterPlayedCareerMatchesForPlayer(state, playerId, "league");
+  return aggregateCareerStatsFromPlayedMatches(playedMatches, playerId);
+}
+
+function calculateOneVsOneProfileStatsForPlayer(state, playerId) {
+  const playedMatches = filterPlayedCareerMatchesForPlayer(
+    state,
+    playerId,
+    "oneVsOne"
+  );
+  return aggregateCareerStatsFromPlayedMatches(playedMatches, playerId);
 }

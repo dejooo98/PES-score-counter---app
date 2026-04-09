@@ -230,12 +230,20 @@ function renderPlayersView(state) {
   setSelectedPlayerProfileIdToSession(selectedPlayer.id);
   const selectedTeam = findTeamById(state, selectedPlayer.teamId);
   const profileStats = calculateCareerProfileStatsForPlayer(state, selectedPlayer.id);
+  const duelStats = calculateOneVsOneProfileStatsForPlayer(state, selectedPlayer.id);
   const mostPlayedOpponent = profileStats.mostPlayedAgainstPlayerId
     ? findPlayerById(state, profileStats.mostPlayedAgainstPlayerId)
+    : null;
+  const duelMostPlayedOpponent = duelStats.mostPlayedAgainstPlayerId
+    ? findPlayerById(state, duelStats.mostPlayedAgainstPlayerId)
     : null;
   const avgGoalsFor =
     profileStats.playedMatches > 0
       ? (profileStats.goalsFor / profileStats.playedMatches).toFixed(2)
+      : t("common.dash");
+  const duelAvgGoalsFor =
+    duelStats.playedMatches > 0
+      ? (duelStats.goalsFor / duelStats.playedMatches).toFixed(2)
       : t("common.dash");
   profileRoot.innerHTML = `
     <h3 class="text-sm font-semibold text-slate-800">${escapeHtml(t("players.profileTitle"))}</h3>
@@ -252,6 +260,9 @@ function renderPlayersView(state) {
         <div class="text-sm text-slate-600">${escapeHtml(t("players.teamPrefix"))} ${escapeHtml(
           selectedTeam ? selectedTeam.name : t("common.dash")
         )}</div>
+        <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">${escapeHtml(
+          t("players.careerLeague")
+        )}</p>
         <div class="mt-2 grid gap-1 text-sm text-slate-700 sm:grid-cols-2">
           <div>${escapeHtml(t("players.stat.played"))} <strong>${profileStats.playedMatches}</strong></div>
           <div>${escapeHtml(t("players.stat.gf"))} <strong>${profileStats.goalsFor}</strong></div>
@@ -267,9 +278,90 @@ function renderPlayersView(state) {
               : t("common.dash")
           )}</strong></div>
         </div>
+        <div class="pes-player-profile-duel mt-4 rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/10 to-transparent p-3 ring-1 ring-amber-500/20">
+          <p class="text-xs font-semibold uppercase tracking-wide text-amber-200/90">${escapeHtml(
+            t("players.careerOneVsOne")
+          )}</p>
+          <div class="mt-2 grid gap-1 text-sm text-slate-700 sm:grid-cols-2">
+            <div>${escapeHtml(t("players.stat.played"))} <strong>${duelStats.playedMatches}</strong></div>
+            <div>${escapeHtml(t("players.stat.gf"))} <strong>${duelStats.goalsFor}</strong></div>
+            <div>${escapeHtml(t("players.stat.ga"))} <strong>${duelStats.goalsAgainst}</strong></div>
+            <div>${escapeHtml(t("players.stat.gd"))} <strong>${duelStats.goalDifference}</strong></div>
+            <div>${escapeHtml(t("players.stat.avgGf"))} <strong>${duelAvgGoalsFor}</strong></div>
+            <div>${escapeHtml(t("players.stat.wins"))} <strong>${duelStats.wins}</strong></div>
+            <div>${escapeHtml(t("players.stat.draws"))} <strong>${duelStats.draws}</strong></div>
+            <div>${escapeHtml(t("players.stat.losses"))} <strong>${duelStats.losses}</strong></div>
+            <div>${escapeHtml(t("players.stat.rival"))} <strong>${escapeHtml(
+            duelMostPlayedOpponent
+              ? `${getPlayerDisplayName(duelMostPlayedOpponent)} (${duelStats.mostPlayedAgainstCount})`
+              : t("common.dash")
+          )}</strong></div>
+          </div>
+        </div>
       </div>
     </div>
   `;
+}
+
+function fillOneVsOnePlayerSelects(state) {
+  const homeSel = document.getElementById("pes-1v1-home");
+  const awaySel = document.getElementById("pes-1v1-away");
+  if (!homeSel || !awaySel) {
+    return;
+  }
+  const prevH = homeSel.value;
+  const prevA = awaySel.value;
+  const players = listAllPlayersSortedByCreatedAt(state);
+  const optionsHtml = [
+    `<option value="">${escapeHtml(t("oneVsOne.pickPlayer"))}</option>`,
+    ...players.map(
+      (player) =>
+        `<option value="${escapeHtml(player.id)}">${escapeHtml(
+          getPlayerDisplayName(player)
+        )}</option>`
+    ),
+  ].join("");
+  homeSel.innerHTML = optionsHtml;
+  awaySel.innerHTML = optionsHtml;
+  if (prevH && Array.from(homeSel.options).some((option) => option.value === prevH)) {
+    homeSel.value = prevH;
+  }
+  if (prevA && Array.from(awaySel.options).some((option) => option.value === prevA)) {
+    awaySel.value = prevA;
+  }
+}
+
+function renderOneVsOneView(state) {
+  fillOneVsOnePlayerSelects(state);
+  const historyBody = document.getElementById("pes-one-vs-one-history-body");
+  if (!historyBody) {
+    return;
+  }
+  const matches = listOneVsOneMatchesSorted(state);
+  if (!matches.length) {
+    historyBody.innerHTML = `<tr><td colspan="4" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
+      t("oneVsOne.historyEmpty")
+    )}</td></tr>`;
+    return;
+  }
+  historyBody.innerHTML = matches
+    .map((match) => {
+      const home = findPlayerById(state, match.homePlayerId);
+      const away = findPlayerById(state, match.awayPlayerId);
+      return `<tr class="border-t border-slate-200">
+        <td class="px-3 py-2 text-sm text-slate-600">${escapeHtml(
+          formatDateOnly(match.playedAt)
+        )}</td>
+        <td class="px-3 py-2 text-sm text-slate-800">${escapeHtml(
+          home ? getPlayerDisplayName(home) : "—"
+        )}</td>
+        <td class="px-3 py-2 text-sm text-slate-800">${escapeHtml(
+          away ? getPlayerDisplayName(away) : "—"
+        )}</td>
+        <td class="px-3 py-2 text-sm font-semibold text-slate-900">${match.homeScore} : ${match.awayScore}</td>
+      </tr>`;
+    })
+    .join("");
 }
 
 function renderTeamsView(state) {
@@ -950,6 +1042,7 @@ function refreshEntireUi() {
   renderTableView(state, selectedSeasonId);
   renderRankingsView(state, selectedSeasonId);
   renderStatisticsView(state, selectedSeasonId);
+  renderOneVsOneView(state);
   refreshTeamSelectElements();
 }
 

@@ -64,6 +64,7 @@ function sanitizePesAppSettings(raw) {
       "table",
       "rankings",
       "statistics",
+      "oneVsOne",
     ]);
     if (allowedStartup.has(raw.startupView)) {
       next.startupView = raw.startupView;

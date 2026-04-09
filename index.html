@@ -140,7 +140,9 @@
       ></div>
 
       <div class="pes6-layout flex min-h-0 flex-1 flex-col md:flex-row">
-        <aside class="pes6-sidebar border-b border-slate-900/40 md:w-[220px] md:flex-shrink-0 md:border-b-0 md:border-r">
+        <aside
+          class="pes6-sidebar border-b border-slate-900/40 md:w-[220px] md:flex-shrink-0 md:border-b-0 md:border-r"
+        >
           <nav
             class="pes6-side-nav flex flex-row gap-1 overflow-x-auto px-2 py-2 md:flex-col md:gap-1 md:px-2 md:py-4"
             data-i18n-aria-label="mainNav.aria"
@@ -148,6 +150,16 @@
           >
             <button type="button" data-pes-nav="dashboard" class="pes6-nav-btn" data-i18n="nav.dashboard">
               Dashboard
+            </button>
+            <button
+              type="button"
+              data-pes-nav="oneVsOne"
+              class="pes6-nav-btn pes6-nav-btn--duel"
+              data-i18n="nav.oneVsOne"
+              data-i18n-aria-label="nav.oneVsOneRegion"
+              aria-label="Brzi duel 1 na 1"
+            >
+              1 na 1
             </button>
             <button type="button" data-pes-nav="players" class="pes6-nav-btn" data-i18n="nav.players">
               Igrači
@@ -561,6 +573,98 @@
           </div>
           <div id="pes-statistics-root"></div>
         </section>
+
+        <section data-pes-section="oneVsOne" class="hidden space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.oneVsOne">1 na 1</h2>
+            <p class="mt-1 max-w-2xl text-sm text-slate-600" data-i18n="oneVsOne.intro">
+              Izaberite dva igrača i unesite rezultat. Ovi mečevi ne utiču na tabelu sezone; statistika se vodi u
+              profilu igrača.
+            </p>
+          </div>
+          <div class="grid gap-6 lg:grid-cols-2">
+            <div class="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent p-5 shadow-sm ring-1 ring-amber-500/15">
+              <h3 class="text-sm font-semibold text-slate-800" data-i18n="oneVsOne.formTitle">Novi meč 1 na 1</h3>
+              <form id="pes-one-vs-one-form" class="mt-4 space-y-3">
+                <div>
+                  <label class="text-xs font-medium text-slate-600" for="pes-1v1-home" data-i18n="oneVsOne.home"
+                    >Domaćin (kontroler 1)</label
+                  >
+                  <select
+                    id="pes-1v1-home"
+                    name="homePlayerId"
+                    required
+                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+                  ></select>
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-slate-600" for="pes-1v1-away" data-i18n="oneVsOne.away"
+                    >Gost (kontroler 2)</label
+                  >
+                  <select
+                    id="pes-1v1-away"
+                    name="awayPlayerId"
+                    required
+                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+                  ></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs font-medium text-slate-600" for="pes-1v1-home-score" data-i18n="oneVsOne.scoreHome"
+                      >Golovi domaćina</label
+                    >
+                    <input
+                      id="pes-1v1-home-score"
+                      name="homeScore"
+                      type="number"
+                      min="0"
+                      step="1"
+                      required
+                      class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-slate-600" for="pes-1v1-away-score" data-i18n="oneVsOne.scoreAway"
+                      >Golovi gosta</label
+                    >
+                    <input
+                      id="pes-1v1-away-score"
+                      name="awayScore"
+                      type="number"
+                      min="0"
+                      step="1"
+                      required
+                      class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-500"
+                  data-i18n="oneVsOne.submit"
+                >
+                  Sačuvaj rezultat
+                </button>
+              </form>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h3 class="text-sm font-semibold text-slate-800" data-i18n="oneVsOne.historyTitle">Poslednji mečevi 1 na 1</h3>
+              <div class="mt-3 overflow-x-auto">
+                <table class="min-w-full border-collapse text-left text-sm">
+                  <thead>
+                    <tr class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thDate">Datum</th>
+                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thHome">Domaćin</th>
+                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thAway">Gost</th>
+                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thScore">Rez.</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pes-one-vs-one-history-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
           </main>
 
           <footer
@@ -749,6 +853,7 @@
                   <option value="table" data-i18n="settings.startView.table">Tabela</option>
                   <option value="rankings" data-i18n="settings.startView.rankings">Poredak</option>
                   <option value="statistics" data-i18n="settings.startView.statistics">Statistika</option>
+                  <option value="oneVsOne" data-i18n="settings.startView.oneVsOne">1 na 1</option>
                 </select>
               </label>
             </div>

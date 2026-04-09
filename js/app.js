@@ -647,6 +647,29 @@ function bindForms() {
       showToastMessage(t("toast.teamUpdated"), "success");
     });
   }
+
+  const oneVsOneForm = document.getElementById("pes-one-vs-one-form");
+  if (oneVsOneForm) {
+    oneVsOneForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(oneVsOneForm);
+      const state = getPesLeagueApplicationState();
+      const result = recordOneVsOneMatchInState(
+        state,
+        formData.get("homePlayerId"),
+        formData.get("awayPlayerId"),
+        formData.get("homeScore"),
+        formData.get("awayScore")
+      );
+      if (!result.ok) {
+        showToastMessage(result.message, "error");
+        return;
+      }
+      applyPesLeagueStateAndRefresh(result.state);
+      oneVsOneForm.reset();
+      showToastMessage(t("toast.oneVsOneSaved"), "success");
+    });
+  }
 }
 
 function setTeamDiscoveryStatus(message, isError) {

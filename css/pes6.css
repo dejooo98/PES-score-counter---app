@@ -253,6 +253,24 @@ body.pes6-app.pes6-header-menu-locked {
   scrollbar-width: thin;
 }
 
+/* 1 na 1 u meniju — blago drugačiji akcenat od liga stavki */
+.pes6-app .pes6-nav-btn.pes6-nav-btn--duel {
+  min-width: 3rem;
+  padding-left: 0.45rem;
+  padding-right: 0.45rem;
+  text-align: center;
+  letter-spacing: 0.08em !important;
+  border-color: rgba(212, 175, 55, 0.35) !important;
+  background: rgba(212, 175, 55, 0.08) !important;
+  color: #ebe2c4 !important;
+}
+
+.pes6-app .pes6-nav-btn.pes6-nav-btn--duel:hover {
+  border-color: rgba(245, 214, 122, 0.55) !important;
+  background: rgba(212, 175, 55, 0.16) !important;
+  color: #fff !important;
+}
+
 /* Konzolni dugmići — blago nagnuti kao PES lista */
 .pes6-app .pes6-nav-btn {
   position: relative;
