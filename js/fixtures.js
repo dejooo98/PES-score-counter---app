@@ -68,12 +68,12 @@ function attachTeamIdsToMatchSkeleton(state, matchSkeleton) {
 function generateLeagueFixturesForSeason(state, seasonId) {
   const season = findSeasonById(state, seasonId);
   if (!season) {
-    return { ok: false, message: "Sezona nije pronađena." };
+    return { ok: false, message: t("error.fixtureSeasonNotFound") };
   }
   if (season.status !== "draft") {
     return {
       ok: false,
-      message: "Raspored se može generisati samo za sezonu u statusu nacrt.",
+      message: t("error.fixtureDraftOnly"),
     };
   }
   const existingForSeason = state.matches.filter(
@@ -82,12 +82,12 @@ function generateLeagueFixturesForSeason(state, seasonId) {
   if (existingForSeason.length > 0) {
     return {
       ok: false,
-      message: "Raspored već postoji. Resetujte sezonu pre ponovnog generisanja.",
+      message: t("error.fixtureExists"),
     };
   }
   const playerIds = Array.isArray(season.playerIds) ? season.playerIds : [];
   if (playerIds.length < 2) {
-    return { ok: false, message: "Premalo učesnika za raspored." };
+    return { ok: false, message: t("error.fixtureMinPlayers") };
   }
   let rounds = buildRandomizedRoundRobinRounds(playerIds);
   if (season.isDoubleRoundRobin) {
@@ -99,7 +99,7 @@ function generateLeagueFixturesForSeason(state, seasonId) {
     for (const skeleton of round) {
       const teamInfo = attachTeamIdsToMatchSkeleton(state, skeleton);
       if (!teamInfo) {
-        return { ok: false, message: "Nije moguće povezati timove za meč." };
+        return { ok: false, message: t("error.fixtureTeamLink") };
       }
       newMatches.push({
         id: generateUniqueId(),
@@ -156,12 +156,12 @@ function saveMatchResult(
   if (homeScore === null || awayScore === null) {
     return {
       ok: false,
-      message: "Rezultat mora biti ceo broj ≥ 0.",
+      message: t("error.scoreInt"),
     };
   }
   const matchIndex = state.matches.findIndex((item) => item.id === matchId);
   if (matchIndex === -1) {
-    return { ok: false, message: "Utakmica nije pronađena." };
+    return { ok: false, message: t("error.matchNotFound") };
   }
   const nextState = cloneDeepJson(state);
   const target = nextState.matches[matchIndex];
@@ -178,7 +178,7 @@ function saveMatchResult(
 function skipMatchToPlayLater(state, matchId) {
   const matchIndex = state.matches.findIndex((item) => item.id === matchId);
   if (matchIndex === -1) {
-    return { ok: false, message: "Utakmica nije pronađena." };
+    return { ok: false, message: t("error.matchNotFound") };
   }
   const nextState = cloneDeepJson(state);
   const target = nextState.matches[matchIndex];
@@ -195,7 +195,7 @@ function skipMatchToPlayLater(state, matchId) {
 function revertMatchToScheduled(state, matchId) {
   const matchIndex = state.matches.findIndex((item) => item.id === matchId);
   if (matchIndex === -1) {
-    return { ok: false, message: "Utakmica nije pronađena." };
+    return { ok: false, message: t("error.matchNotFound") };
   }
   const nextState = cloneDeepJson(state);
   const target = nextState.matches[matchIndex];

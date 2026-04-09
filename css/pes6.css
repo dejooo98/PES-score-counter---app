@@ -96,6 +96,90 @@ body.pes6-app::before {
   backdrop-filter: none !important;
 }
 
+/* Mobilni header: sezona i cloud u panelu (hamburger) */
+.pes6-app .pes6-header-tools-panel {
+  display: none !important;
+}
+
+@media (min-width: 640px) {
+  .pes6-app .pes6-header-tools-panel {
+    display: flex !important;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 639px) {
+  .pes6-app .pes6-header-tools-panel.pes6-header-tools-panel--open {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 2;
+    gap: 0.5rem;
+    padding: 0.65rem max(0.75rem, env(safe-area-inset-left, 0)) 0.85rem
+      max(0.75rem, env(safe-area-inset-right, 0));
+    margin: 0;
+    background: linear-gradient(180deg, #3d4147 0%, #2a2d32 55%, #23262a 100%);
+    border-bottom: 3px solid #0a0a0a;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
+    max-height: min(72vh, calc(100dvh - 3.5rem));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.pes6-app .pes6-header-menu-backdrop:not(.hidden) {
+  pointer-events: auto;
+}
+
+.pes6-app .pes6-header-menu-backdrop.hidden {
+  pointer-events: none;
+}
+
+.pes6-app .pes6-header-menu-btn {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.25);
+  color: var(--pes-chrome-text) !important;
+  background: var(--pes-metal) !important;
+}
+
+.pes6-app .pes6-header-menu-bars {
+  display: flex;
+  width: 1.2rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+
+.pes6-app .pes6-header-menu-bars span {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.pes6-app .pes6-header-menu-btn--open .pes6-header-menu-bars span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.pes6-app .pes6-header-menu-btn--open .pes6-header-menu-bars span:nth-child(2) {
+  opacity: 0;
+}
+
+.pes6-app .pes6-header-menu-btn--open .pes6-header-menu-bars span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+body.pes6-app.pes6-header-menu-locked {
+  overflow: hidden;
+}
+
 .pes6-app .pes6-top-bar__inner label,
 .pes6-app .pes6-tagline {
   color: #c8ccc9 !important;
@@ -636,6 +720,10 @@ body.pes6-app::before {
 
 /* --- Telefon / mali ekran --- */
 @media (max-width: 767px) {
+  .pes6-app .pes6-logo-title {
+    font-size: clamp(1.2rem, 5.5vw, 1.55rem) !important;
+  }
+
   .pes6-app .pes6-root {
     padding-left: env(safe-area-inset-left, 0);
     padding-right: env(safe-area-inset-right, 0);
@@ -666,14 +754,24 @@ body.pes6-app::before {
     justify-content: flex-start;
   }
 
-  .pes6-app .pes6-top-bar__inner .flex.flex-wrap.items-center.gap-2 {
+  .pes6-app .pes-header-tools-row {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .pes6-app .pes6-top-bar__inner .flex.flex-wrap.items-center.gap-2 > * {
+  .pes6-app .pes-header-tools-quick {
+    grid-template-columns: 1fr;
+  }
+
+  .pes6-app .pes-header-tools-quick > button {
     width: 100%;
-    min-height: 2.75rem;
+    min-height: 2.5rem;
+  }
+
+  .pes6-app #pes-cloud-status-pill {
+    display: block;
+    width: 100%;
+    text-align: center;
   }
 
   .pes6-app .pes6-main {
@@ -692,5 +790,53 @@ body.pes6-app::before {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0));
     padding-left: max(0.75rem, env(safe-area-inset-left, 0));
     padding-right: max(0.75rem, env(safe-area-inset-right, 0));
+  }
+}
+
+/* --- Korisnička podešavanja (gustina, tekst, animacije, dodir, fokus) --- */
+body.pes6-app.pes6-setting-text-sm {
+  font-size: 14px;
+}
+
+body.pes6-app.pes6-setting-text-lg {
+  font-size: 18px;
+}
+
+.pes6-app.pes6-setting-density-compact .pes6-main table th,
+.pes6-app.pes6-setting-density-compact .pes6-main table td {
+  padding-top: 0.3rem !important;
+  padding-bottom: 0.3rem !important;
+  padding-left: 0.45rem !important;
+  padding-right: 0.45rem !important;
+  font-size: 0.78rem !important;
+}
+
+.pes6-app.pes6-setting-density-compact .pes6-main .pes6-stat-tile__inner {
+  min-height: 4.25rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.pes6-app.pes6-setting-reduce-motion *,
+.pes6-app.pes6-setting-reduce-motion *::before,
+.pes6-app.pes6-setting-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.pes6-app.pes6-setting-strong-focus *:focus-visible {
+  outline: 3px solid var(--pes-gold) !important;
+  outline-offset: 3px !important;
+}
+
+@media (max-width: 767px) {
+  .pes6-app.pes6-setting-large-touch .pes6-main button:not(.pes6-nav-btn),
+  .pes6-app.pes6-setting-large-touch .pes6-header-tools-quick button {
+    min-height: 2.85rem !important;
+  }
+
+  .pes6-app.pes6-setting-large-touch .pes6-side-nav .pes6-nav-btn {
+    min-height: 3rem !important;
   }
 }

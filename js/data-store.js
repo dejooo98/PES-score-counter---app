@@ -212,7 +212,7 @@ async function hydratePesLeagueStateFromCloudIfEnabled() {
   if (!isPesLeagueCloudSyncEnabled()) {
     return {
       ok: false,
-      message: "Cloud sync nije podešen.",
+      message: t("error.cloudNotConfigured"),
     };
   }
   try {
@@ -244,7 +244,7 @@ async function persistPesLeagueStateToCloudIfEnabled() {
   if (!isPesLeagueCloudSyncEnabled()) {
     return {
       ok: false,
-      message: "Cloud sync nije podešen.",
+      message: t("error.cloudNotConfigured"),
     };
   }
   try {
@@ -264,7 +264,7 @@ async function pullCloudStateIfNewerAndReplaceLocal() {
   if (!isPesLeagueCloudSyncEnabled()) {
     return {
       ok: false,
-      message: "Cloud sync nije podešen.",
+      message: t("error.cloudNotConfigured"),
     };
   }
   try {

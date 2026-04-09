@@ -38,7 +38,11 @@
       return;
     }
     button.setAttribute("aria-pressed", enabled ? "true" : "false");
-    button.textContent = enabled ? "Zvuk: ON" : "Zvuk: OFF";
+    if (typeof window.t === "function") {
+      button.textContent = enabled ? window.t("sound.on") : window.t("sound.off");
+    } else {
+      button.textContent = enabled ? "Zvuk: ON" : "Zvuk: OFF";
+    }
   }
 
   function setUiSoundEnabled(nextValue) {
@@ -186,6 +190,8 @@
     }
     return true;
   }
+
+  window.refreshPes6UiSoundLabels = updateSoundToggleButtonUi;
 
   window.initPes6UiSounds = function initPes6UiSounds() {
     loadEnabledPreference();

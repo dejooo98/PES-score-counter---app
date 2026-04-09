@@ -90,12 +90,12 @@ function fillSeasonSelectElement(selectElement, state, selectedSeasonId) {
   const seasons = listAllSeasonsSortedByCreatedAt(state);
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = "— izaberite sezonu —";
+  placeholder.textContent = t("header.chooseSeason");
   selectElement.appendChild(placeholder);
   for (const season of seasons) {
     const option = document.createElement("option");
     option.value = season.id;
-    option.textContent = `${season.name} (${season.status})`;
+    option.textContent = `${season.name} (${translateSeasonStatus(season.status)})`;
     selectElement.appendChild(option);
   }
   if (previous && seasons.some((season) => season.id === previous)) {
@@ -128,24 +128,31 @@ function renderDashboardView(state, selectedSeasonId) {
   ).length;
   root.innerHTML = `
     <div class="pes6-dashboard-stats grid gap-0 sm:grid-cols-2 xl:grid-cols-4">
-      ${renderStatCard("Igrači", String(playersCount), "Ukupno registrovanih članova")}
-      ${renderStatCard("Timovi", String(teamsCount), "Jedinstveni klubovi / reprezentacije")}
-      ${renderStatCard("Sezone", String(seasonsCount), "Turniri / lige")}
+      ${renderStatCard(t("dash.tile.players"), String(playersCount), t("dash.tile.playersSub"))}
+      ${renderStatCard(t("dash.tile.teams"), String(teamsCount), t("dash.tile.teamsSub"))}
+      ${renderStatCard(t("dash.tile.seasons"), String(seasonsCount), t("dash.tile.seasonsSub"))}
       ${renderStatCard(
-        "Aktivna sezona",
-        season ? escapeHtml(season.name) : "—",
+        t("dash.tile.activeSeason"),
+        season ? escapeHtml(season.name) : t("common.dash"),
         season
-          ? `Status: ${season.status} · Kola: ${season.roundCount} · Odigrano: ${playedCount}/${matchesForSeason.length} · Zakazano: ${scheduledCount} · Preskočeno: ${skippedCount}`
-          : "Izaberite sezonu u zaglavlju"
+          ? t("dash.tile.seasonDetail", {
+              status: translateSeasonStatus(season.status),
+              rounds: String(season.roundCount),
+              played: String(playedCount),
+              total: String(matchesForSeason.length),
+              sched: String(scheduledCount),
+              skip: String(skippedCount),
+            })
+          : t("dash.tile.pickSeason")
       )}
     </div>
     <div class="pes6-menu-panel mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 class="pes6-panel-title text-sm font-semibold text-slate-800">Brzi koraci</h3>
+      <h3 class="pes6-panel-title text-sm font-semibold text-slate-800">${escapeHtml(t("dash.quickTitle"))}</h3>
       <ol class="pes6-help-list mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-600">
-        <li>Dodajte timove i igrače (svaki igrač mora imati tim).</li>
-        <li>Kreirajte sezonu i uključite učesnike.</li>
-        <li>Generišite raspored (random round-robin, sa BYE ako je neparan broj).</li>
-        <li>Unosite rezultate — tabela i statistika se računaju automatski.</li>
+        <li>${escapeHtml(t("dash.help1"))}</li>
+        <li>${escapeHtml(t("dash.help2"))}</li>
+        <li>${escapeHtml(t("dash.help3"))}</li>
+        <li>${escapeHtml(t("dash.help4"))}</li>
       </ol>
     </div>
   `;
@@ -195,13 +202,13 @@ function renderPlayersView(state) {
         <td class="px-3 py-2 text-right text-sm">
           <button type="button" class="text-indigo-600 hover:underline pes-open-player-profile" data-player-id="${escapeHtml(
             player.id
-          )}">Profil</button>
+          )}">${escapeHtml(t("players.profile"))}</button>
           <button type="button" class="text-indigo-600 hover:underline pes-edit-player" data-player-id="${escapeHtml(
             player.id
-          )}">Izmeni</button>
+          )}">${escapeHtml(t("players.edit"))}</button>
           <button type="button" class="ml-3 text-rose-600 hover:underline pes-delete-player" data-player-id="${escapeHtml(
             player.id
-          )}">Obriši</button>
+          )}">${escapeHtml(t("players.delete"))}</button>
         </td>
       </tr>
     `;
@@ -209,10 +216,12 @@ function renderPlayersView(state) {
     .join("");
   tableBody.innerHTML =
     rows ||
-    `<tr><td colspan="4" class="px-3 py-6 text-center text-sm text-slate-500">Nema igrača.</td></tr>`;
+    `<tr><td colspan="4" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
+      t("players.empty")
+    )}</td></tr>`;
 
   if (!players.length) {
-    profileRoot.innerHTML = `<p class="text-sm text-slate-500">Dodaj igrača da vidiš profil i statistiku.</p>`;
+    profileRoot.innerHTML = `<p class="text-sm text-slate-500">${escapeHtml(t("players.profileEmpty"))}</p>`;
     return;
   }
   const selectedPlayerId = getSelectedPlayerProfileIdFromSession();
@@ -227,9 +236,9 @@ function renderPlayersView(state) {
   const avgGoalsFor =
     profileStats.playedMatches > 0
       ? (profileStats.goalsFor / profileStats.playedMatches).toFixed(2)
-      : "—";
+      : t("common.dash");
   profileRoot.innerHTML = `
-    <h3 class="text-sm font-semibold text-slate-800">Profil igrača</h3>
+    <h3 class="text-sm font-semibold text-slate-800">${escapeHtml(t("players.profileTitle"))}</h3>
     <div class="mt-3 grid gap-4 md:grid-cols-[auto,1fr]">
       <img
         src="${escapeHtml(resolvePlayerAvatarUrl(selectedPlayer))}"
@@ -240,22 +249,22 @@ function renderPlayersView(state) {
         <div class="text-lg font-semibold text-slate-900">${escapeHtml(
           getPlayerDisplayName(selectedPlayer)
         )}</div>
-        <div class="text-sm text-slate-600">Tim: ${escapeHtml(
-          selectedTeam ? selectedTeam.name : "—"
+        <div class="text-sm text-slate-600">${escapeHtml(t("players.teamPrefix"))} ${escapeHtml(
+          selectedTeam ? selectedTeam.name : t("common.dash")
         )}</div>
         <div class="mt-2 grid gap-1 text-sm text-slate-700 sm:grid-cols-2">
-          <div>Odigrane utakmice: <strong>${profileStats.playedMatches}</strong></div>
-          <div>Dati golovi: <strong>${profileStats.goalsFor}</strong></div>
-          <div>Primljeni golovi: <strong>${profileStats.goalsAgainst}</strong></div>
-          <div>Gol razlika (GR): <strong>${profileStats.goalDifference}</strong></div>
-          <div>Prosek datih golova / meč: <strong>${avgGoalsFor}</strong></div>
-          <div>Pobede: <strong>${profileStats.wins}</strong></div>
-          <div>Nerešene: <strong>${profileStats.draws}</strong></div>
-          <div>Porazi: <strong>${profileStats.losses}</strong></div>
-          <div>Najviše mečeva protiv: <strong>${escapeHtml(
+          <div>${escapeHtml(t("players.stat.played"))} <strong>${profileStats.playedMatches}</strong></div>
+          <div>${escapeHtml(t("players.stat.gf"))} <strong>${profileStats.goalsFor}</strong></div>
+          <div>${escapeHtml(t("players.stat.ga"))} <strong>${profileStats.goalsAgainst}</strong></div>
+          <div>${escapeHtml(t("players.stat.gd"))} <strong>${profileStats.goalDifference}</strong></div>
+          <div>${escapeHtml(t("players.stat.avgGf"))} <strong>${avgGoalsFor}</strong></div>
+          <div>${escapeHtml(t("players.stat.wins"))} <strong>${profileStats.wins}</strong></div>
+          <div>${escapeHtml(t("players.stat.draws"))} <strong>${profileStats.draws}</strong></div>
+          <div>${escapeHtml(t("players.stat.losses"))} <strong>${profileStats.losses}</strong></div>
+          <div>${escapeHtml(t("players.stat.rival"))} <strong>${escapeHtml(
             mostPlayedOpponent
               ? `${getPlayerDisplayName(mostPlayedOpponent)} (${profileStats.mostPlayedAgainstCount})`
-              : "—"
+              : t("common.dash")
           )}</strong></div>
         </div>
       </div>
@@ -311,7 +320,7 @@ function renderTeamsView(state) {
       const websiteHtml = website
         ? `<a class="text-xs text-indigo-600 hover:underline" href="${escapeHtml(
             website
-          )}" target="_blank" rel="noopener noreferrer">Sajt</a>`
+          )}" target="_blank" rel="noopener noreferrer">${escapeHtml(t("teams.website"))}</a>`
         : "";
       return `
       <tr class="border-t border-slate-100">
@@ -330,10 +339,10 @@ function renderTeamsView(state) {
         <td class="px-3 py-2 text-right text-sm">
           <button type="button" class="text-indigo-600 hover:underline pes-edit-team" data-team-id="${escapeHtml(
             team.id
-          )}">Izmeni</button>
+          )}">${escapeHtml(t("teams.edit"))}</button>
           <button type="button" class="ml-3 text-rose-600 hover:underline pes-delete-team" data-team-id="${escapeHtml(
             team.id
-          )}">Obriši</button>
+          )}">${escapeHtml(t("teams.delete"))}</button>
         </td>
       </tr>
     `;
@@ -341,7 +350,9 @@ function renderTeamsView(state) {
     .join("");
   tableBody.innerHTML =
     rows ||
-    `<tr><td colspan="5" class="px-3 py-6 text-center text-sm text-slate-500">Nema timova.</td></tr>`;
+    `<tr><td colspan="5" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
+      t("teams.empty")
+    )}</td></tr>`;
 }
 
 function renderSeasonsView(state) {
@@ -355,7 +366,7 @@ function renderSeasonsView(state) {
       const isDraft = season.status === "draft";
       const isActive = season.status === "active";
       const isFinished = season.status === "finished";
-      const doubleLabel = season.isDoubleRoundRobin ? "Da" : "Ne";
+      const doubleLabel = season.isDoubleRoundRobin ? t("common.yes") : t("common.no");
       return `
       <tr class="border-t border-slate-100">
         <td class="px-3 py-2 text-sm font-medium text-slate-800">${escapeHtml(
@@ -368,7 +379,7 @@ function renderSeasonsView(state) {
         )}</td>
         <td class="px-3 py-2 text-sm">
           <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">${escapeHtml(
-            season.status
+            translateSeasonStatus(season.status)
           )}</span>
         </td>
         <td class="px-3 py-2 text-sm text-slate-700">${doubleLabel}</td>
@@ -376,22 +387,22 @@ function renderSeasonsView(state) {
           <button type="button"
             class="pes-generate-fixtures rounded px-1 py-0.5 text-indigo-600 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
-            ${isDraft ? "" : "disabled"}>Generiši</button>
+            ${isDraft ? "" : "disabled"}>${escapeHtml(t("seasons.generate"))}</button>
           <button type="button"
             class="pes-season-double ml-2 rounded px-1 py-0.5 text-slate-700 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
-            ${isDraft ? "" : "disabled"}>Dupli krug</button>
+            ${isDraft ? "" : "disabled"}>${escapeHtml(t("seasons.double"))}</button>
           <button type="button"
             class="pes-reset-season ml-2 rounded px-1 py-0.5 text-amber-800 hover:underline"
-            data-season-id="${escapeHtml(season.id)}">Reset</button>
+            data-season-id="${escapeHtml(season.id)}">${escapeHtml(t("seasons.reset"))}</button>
           <button type="button"
             class="pes-finish-season ml-2 rounded px-1 py-0.5 text-emerald-800 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
-            ${isActive ? "" : "disabled"}>Završi</button>
+            ${isActive ? "" : "disabled"}>${escapeHtml(t("seasons.finish"))}</button>
           <button type="button"
             class="pes-clone-season ml-2 rounded px-1 py-0.5 text-indigo-800 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
-            ${isFinished ? "" : "disabled"}>Nova</button>
+            ${isFinished ? "" : "disabled"}>${escapeHtml(t("seasons.clone"))}</button>
         </td>
       </tr>
     `;
@@ -399,7 +410,9 @@ function renderSeasonsView(state) {
     .join("");
   tableBody.innerHTML =
     rows ||
-    `<tr><td colspan="7" class="px-3 py-6 text-center text-sm text-slate-500">Nema sezona.</td></tr>`;
+    `<tr><td colspan="7" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
+      t("seasons.empty")
+    )}</td></tr>`;
 
   const participantSelect = document.getElementById(
     "pes-season-participant-ids"
@@ -433,12 +446,12 @@ function renderFixturesView(state, selectedSeasonId) {
     return;
   }
   if (!selectedSeasonId) {
-    root.innerHTML = `<p class="text-sm text-slate-600">Izaberite sezonu u zaglavlju.</p>`;
+    root.innerHTML = `<p class="text-sm text-slate-600">${escapeHtml(t("common.pickSeasonHeader"))}</p>`;
     return;
   }
   const season = findSeasonById(state, selectedSeasonId);
   if (!season) {
-    root.innerHTML = `<p class="text-sm text-rose-600">Sezona nije pronađena.</p>`;
+    root.innerHTML = `<p class="text-sm text-rose-600">${escapeHtml(t("common.seasonNotFound"))}</p>`;
     return;
   }
   const roundFilter = document.getElementById("pes-fixture-round-filter");
@@ -463,15 +476,15 @@ function renderFixturesView(state, selectedSeasonId) {
   );
   const filterHtml = `
     <div class="mb-4 flex flex-wrap items-end gap-3">
-      <label class="text-xs font-medium text-slate-600">Kolo
+      <label class="text-xs font-medium text-slate-600">${escapeHtml(t("fixtures.roundLabel"))}
         <select id="pes-fixture-round-filter" class="mt-1 block rounded-lg border border-slate-300 px-2 py-1 text-sm">
-          <option value="">Sva kola</option>
+          <option value="">${escapeHtml(t("fixtures.allRounds"))}</option>
           ${roundOptions
             .map(
               (roundNumber) =>
                 `<option value="${roundNumber}" ${
                   String(roundNumber) === roundValue ? "selected" : ""
-                }>Kolo ${roundNumber}</option>`
+                }>${escapeHtml(t("fixtures.roundN", { n: String(roundNumber) }))}</option>`
             )
             .join("")}
         </select>
@@ -480,7 +493,7 @@ function renderFixturesView(state, selectedSeasonId) {
         <input id="pes-fixture-unplayed-only" type="checkbox" class="rounded border-slate-300" ${
           onlyUnplayed ? "checked" : ""
         } />
-        Samo neodigrane (zakazane + preskočene)
+        ${escapeHtml(t("fixtures.unplayedOnly"))}
       </label>
     </div>
   `;
@@ -498,8 +511,8 @@ function renderFixturesView(state, selectedSeasonId) {
         match.status === "played"
           ? `${match.homeScore} : ${match.awayScore}`
           : match.status === "skipped"
-            ? "Preskočeno"
-            : "Zakazano";
+            ? t("match.skipped")
+            : t("fixtures.scheduled");
       return `
       <tr class="border-t border-slate-100">
         <td class="px-3 py-2 text-xs text-slate-500">${match.round}</td>
@@ -513,7 +526,7 @@ function renderFixturesView(state, selectedSeasonId) {
         )} <span class="text-xs text-slate-500">(${escapeHtml(
         awayTeamName
       )})</span></td>
-        <td class="px-3 py-2 text-xs">${escapeHtml(match.status)}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(translateMatchStatus(match.status))}</td>
         <td class="px-3 py-2 text-sm font-medium text-slate-800">${escapeHtml(
           statusLabel
         )}</td>
@@ -527,17 +540,19 @@ function renderFixturesView(state, selectedSeasonId) {
       <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
-            <th class="px-3 py-2">Kolo</th>
-            <th class="px-3 py-2">Domaćin</th>
-            <th class="px-3 py-2">Gost</th>
-            <th class="px-3 py-2">Status</th>
-            <th class="px-3 py-2">Rezultat</th>
+            <th class="px-3 py-2">${escapeHtml(t("fixtures.th.round"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("fixtures.th.home"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("fixtures.th.away"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("fixtures.th.status"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("fixtures.th.result"))}</th>
           </tr>
         </thead>
         <tbody>
           ${
             rows ||
-            `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-500">Nema utakmica za prikaz.</td></tr>`
+            `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-500">${escapeHtml(
+              t("fixtures.empty")
+            )}</td></tr>`
           }
         </tbody>
       </table>
@@ -559,12 +574,12 @@ function renderResultsView(state, selectedSeasonId) {
     return;
   }
   if (!selectedSeasonId) {
-    root.innerHTML = `<p class="text-sm text-slate-600">Izaberite sezonu u zaglavlju.</p>`;
+    root.innerHTML = `<p class="text-sm text-slate-600">${escapeHtml(t("common.pickSeasonHeader"))}</p>`;
     return;
   }
   const season = findSeasonById(state, selectedSeasonId);
   if (!season) {
-    root.innerHTML = `<p class="text-sm text-rose-600">Sezona nije pronađena.</p>`;
+    root.innerHTML = `<p class="text-sm text-rose-600">${escapeHtml(t("common.seasonNotFound"))}</p>`;
     return;
   }
   const matches = listMatchesForSeason(state, season.id);
@@ -596,24 +611,28 @@ function renderResultsView(state, selectedSeasonId) {
             <input name="awayScore" type="number" min="0" step="1" class="w-16 rounded border border-slate-300 px-2 py-1 text-sm" value="${escapeHtml(
               awayScoreValue
             )}" />
-            <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500">Sačuvaj</button>
+            <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500">${escapeHtml(
+              t("results.save")
+            )}</button>
             ${
               isPlayed
                 ? `<button type="button" class="rounded-lg border border-slate-300 px-3 py-1 text-xs pes-revert-match" data-match-id="${escapeHtml(
                     match.id
-                  )}">Poništi</button>`
+                  )}">${escapeHtml(t("results.revert"))}</button>`
                 : ""
             }
             ${
               !isPlayed
                 ? `<button type="button" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-1 text-xs text-amber-800 pes-skip-match" data-match-id="${escapeHtml(
                     match.id
-                  )}">Preskoči</button>`
+                  )}">${escapeHtml(t("results.skip"))}</button>`
                 : ""
             }
             ${
               isSkipped
-                ? `<span class="text-[11px] font-medium text-amber-700">Preskočeno — odigraj naknadno</span>`
+                ? `<span class="text-[11px] font-medium text-amber-700">${escapeHtml(
+                    t("results.skippedHint")
+                  )}</span>`
                 : ""
             }
           </form>
@@ -630,17 +649,19 @@ function renderResultsView(state, selectedSeasonId) {
       <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
-            <th class="px-3 py-2">Kolo</th>
-            <th class="px-3 py-2">Domaćin</th>
-            <th class="px-3 py-2">Gost</th>
-            <th class="px-3 py-2">Unos</th>
-            <th class="px-3 py-2">Odigrano</th>
+            <th class="px-3 py-2">${escapeHtml(t("results.th.round"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("results.th.home"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("results.th.away"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("results.th.input"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("results.th.playedAt"))}</th>
           </tr>
         </thead>
         <tbody>
           ${
             rows ||
-            `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-500">Nema utakmica.</td></tr>`
+            `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-500">${escapeHtml(
+              t("results.empty")
+            )}</td></tr>`
           }
         </tbody>
       </table>
@@ -652,14 +673,14 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
   if (!selectedSeasonId) {
     return {
       ok: false,
-      html: `<p class="text-sm text-slate-600">Izaberite sezonu u zaglavlju.</p>`,
+      html: `<p class="text-sm text-slate-600">${escapeHtml(t("common.pickSeasonHeader"))}</p>`,
     };
   }
   const season = findSeasonById(state, selectedSeasonId);
   if (!season) {
     return {
       ok: false,
-      html: `<p class="text-sm text-rose-600">Sezona nije pronađena.</p>`,
+      html: `<p class="text-sm text-rose-600">${escapeHtml(t("common.seasonNotFound"))}</p>`,
     };
   }
   const standings = calculateStandingsForSeason(state, selectedSeasonId);
@@ -695,23 +716,25 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
       <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
-            <th class="px-3 py-2">#</th>
-            <th class="px-3 py-2">Igrač</th>
-            <th class="px-3 py-2">Tim</th>
-            <th class="px-3 py-2">O</th>
-            <th class="px-3 py-2">P</th>
-            <th class="px-3 py-2">N</th>
-            <th class="px-3 py-2">I</th>
-            <th class="px-3 py-2">DG</th>
-            <th class="px-3 py-2">PG</th>
-            <th class="px-3 py-2">GR</th>
-            <th class="px-3 py-2">B</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.hash"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.player"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.team"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.mp"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.w"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.d"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.l"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.gf"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.ga"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.gd"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("table.th.pts"))}</th>
           </tr>
         </thead>
         <tbody>
           ${
             rows ||
-            `<tr><td colspan="11" class="px-3 py-6 text-center text-slate-500">Nema podataka — unesite rezultate.</td></tr>`
+            `<tr><td colspan="11" class="px-3 py-6 text-center text-slate-500">${escapeHtml(
+              t("table.emptyData")
+            )}</td></tr>`
           }
         </tbody>
       </table>
@@ -746,8 +769,11 @@ function renderRankingsView(state, selectedSeasonId) {
   if (seasonHint) {
     const season = selectedSeasonId ? findSeasonById(state, selectedSeasonId) : null;
     seasonHint.textContent = season
-      ? `Aktivna sezona u zaglavlju: ${season.name} (${season.status})`
-      : "Izaberite sezonu u zaglavlju.";
+      ? t("rankings.hint", {
+          name: season.name,
+          status: translateSeasonStatus(season.status),
+        })
+      : t("common.pickSeasonHeader");
   }
   const built = buildStandingsTableHtml(state, selectedSeasonId);
   root.innerHTML = built.html;
@@ -763,7 +789,7 @@ function renderStatisticsView(state, selectedSeasonId) {
     exportButton.disabled = !selectedSeasonId;
   }
   if (!selectedSeasonId) {
-    root.innerHTML = `<p class="text-sm text-slate-600">Izaberite sezonu u zaglavlju.</p>`;
+    root.innerHTML = `<p class="text-sm text-slate-600">${escapeHtml(t("common.pickSeasonHeader"))}</p>`;
     return;
   }
   const globals = calculateGlobalStatisticsForSeason(state, selectedSeasonId);
@@ -774,56 +800,52 @@ function renderStatisticsView(state, selectedSeasonId) {
   const globalHtml = `
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       ${renderStatCard(
-        "Ukupno odigranih mečeva",
+        t("stats.tile.matches"),
         String(globals.totalMatches),
-        "U izabranoj sezoni"
+        t("stats.tile.matchesSub")
       )}
+      ${renderStatCard(t("stats.tile.goals"), String(globals.totalGoals), t("stats.tile.goalsSub"))}
       ${renderStatCard(
-        "Ukupno golova",
-        String(globals.totalGoals),
-        "Zbir oba tima"
-      )}
-      ${renderStatCard(
-        "Prosek golova po meču",
+        t("stats.tile.avg"),
         globals.averageGoalsPerMatch.toFixed(2),
-        "Liga prosečno"
+        t("stats.tile.avgSub")
       )}
       ${renderStatCard(
-        "Najbolji napad",
+        t("stats.tile.attack"),
         globals.bestAttackPlayerId
           ? escapeHtml(
               getPlayerDisplayName(
                 findPlayerById(state, globals.bestAttackPlayerId)
               )
             )
-          : "—",
+          : t("common.dash"),
         globals.bestAttackPlayerId
-          ? `${globals.bestAttackGoals} golova`
-          : "Nema odigranih mečeva"
+          ? t("stats.tile.attackGoals", { n: String(globals.bestAttackGoals) })
+          : t("stats.tile.noPlayed")
       )}
       ${renderStatCard(
-        "Najbolja odbrana",
+        t("stats.tile.defense"),
         globals.bestDefensePlayerId
           ? escapeHtml(
               getPlayerDisplayName(
                 findPlayerById(state, globals.bestDefensePlayerId)
               )
             )
-          : "—",
+          : t("common.dash"),
         globals.bestDefensePlayerId
-          ? `${globals.bestDefenseConceded} primljenih`
-          : "Nema odigranih mečeva"
+          ? t("stats.tile.defenseConceded", { n: String(globals.bestDefenseConceded) })
+          : t("stats.tile.noPlayed")
       )}
       ${renderStatCard(
-        "Najviše bodova",
+        t("stats.tile.points"),
         globals.topPointsPlayerId
           ? escapeHtml(
               getPlayerDisplayName(
                 findPlayerById(state, globals.topPointsPlayerId)
               )
             )
-          : "—",
-        `${globals.topPoints} bodova`
+          : t("common.dash"),
+        t("stats.tile.pointsSub", { n: String(globals.topPoints) })
       )}
     </div>
   `;
@@ -855,21 +877,23 @@ function renderStatisticsView(state, selectedSeasonId) {
       <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
-            <th class="px-3 py-2">Igrač</th>
-            <th class="px-3 py-2">Mečevi</th>
-            <th class="px-3 py-2">P</th>
-            <th class="px-3 py-2">N</th>
-            <th class="px-3 py-2">I</th>
-            <th class="px-3 py-2">DG</th>
-            <th class="px-3 py-2">PG</th>
-            <th class="px-3 py-2">Ø gol/m</th>
-            <th class="px-3 py-2">Forma (5)</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.player"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.matches"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.w"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.d"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.l"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.gf"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.ga"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.avg"))}</th>
+            <th class="px-3 py-2">${escapeHtml(t("stats.th.form"))}</th>
           </tr>
         </thead>
         <tbody>
           ${
             playerRows ||
-            `<tr><td colspan="9" class="px-3 py-6 text-center text-slate-500">Nema statistike.</td></tr>`
+            `<tr><td colspan="9" class="px-3 py-6 text-center text-slate-500">${escapeHtml(
+              t("stats.empty")
+            )}</td></tr>`
           }
         </tbody>
       </table>
@@ -891,7 +915,7 @@ function refreshTeamSelectElements() {
     if (!isEditSelect) {
       const placeholder = document.createElement("option");
       placeholder.value = "";
-      placeholder.textContent = "— izaberite ili unesite novi ispod —";
+      placeholder.textContent = t("form.teamSelectPh");
       select.appendChild(placeholder);
     }
     for (const team of teams) {
@@ -929,10 +953,18 @@ function refreshEntireUi() {
   refreshTeamSelectElements();
 }
 
-function showToastMessage(message, variant) {
+function showToastMessage(message, variant, forceSuccess) {
   const host = document.getElementById("pes-toast-host");
   if (!host) {
     window.alert(message);
+    return;
+  }
+  if (
+    variant === "success" &&
+    !forceSuccess &&
+    typeof window.shouldSuppressPesSuccessToasts === "function" &&
+    window.shouldSuppressPesSuccessToasts()
+  ) {
     return;
   }
   const tone =
@@ -943,7 +975,11 @@ function showToastMessage(message, variant) {
   node.className = `pointer-events-auto rounded-lg border px-4 py-2 text-sm shadow-md ${tone}`;
   node.textContent = message;
   host.appendChild(node);
+  const ms =
+    typeof window.getPesToastDurationMs === "function"
+      ? window.getPesToastDurationMs()
+      : 4200;
   window.setTimeout(() => {
     node.remove();
-  }, 4200);
+  }, ms);
 }

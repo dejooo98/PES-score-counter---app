@@ -1,0 +1,34 @@
+================================================================================
+PES LIGA — cloud sync (Supabase) — ista podešavanja za sve kolege
+================================================================================
+
+U aplikaciji: zaglavlje → dugme „Cloud podešavanja“ → nalepi vrednosti ispod →
+„Sačuvaj i poveži“ → po potrebi „Sync sada“.
+
+SVA TRI polja moraju biti IDENTIČNA kod svih da bismo delili istu ligu.
+
+--------------------------------------------------------------------------------
+1) SUPABASE URL
+--------------------------------------------------------------------------------
+
+https://dypfkafzcyrekedamknp.supabase.co
+
+--------------------------------------------------------------------------------
+2) SUPABASE ANON KEY (public key za browser — ne koristiti service_role)
+--------------------------------------------------------------------------------
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5cGZrYWZ6Y3lyZWtlZGFta25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc3NDEsImV4cCI6MjA5MTMxMzc0MX0.wLSEcANXh5k-pS62KuomypGHidxpFekQrlIuQMBwStY
+
+--------------------------------------------------------------------------------
+3) LEAGUE ID (zajednički „kod“ lige — mora biti isti kod svih)
+--------------------------------------------------------------------------------
+
+PES - RISHUB
+
+================================================================================
+NAPOMENE
+================================================================================
+• Šalji ovaj fajl samo privatno (Viber, mejl ekipi itd.). Ne objavljuj javno.
+• Anon ključ ionako ide u browser, ali uz URL i League ID omogućava pristup
+  istim podacima u bazi — drži sve zajedno kao „pristup ligi“.
+• League ID kopiraj tačno, uključujući razmake i crtice, kao gore.

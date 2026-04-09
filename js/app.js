@@ -96,18 +96,212 @@ function refreshCloudSyncStatusUi() {
   if (!isPesLeagueCloudSyncEnabled()) {
     pill.className =
       "rounded-full border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-600";
-    pill.textContent = "Offline (localStorage)";
+    pill.textContent = t("cloud.pillOffline");
     return;
   }
   const updatedAt = getPesLeagueLastCloudUpdatedAt();
   pill.className =
     "rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700";
   pill.textContent = updatedAt
-    ? `Cloud ON · ${new Date(updatedAt).toLocaleTimeString()}`
-    : "Cloud ON";
+    ? t("cloud.pillOnTime", { time: new Date(updatedAt).toLocaleTimeString() })
+    : t("cloud.pillOn");
+}
+
+function closeHeaderMobileMenu() {
+  const panel = document.getElementById("pes-header-tools-panel");
+  const toggle = document.getElementById("pes-header-menu-toggle");
+  const backdrop = document.getElementById("pes-header-menu-backdrop");
+  if (panel) {
+    panel.classList.remove("pes6-header-tools-panel--open");
+  }
+  if (toggle) {
+    toggle.classList.remove("pes6-header-menu-btn--open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", t("header.menuOpen"));
+  }
+  if (backdrop) {
+    backdrop.classList.add("hidden");
+    backdrop.setAttribute("aria-hidden", "true");
+  }
+  document.body.classList.remove("pes6-header-menu-locked");
+}
+
+function setHeaderMobileMenuOpen(open) {
+  const panel = document.getElementById("pes-header-tools-panel");
+  const toggle = document.getElementById("pes-header-menu-toggle");
+  const backdrop = document.getElementById("pes-header-menu-backdrop");
+  if (!panel || !toggle) {
+    return;
+  }
+  if (window.matchMedia("(min-width: 640px)").matches) {
+    closeHeaderMobileMenu();
+    return;
+  }
+  if (open) {
+    panel.classList.add("pes6-header-tools-panel--open");
+    toggle.classList.add("pes6-header-menu-btn--open");
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", t("header.menuClose"));
+    if (backdrop) {
+      backdrop.classList.remove("hidden");
+      backdrop.setAttribute("aria-hidden", "false");
+    }
+    document.body.classList.add("pes6-header-menu-locked");
+    return;
+  }
+  closeHeaderMobileMenu();
+}
+
+function bindHeaderMobileMenu() {
+  const toggle = document.getElementById("pes-header-menu-toggle");
+  const backdrop = document.getElementById("pes-header-menu-backdrop");
+  const panel = document.getElementById("pes-header-tools-panel");
+  if (!toggle || !panel) {
+    return;
+  }
+  toggle.addEventListener("click", () => {
+    const nextOpen = !panel.classList.contains("pes6-header-tools-panel--open");
+    setHeaderMobileMenuOpen(nextOpen);
+  });
+  if (backdrop) {
+    backdrop.addEventListener("click", () => {
+      closeHeaderMobileMenu();
+    });
+  }
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      const appModal = document.getElementById("pes-app-settings-modal");
+      if (appModal && appModal.classList.contains("flex")) {
+        closeAppSettingsModal();
+        return;
+      }
+      closeHeaderMobileMenu();
+    }
+  });
+  window.addEventListener("resize", () => {
+    if (window.matchMedia("(min-width: 640px)").matches) {
+      closeHeaderMobileMenu();
+    }
+  });
+  const seasonSelect = document.getElementById("pes-global-season-select");
+  if (seasonSelect) {
+    seasonSelect.addEventListener("change", () => {
+      closeHeaderMobileMenu();
+    });
+  }
+}
+
+function syncAppSettingsFormFromState() {
+  const s = window.getPesAppSettings();
+  const setVal = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = value;
+    }
+  };
+  setVal("pes-app-set-density", s.uiDensity);
+  setVal("pes-app-set-motion", s.reduceMotion);
+  setVal("pes-app-set-text", s.textScale);
+  setVal("pes-app-set-cloud-pull", String(s.cloudPullIntervalSec));
+  setVal("pes-app-set-toast-dur", s.toastDurationKey);
+  setVal("pes-app-set-date", s.dateFormat);
+  setVal("pes-app-set-slug", s.exportLeagueSlug);
+  setVal("pes-app-set-lang", s.language);
+  setVal("pes-app-set-startup", s.startupView);
+  const strong = document.getElementById("pes-app-set-strong-focus");
+  if (strong) {
+    strong.checked = Boolean(s.strongFocus);
+  }
+  const touch = document.getElementById("pes-app-set-large-touch");
+  if (touch) {
+    touch.checked = Boolean(s.largeTouch);
+  }
+  const confirmEl = document.getElementById("pes-app-set-confirm");
+  if (confirmEl) {
+    confirmEl.checked = s.confirmDangerousActions !== false;
+  }
+  const hideSucc = document.getElementById("pes-app-set-hide-success");
+  if (hideSucc) {
+    hideSucc.checked = Boolean(s.suppressSuccessToasts);
+  }
+}
+
+function openAppSettingsModal() {
+  closeHeaderMobileMenu();
+  const cloudModal = document.getElementById("pes-cloud-modal");
+  if (cloudModal) {
+    cloudModal.classList.add("hidden");
+    cloudModal.classList.remove("flex");
+  }
+  syncAppSettingsFormFromState();
+  applyPesI18nToDocument();
+  const modal = document.getElementById("pes-app-settings-modal");
+  if (!modal) {
+    return;
+  }
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeAppSettingsModal() {
+  const modal = document.getElementById("pes-app-settings-modal");
+  if (!modal) {
+    return;
+  }
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
+function bindAppSettingsModal() {
+  const openBtn = document.getElementById("pes-app-settings-open");
+  const modal = document.getElementById("pes-app-settings-modal");
+  const closeBtn = document.getElementById("pes-app-settings-modal-close");
+  const form = document.getElementById("pes-app-settings-form");
+  if (!openBtn || !modal || !form) {
+    return;
+  }
+  openBtn.addEventListener("click", () => {
+    openAppSettingsModal();
+  });
+  const close = () => {
+    closeAppSettingsModal();
+  };
+  if (closeBtn) {
+    closeBtn.addEventListener("click", close);
+  }
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      close();
+    }
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    window.updatePesAppSettings({
+      uiDensity: document.getElementById("pes-app-set-density").value,
+      reduceMotion: document.getElementById("pes-app-set-motion").value,
+      textScale: document.getElementById("pes-app-set-text").value,
+      strongFocus: document.getElementById("pes-app-set-strong-focus").checked,
+      largeTouch: document.getElementById("pes-app-set-large-touch").checked,
+      cloudPullIntervalSec: Number.parseInt(
+        document.getElementById("pes-app-set-cloud-pull").value,
+        10
+      ),
+      confirmDangerousActions: document.getElementById("pes-app-set-confirm").checked,
+      toastDurationKey: document.getElementById("pes-app-set-toast-dur").value,
+      suppressSuccessToasts: document.getElementById("pes-app-set-hide-success").checked,
+      dateFormat: document.getElementById("pes-app-set-date").value,
+      exportLeagueSlug: String(document.getElementById("pes-app-set-slug").value || "").trim(),
+      language: document.getElementById("pes-app-set-lang").value,
+      startupView: document.getElementById("pes-app-set-startup").value,
+    });
+    close();
+    showToastMessage(t("toast.settingsSaved"), "success", true);
+  });
 }
 
 function openCloudModal() {
+  closeHeaderMobileMenu();
+  closeAppSettingsModal();
   const settings = getPesLeagueCloudSettings();
   document.getElementById("pes-cloud-supabase-url").value = settings.supabaseUrl;
   document.getElementById("pes-cloud-supabase-anon-key").value = settings.supabaseAnonKey;
@@ -131,14 +325,21 @@ function restartCloudPullLoop() {
   if (!isPesLeagueCloudSyncEnabled()) {
     return;
   }
+  const ms =
+    typeof window.getPesCloudPullIntervalMs === "function"
+      ? window.getPesCloudPullIntervalMs()
+      : 15000;
+  if (!ms || ms <= 0) {
+    return;
+  }
   pesLeagueCloudPullIntervalId = window.setInterval(async () => {
     const result = await pullCloudStateIfNewerAndReplaceLocal();
     if (result.ok && result.changed) {
       refreshEntireUi();
       refreshCloudSyncStatusUi();
-      showToastMessage("Učitane su izmene iz clouda.", "success");
+      showToastMessage(t("toast.cloudPulled"), "success");
     }
-  }, 15000);
+  }, ms);
 }
 
 function downloadTextFile(filename, text, mimeType) {
@@ -218,7 +419,11 @@ function buildResultsCsvForSeason(state, seasonId) {
         match.status,
         match.homeScore != null ? match.homeScore : "",
         match.awayScore != null ? match.awayScore : "",
-        match.playedAt || "",
+        match.playedAt
+          ? typeof window.formatPesAppCsvDateTime === "function"
+            ? window.formatPesAppCsvDateTime(match.playedAt)
+            : match.playedAt
+          : "",
       ])
     );
   }
@@ -297,7 +502,7 @@ function bindForms() {
       }
       applyPesLeagueStateAndRefresh(result.state);
       addTeamForm.reset();
-      showToastMessage("Tim je sačuvan.", "success");
+      showToastMessage(t("toast.teamSaved"), "success");
     });
   }
 
@@ -319,7 +524,9 @@ function bindForms() {
         avatarDataUrl = await readImageFileAsAvatarDataUrl(file, 192);
       } catch (error) {
         showToastMessage(
-          `Avatar greška: ${error instanceof Error ? error.message : "neuspešno učitavanje"}`,
+          t("toast.avatarError", {
+            detail: error instanceof Error ? error.message : t("discovery.unknownErr"),
+          }),
           "error"
         );
         return;
@@ -338,7 +545,7 @@ function bindForms() {
       }
       applyPesLeagueStateAndRefresh(result.state);
       addPlayerForm.reset();
-      showToastMessage("Igrač je sačuvan.", "success");
+      showToastMessage(t("toast.playerSaved"), "success");
     });
   }
 
@@ -352,7 +559,7 @@ function bindForms() {
         (option) => option.value
       );
       if (selectedIds.length < 2) {
-        showToastMessage("Izaberite najmanje dva igrača.", "error");
+        showToastMessage(t("toast.playerNeedsTeam"), "error");
         return;
       }
       const state = getPesLeagueApplicationState();
@@ -363,7 +570,7 @@ function bindForms() {
       }
       applyPesLeagueStateAndRefresh(result.state);
       createSeasonForm.reset();
-      showToastMessage("Sezona je kreirana (nacrt).", "success");
+      showToastMessage(t("toast.seasonDraft"), "success");
     });
   }
 
@@ -387,7 +594,9 @@ function bindForms() {
         }
       } catch (error) {
         showToastMessage(
-          `Avatar greška: ${error instanceof Error ? error.message : "neuspešno učitavanje"}`,
+          t("toast.avatarError", {
+            detail: error instanceof Error ? error.message : t("discovery.unknownErr"),
+          }),
           "error"
         );
         return;
@@ -406,7 +615,7 @@ function bindForms() {
       }
       applyPesLeagueStateAndRefresh(result.state);
       closePlayerModal();
-      showToastMessage("Igrač je ažuriran.", "success");
+      showToastMessage(t("toast.playerUpdated"), "success");
     });
   }
 
@@ -435,7 +644,7 @@ function bindForms() {
       }
       applyPesLeagueStateAndRefresh(result.state);
       closeTeamModal();
-      showToastMessage("Tim je ažuriran.", "success");
+      showToastMessage(t("toast.teamUpdated"), "success");
     });
   }
 }
@@ -672,11 +881,11 @@ function bindTeamDiscoveryControls() {
       const queryInput = document.getElementById("pes-team-search-query");
       const query = String(queryInput ? queryInput.value : "").trim();
       if (!query) {
-        setTeamDiscoveryStatus("Unesite naziv za pretragu.", true);
+        setTeamDiscoveryStatus(t("discovery.enterQuery"), true);
         return;
       }
       try {
-        setTeamDiscoveryStatus("Učitavanje timova...", false);
+        setTeamDiscoveryStatus(t("discovery.loadingSearch"), false);
         const url = `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(query)}`;
         const data = await fetchApiJsonWithTimeout(url, 10000);
         const teams = Array.isArray(data.teams)
@@ -685,17 +894,12 @@ function bindTeamDiscoveryControls() {
         const enrichedTeams = await enrichTeamsWithWikipediaLogoFallback(teams);
         pesDiscoveredTeamsFromApi = enrichedTeams;
         renderDiscoveredTeamResults(enrichedTeams);
-        setTeamDiscoveryStatus(`Pronađeno timova: ${enrichedTeams.length}`, false);
+        setTeamDiscoveryStatus(t("discovery.foundCount", { n: String(enrichedTeams.length) }), false);
       } catch (error) {
         const isFileProtocol = window.location.protocol === "file:";
-        setTeamDiscoveryStatus(
-          `Greška pri pretrazi${
-            isFileProtocol ? " (probaj preko Netlify ili local servera)" : ""
-          }: ${
-            error instanceof Error ? error.message : "nepoznata greška"
-          }`,
-          true
-        );
+        const hint = isFileProtocol ? t("discovery.fileHint") : "";
+        const msg = error instanceof Error ? error.message : t("discovery.unknownErr");
+        setTeamDiscoveryStatus(t("discovery.searchFailed", { hint, msg }), true);
       }
     });
   }
@@ -707,11 +911,11 @@ function bindTeamDiscoveryControls() {
       const select = document.getElementById("pes-team-league-select");
       const leagueName = String(select ? select.value : "").trim();
       if (!leagueName) {
-        setTeamDiscoveryStatus("Izaberite ligu.", true);
+        setTeamDiscoveryStatus(t("discovery.pickLeague"), true);
         return;
       }
       try {
-        setTeamDiscoveryStatus("Učitavanje lige...", false);
+        setTeamDiscoveryStatus(t("discovery.loadingLeague"), false);
         const url = `https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=${encodeURIComponent(
           leagueName
         )}`;
@@ -722,17 +926,15 @@ function bindTeamDiscoveryControls() {
         const enrichedTeams = await enrichTeamsWithWikipediaLogoFallback(teams);
         pesDiscoveredTeamsFromApi = enrichedTeams;
         renderDiscoveredTeamResults(enrichedTeams);
-        setTeamDiscoveryStatus(`${leagueName} · timova: ${enrichedTeams.length}`, false);
+        setTeamDiscoveryStatus(
+          t("discovery.leagueCount", { name: leagueName, n: String(enrichedTeams.length) }),
+          false
+        );
       } catch (error) {
         const isFileProtocol = window.location.protocol === "file:";
-        setTeamDiscoveryStatus(
-          `Greška pri učitavanju lige${
-            isFileProtocol ? " (probaj preko Netlify ili local servera)" : ""
-          }: ${
-            error instanceof Error ? error.message : "nepoznata greška"
-          }`,
-          true
-        );
+        const hint = isFileProtocol ? t("discovery.fileHint") : "";
+        const msg = error instanceof Error ? error.message : t("discovery.unknownErr");
+        setTeamDiscoveryStatus(t("discovery.leagueFailed", { hint, msg }), true);
       }
     });
   }
@@ -766,7 +968,7 @@ function bindClickDelegation() {
       const playerId = deletePlayerButton.getAttribute("data-player-id");
       if (
         playerId &&
-        window.confirm("Da li ste sigurni da želite da obrišete igrača?")
+        window.confirmPesDangerous(t("confirm.deletePlayer"))
       ) {
         const state = getPesLeagueApplicationState();
         const result = deletePlayerFromState(state, playerId);
@@ -775,7 +977,7 @@ function bindClickDelegation() {
           return;
         }
         applyPesLeagueStateAndRefresh(result.state);
-        showToastMessage("Igrač je obrisan.", "success");
+        showToastMessage(t("toast.playerDeleted"), "success");
       }
       return;
     }
@@ -792,7 +994,7 @@ function bindClickDelegation() {
       const teamId = deleteTeamButton.getAttribute("data-team-id");
       if (
         teamId &&
-        window.confirm("Da li ste sigurni da želite da obrišete tim?")
+        window.confirmPesDangerous(t("confirm.deleteTeam"))
       ) {
         const state = getPesLeagueApplicationState();
         const result = deleteTeamFromState(state, teamId);
@@ -801,7 +1003,7 @@ function bindClickDelegation() {
           return;
         }
         applyPesLeagueStateAndRefresh(result.state);
-        showToastMessage("Tim je obrisan.", "success");
+        showToastMessage(t("toast.teamDeleted"), "success");
       }
       return;
     }
@@ -820,7 +1022,7 @@ function bindClickDelegation() {
       applyPesLeagueStateAndRefresh(result.state);
       setSelectedSeasonIdToSession(seasonId);
       showToastMessage(
-        `Raspored je generisan (${result.createdMatchesCount} mečeva).`,
+        t("toast.fixturesGenerated", { count: String(result.createdMatchesCount) }),
         "success"
       );
       return;
@@ -847,10 +1049,7 @@ function bindClickDelegation() {
         return;
       }
       applyPesLeagueStateAndRefresh(result.state);
-      showToastMessage(
-        nextFlag ? "Dupli krug: UKLJUČEN." : "Dupli krug: ISKLJUČEN.",
-        "success"
-      );
+      showToastMessage(nextFlag ? t("toast.doubleOn") : t("toast.doubleOff"), "success");
       return;
     }
     const resetSeasonButton = target.closest(".pes-reset-season");
@@ -859,7 +1058,7 @@ function bindClickDelegation() {
       if (!seasonId) {
         return;
       }
-      if (!window.confirm("Resetovaćete raspored ove sezone (bez odigranih mečeva). Nastaviti?")) {
+      if (!window.confirmPesDangerous(t("confirm.resetSeason"))) {
         return;
       }
       const state = getPesLeagueApplicationState();
@@ -869,7 +1068,7 @@ function bindClickDelegation() {
         return;
       }
       applyPesLeagueStateAndRefresh(result.state);
-      showToastMessage("Sezona je vraćena u nacrt.", "success");
+      showToastMessage(t("toast.seasonDraftReset"), "success");
       return;
     }
     const finishSeasonButton = target.closest(".pes-finish-season");
@@ -885,7 +1084,7 @@ function bindClickDelegation() {
         return;
       }
       applyPesLeagueStateAndRefresh(result.state);
-      showToastMessage("Sezona je označena kao završena.", "success");
+      showToastMessage(t("toast.seasonFinished"), "success");
       return;
     }
     const cloneSeasonButton = target.closest(".pes-clone-season");
@@ -894,7 +1093,7 @@ function bindClickDelegation() {
       if (!seasonId) {
         return;
       }
-      const proposedName = window.prompt("Naziv nove sezone:", "Nova sezona");
+      const proposedName = window.prompt(t("prompt.newSeasonName"), t("prompt.newSeasonDefault"));
       if (proposedName === null) {
         return;
       }
@@ -912,7 +1111,7 @@ function bindClickDelegation() {
       if (result.season) {
         setSelectedSeasonIdToSession(result.season.id);
       }
-      showToastMessage("Nova sezona (nacrt) je kreirana sa istim igračima.", "success");
+      showToastMessage(t("toast.seasonCloned"), "success");
       return;
     }
 
@@ -921,7 +1120,7 @@ function bindClickDelegation() {
       const indexValue = discoveredTeamButton.getAttribute("data-discovered-index");
       const index = Number.parseInt(String(indexValue || ""), 10);
       if (!Number.isFinite(index) || !pesDiscoveredTeamsFromApi[index]) {
-        showToastMessage("Izabrani API tim nije pronađen.", "error");
+        showToastMessage(t("toast.apiTeamMissing"), "error");
         return;
       }
       const apiTeam = pesDiscoveredTeamsFromApi[index];
@@ -941,14 +1140,14 @@ function bindClickDelegation() {
       );
       if (!result.ok) {
         if (result.existingTeam) {
-          showToastMessage("Tim već postoji u tvojoj listi.", "success");
+          showToastMessage(t("toast.teamExists"), "success");
         } else {
           showToastMessage(result.message, "error");
         }
         return;
       }
       applyPesLeagueStateAndRefresh(result.state);
-      showToastMessage(`Tim "${apiTeam.name}" je dodat.`, "success");
+      showToastMessage(t("toast.teamAdded", { name: apiTeam.name }), "success");
       return;
     }
   });
@@ -978,7 +1177,7 @@ function bindResultsDelegation() {
       return;
     }
     applyPesLeagueStateAndRefresh(result.state);
-    showToastMessage("Rezultat je sačuvan.", "success");
+    showToastMessage(t("toast.resultSaved"), "success");
   });
   document.body.addEventListener("click", (event) => {
     const target = event.target;
@@ -1002,14 +1201,14 @@ function bindResultsDelegation() {
         return;
       }
       applyPesLeagueStateAndRefresh(skipResult.state);
-      showToastMessage("Utakmica je preskočena. Možeš je odigrati kasnije.", "success");
+      showToastMessage(t("toast.matchSkipped"), "success");
       return;
     }
     const matchId = revertButton.getAttribute("data-match-id");
     if (!matchId) {
       return;
     }
-    if (!window.confirm("Poništiti rezultat i vratiti meč u zakazano?")) {
+    if (!window.confirmPesDangerous(t("confirm.revertMatch"))) {
       return;
     }
     const state = getPesLeagueApplicationState();
@@ -1019,7 +1218,7 @@ function bindResultsDelegation() {
       return;
     }
     applyPesLeagueStateAndRefresh(result.state);
-    showToastMessage("Meč je vraćen u zakazano.", "success");
+    showToastMessage(t("toast.matchReverted"), "success");
   });
 }
 
@@ -1030,14 +1229,14 @@ function bindExportButtons() {
       const state = getPesLeagueApplicationState();
       const seasonId = resolveSelectedSeasonId(state);
       if (!seasonId) {
-        showToastMessage("Izaberite sezonu.", "error");
+        showToastMessage(t("toast.pickSeason"), "error");
         return;
       }
       const csv = buildStandingsCsvForSeason(state, seasonId);
       const season = findSeasonById(state, seasonId);
       const safeName = (season ? season.name : "sezona").replace(/[^\w\-]+/g, "_");
       downloadTextFile(
-        `pes-tabela-${safeName}.csv`,
+        buildPesExportCsvFilename("standings", safeName),
         `\uFEFF${csv}`,
         "text/csv;charset=utf-8"
       );
@@ -1049,14 +1248,14 @@ function bindExportButtons() {
       const state = getPesLeagueApplicationState();
       const seasonId = resolveSelectedSeasonId(state);
       if (!seasonId) {
-        showToastMessage("Izaberite sezonu.", "error");
+        showToastMessage(t("toast.pickSeason"), "error");
         return;
       }
       const csv = buildStandingsCsvForSeason(state, seasonId);
       const season = findSeasonById(state, seasonId);
       const safeName = (season ? season.name : "sezona").replace(/[^\w\-]+/g, "_");
       downloadTextFile(
-        `pes-poredak-${safeName}.csv`,
+        buildPesExportCsvFilename("rankings", safeName),
         `\uFEFF${csv}`,
         "text/csv;charset=utf-8"
       );
@@ -1068,14 +1267,14 @@ function bindExportButtons() {
       const state = getPesLeagueApplicationState();
       const seasonId = resolveSelectedSeasonId(state);
       if (!seasonId) {
-        showToastMessage("Izaberite sezonu.", "error");
+        showToastMessage(t("toast.pickSeason"), "error");
         return;
       }
       const csv = buildResultsCsvForSeason(state, seasonId);
       const season = findSeasonById(state, seasonId);
       const safeName = (season ? season.name : "sezona").replace(/[^\w\-]+/g, "_");
       downloadTextFile(
-        `pes-rezultati-${safeName}.csv`,
+        buildPesExportCsvFilename("results", safeName),
         `\uFEFF${csv}`,
         "text/csv;charset=utf-8"
       );
@@ -1141,14 +1340,14 @@ function bindCloudControls() {
   const clearButton = document.getElementById("pes-cloud-clear");
   if (clearButton) {
     clearButton.addEventListener("click", async () => {
-      if (!window.confirm("Isključiti cloud sync i ostati samo na localStorage režimu?")) {
+      if (!window.confirmPesDangerous(t("confirm.disableCloud"))) {
         return;
       }
       clearPesLeagueCloudSettings();
       restartCloudPullLoop();
       refreshCloudSyncStatusUi();
       closeCloudModal();
-      showToastMessage("Cloud sync je isključen.", "success");
+      showToastMessage(t("toast.cloudDisabled"), "success");
     });
   }
 
@@ -1162,7 +1361,7 @@ function bindCloudControls() {
       setPesLeagueCloudSettings(supabaseUrl, supabaseAnonKey, leagueId);
       const hydrateResult = await hydratePesLeagueStateFromCloudIfEnabled();
       if (!hydrateResult.ok) {
-        showToastMessage(`Cloud greška: ${hydrateResult.message}`, "error");
+        showToastMessage(t("toast.cloudError", { detail: hydrateResult.message }), "error");
         refreshCloudSyncStatusUi();
         return;
       }
@@ -1170,27 +1369,28 @@ function bindCloudControls() {
       refreshCloudSyncStatusUi();
       restartCloudPullLoop();
       closeCloudModal();
-      showToastMessage("Cloud sync uspešno aktiviran.", "success");
+      showToastMessage(t("toast.cloudActivated"), "success");
     });
   }
 
   const syncNowButton = document.getElementById("pes-cloud-sync-now");
   if (syncNowButton) {
     syncNowButton.addEventListener("click", async () => {
+      closeHeaderMobileMenu();
       if (!isPesLeagueCloudSyncEnabled()) {
-        showToastMessage("Cloud nije podešen. Otvorite Cloud podešavanja.", "error");
+        showToastMessage(t("toast.cloudNotSet"), "error");
         return;
       }
       const result = await pullCloudStateIfNewerAndReplaceLocal();
       if (!result.ok) {
-        showToastMessage(`Sync greška: ${result.message}`, "error");
+        showToastMessage(t("toast.syncError", { detail: result.message }), "error");
         return;
       }
       if (result.changed) {
         refreshEntireUi();
-        showToastMessage("Učitane su najnovije izmene iz clouda.", "success");
+        showToastMessage(t("toast.cloudSynced"), "success");
       } else {
-        showToastMessage("Cloud je već ažuran.", "success");
+        showToastMessage(t("toast.cloudCurrent"), "success");
       }
       refreshCloudSyncStatusUi();
     });
@@ -1198,7 +1398,10 @@ function bindCloudControls() {
 }
 
 async function initializePesLeagueApplication() {
+  window.applyPesAppSettingsToDom();
+  applyPesI18nToDocument();
   loadPesLeagueStateFromStorage();
+  window.applyPesStartupViewFromSettings();
   bindNavigationButtons();
   if (typeof initPes6UiSounds === "function") {
     initPes6UiSounds();
@@ -1212,20 +1415,32 @@ async function initializePesLeagueApplication() {
   bindExportButtons();
   bindModalControls();
   bindCloudControls();
+  bindAppSettingsModal();
+  bindHeaderMobileMenu();
   bindTeamDiscoveryControls();
-  window.addEventListener("hashchange", handleHashChange);
-  if (!window.location.hash) {
-    window.location.hash = "#/dashboard";
-  }
+  document.addEventListener("pes-app-settings-changed", () => {
+    applyPesI18nToDocument();
+    refreshCloudSyncStatusUi();
+    refreshEntireUi();
+    restartCloudPullLoop();
+    if (typeof window.refreshPes6UiSoundLabels === "function") {
+      window.refreshPes6UiSoundLabels();
+    }
+  });
+  window.addEventListener("hashchange", () => {
+    window.rememberPesLastViewFromHash();
+    handleHashChange();
+  });
   if (isPesLeagueCloudSyncEnabled()) {
     const hydrateResult = await hydratePesLeagueStateFromCloudIfEnabled();
     if (!hydrateResult.ok) {
-      showToastMessage(`Cloud greška: ${hydrateResult.message}`, "error");
+      showToastMessage(t("toast.cloudError", { detail: hydrateResult.message }), "error");
     }
   }
   refreshEntireUi();
   refreshCloudSyncStatusUi();
   restartCloudPullLoop();
+  window.rememberPesLastViewFromHash();
 }
 
 document.addEventListener("DOMContentLoaded", initializePesLeagueApplication);

@@ -19,18 +19,18 @@ function findSeasonById(state, seasonId) {
 function createDraftSeasonInState(state, name, playerIds) {
   const trimmedName = String(name || "").trim();
   if (!trimmedName) {
-    return { ok: false, message: "Naziv sezone je obavezan." };
+    return { ok: false, message: t("error.seasonNameRequired") };
   }
   const uniquePlayerIds = Array.from(new Set(playerIds || [])).filter(Boolean);
   if (uniquePlayerIds.length < 2) {
     return {
       ok: false,
-      message: "Potrebna su najmanje 2 igrača za sezonu.",
+      message: t("error.seasonMinPlayers"),
     };
   }
   for (const playerId of uniquePlayerIds) {
     if (!findPlayerById(state, playerId)) {
-      return { ok: false, message: "Jedan od igrača ne postoji." };
+      return { ok: false, message: t("error.seasonPlayerMissing") };
     }
   }
   const newSeason = {
@@ -51,12 +51,12 @@ function createDraftSeasonInState(state, name, playerIds) {
 function updateSeasonDoubleRoundRobinFlag(state, seasonId, isDoubleRoundRobin) {
   const season = findSeasonById(state, seasonId);
   if (!season) {
-    return { ok: false, message: "Sezona nije pronađena." };
+    return { ok: false, message: t("error.seasonNotFound") };
   }
   if (season.status !== "draft") {
     return {
       ok: false,
-      message: "Dupli krug može da se podešava samo u nacrtu pre generisanja rasporeda.",
+      message: t("error.doubleRoundDraft"),
     };
   }
   const nextState = cloneDeepJson(state);
@@ -71,12 +71,12 @@ function updateSeasonDoubleRoundRobinFlag(state, seasonId, isDoubleRoundRobin) {
 function setSeasonStatusInState(state, seasonId, status) {
   const allowed = ["draft", "active", "finished"];
   if (!allowed.includes(status)) {
-    return { ok: false, message: "Nepoznat status sezone." };
+    return { ok: false, message: t("error.seasonBadStatus") };
   }
   const nextState = cloneDeepJson(state);
   const index = nextState.seasons.findIndex((season) => season.id === seasonId);
   if (index === -1) {
-    return { ok: false, message: "Sezona nije pronađena." };
+    return { ok: false, message: t("error.seasonNotFound") };
   }
   nextState.seasons[index] = {
     ...nextState.seasons[index],
@@ -88,7 +88,7 @@ function setSeasonStatusInState(state, seasonId, status) {
 function resetSeasonToDraftInState(state, seasonId) {
   const season = findSeasonById(state, seasonId);
   if (!season) {
-    return { ok: false, message: "Sezona nije pronađena." };
+    return { ok: false, message: t("error.seasonNotFound") };
   }
   const played = state.matches.some(
     (match) => match.seasonId === seasonId && match.status === "played"
@@ -96,8 +96,7 @@ function resetSeasonToDraftInState(state, seasonId) {
   if (played) {
     return {
       ok: false,
-      message:
-        "Reset nije moguć jer postoje odigrane utakmice. Završite ili arhivirajte sezonu drugačije.",
+      message: t("error.resetHasPlayed"),
     };
   }
   const nextState = cloneDeepJson(state);
@@ -120,11 +119,11 @@ function createNewDraftSeasonWithSamePlayersFromFinishedSeason(
 ) {
   const source = findSeasonById(state, sourceSeasonId);
   if (!source) {
-    return { ok: false, message: "Izvorna sezona ne postoji." };
+    return { ok: false, message: t("error.sourceSeasonMissing") };
   }
   const trimmedName = String(newName || "").trim();
   if (!trimmedName) {
-    return { ok: false, message: "Naziv nove sezone je obavezan." };
+    return { ok: false, message: t("error.newSeasonNameRequired") };
   }
   const playerIds = Array.isArray(source.playerIds) ? source.playerIds.slice() : [];
   const stillExisting = playerIds.filter((playerId) =>
@@ -133,7 +132,7 @@ function createNewDraftSeasonWithSamePlayersFromFinishedSeason(
   if (stillExisting.length < 2) {
     return {
       ok: false,
-      message: "Nedovoljno postojećih igrača za novu sezonu.",
+      message: t("error.newSeasonPlayers"),
     };
   }
   return createDraftSeasonInState(state, trimmedName, stillExisting);

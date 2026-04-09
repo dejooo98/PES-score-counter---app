@@ -59,11 +59,11 @@ function addPlayerToState(
 ) {
   const trimmedFirst = String(firstName || "").trim();
   if (!trimmedFirst) {
-    return { ok: false, message: "Ime je obavezno." };
+    return { ok: false, message: t("error.playerNameRequired") };
   }
   const team = findTeamById(state, teamId);
   if (!team) {
-    return { ok: false, message: "Izaberite validan tim." };
+    return { ok: false, message: t("error.pickValidTeam") };
   }
   const newPlayer = {
     id: generateUniqueId(),
@@ -88,15 +88,15 @@ function updatePlayerInState(
 ) {
   const trimmedFirst = String(firstName || "").trim();
   if (!trimmedFirst) {
-    return { ok: false, message: "Ime je obavezno." };
+    return { ok: false, message: t("error.playerNameRequired") };
   }
   const team = findTeamById(state, teamId);
   if (!team) {
-    return { ok: false, message: "Izaberite validan tim." };
+    return { ok: false, message: t("error.pickValidTeam") };
   }
   const index = state.players.findIndex((player) => player.id === playerId);
   if (index === -1) {
-    return { ok: false, message: "Igrač nije pronađen." };
+    return { ok: false, message: t("error.playerNotFound") };
   }
   const nextState = cloneDeepJson(state);
   nextState.players[index] = {
@@ -114,8 +114,7 @@ function deletePlayerFromState(state, playerId) {
   if (playedCount > 0) {
     return {
       ok: false,
-      message:
-        "Brisanje nije dozvoljeno jer igrač ima odigrane utakmice. Uklonite ili izmenite rezultate prvo.",
+      message: t("error.playerDeletePlayed"),
     };
   }
   const matchRefs = state.matches.some(
@@ -125,8 +124,7 @@ function deletePlayerFromState(state, playerId) {
   if (matchRefs) {
     return {
       ok: false,
-      message:
-        "Igrač se pojavljuje u rasporedu. Resetujte sezonu ili obrišite utakmice pre brisanja igrača.",
+      message: t("error.playerDeleteScheduled"),
     };
   }
   const nextState = cloneDeepJson(state);

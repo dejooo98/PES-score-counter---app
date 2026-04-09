@@ -32,13 +32,13 @@ function addTeamToState(
 ) {
   const trimmedName = String(name || "").trim();
   if (!trimmedName) {
-    return { ok: false, message: "Naziv tima je obavezan." };
+    return { ok: false, message: t("error.teamNameRequired") };
   }
   const duplicate = findExistingTeamByNormalizedName(state, trimmedName);
   if (duplicate) {
     return {
       ok: false,
-      message: "Tim sa istim ili sličnim nazivom već postoji. Izaberite postojeći tim.",
+      message: t("error.teamDuplicate"),
       existingTeam: duplicate,
     };
   }
@@ -71,11 +71,11 @@ function updateTeamInState(
 ) {
   const trimmedName = String(name || "").trim();
   if (!trimmedName) {
-    return { ok: false, message: "Naziv tima je obavezan." };
+    return { ok: false, message: t("error.teamNameRequired") };
   }
   const index = state.teams.findIndex((team) => team.id === teamId);
   if (index === -1) {
-    return { ok: false, message: "Tim nije pronađen." };
+    return { ok: false, message: t("error.teamNotFound") };
   }
   const otherDuplicate = state.teams.find(
     (team, teamIndex) =>
@@ -111,7 +111,7 @@ function deleteTeamFromState(state, teamId) {
   if (usedByPlayer) {
     return {
       ok: false,
-      message: "Tim se koristi kod igrača. Dodelite drugi tim igračima pre brisanja.",
+      message: t("error.teamHasPlayers"),
     };
   }
   const nextState = cloneDeepJson(state);
@@ -133,7 +133,7 @@ function resolveOrCreateTeamForPlayer(
   }
   const trimmed = String(teamNameInput || "").trim();
   if (!trimmed) {
-    return { ok: false, message: "Unesite naziv novog tima ili izaberite postojeći." };
+    return { ok: false, message: t("error.teamNameOrSelect") };
   }
   const existing = findExistingTeamByNormalizedName(state, trimmed);
   if (existing) {

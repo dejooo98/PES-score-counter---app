@@ -37,6 +37,9 @@ function escapeHtml(text) {
 }
 
 function formatIsoDateToDisplay(isoString) {
+  if (typeof window.formatPesAppDateTimeForDisplay === "function") {
+    return window.formatPesAppDateTimeForDisplay(isoString);
+  }
   if (!isoString) {
     return "—";
   }
@@ -52,6 +55,9 @@ function formatIsoDateToDisplay(isoString) {
 }
 
 function formatDateOnly(isoString) {
+  if (typeof window.formatPesAppDateForDisplay === "function") {
+    return window.formatPesAppDateForDisplay(isoString);
+  }
   if (!isoString) {
     return "—";
   }
