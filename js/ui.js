@@ -174,6 +174,7 @@ function renderStatCard(title, value, subtitle) {
 
 function renderPlayersView(state) {
   const tableBody = document.getElementById("pes-players-table-body");
+  const cardsRoot = document.getElementById("pes-players-cards-root");
   const profileRoot = document.getElementById("pes-player-profile-root");
   const searchInput = document.getElementById("pes-player-search-input");
   if (!tableBody || !profileRoot) {
@@ -219,6 +220,49 @@ function renderPlayersView(state) {
     `<tr><td colspan="4" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
       t("players.empty")
     )}</td></tr>`;
+
+  if (cardsRoot) {
+    const cards = players
+      .map((player) => {
+        const team = findTeamById(state, player.teamId);
+        const teamLabel = team ? team.name : "—";
+        const avatarUrl = resolvePlayerAvatarUrl(player);
+        const name = escapeHtml(getPlayerDisplayName(player));
+        const dateStr = formatDateOnly(player.createdAt);
+        return `
+      <article class="pes-player-card rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div class="flex gap-3">
+          <img src="${escapeHtml(avatarUrl)}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover ring-1 ring-slate-200" />
+          <div class="min-w-0 flex-1">
+            <div class="text-base font-semibold leading-snug text-slate-900">${name}</div>
+            <div class="mt-1 text-sm text-slate-600">
+              <span class="font-medium text-slate-500">${escapeHtml(t("players.card.team"))}</span>
+              ${escapeHtml(teamLabel)}
+            </div>
+            <div class="mt-0.5 text-xs text-slate-500">
+              <span class="font-medium text-slate-500">${escapeHtml(t("players.card.added"))}</span>
+              ${escapeHtml(dateStr)}
+            </div>
+            <div class="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-100 pt-3">
+              <button type="button" class="text-sm font-medium text-indigo-600 hover:underline pes-open-player-profile" data-player-id="${escapeHtml(
+                player.id
+              )}">${escapeHtml(t("players.profile"))}</button>
+              <button type="button" class="text-sm font-medium text-indigo-600 hover:underline pes-edit-player" data-player-id="${escapeHtml(
+                player.id
+              )}">${escapeHtml(t("players.edit"))}</button>
+              <button type="button" class="text-sm font-medium text-rose-600 hover:underline pes-delete-player" data-player-id="${escapeHtml(
+                player.id
+              )}">${escapeHtml(t("players.delete"))}</button>
+            </div>
+          </div>
+        </div>
+      </article>`;
+      })
+      .join("");
+    cardsRoot.innerHTML =
+      cards ||
+      `<p class="px-2 py-8 text-center text-sm text-slate-500">${escapeHtml(t("players.empty"))}</p>`;
+  }
 
   if (!players.length) {
     profileRoot.innerHTML = `<p class="text-sm text-slate-500">${escapeHtml(t("players.profileEmpty"))}</p>`;
