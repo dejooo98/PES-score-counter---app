@@ -11,7 +11,7 @@ const PES_APP_SETTINGS_DEFAULTS = {
   textScale: "md",
   strongFocus: false,
   largeTouch: false,
-  cloudPullIntervalSec: 15,
+  cloudPullIntervalSec: 3600,
   confirmDangerousActions: true,
   toastDurationKey: "normal",
   suppressSuccessToasts: false,
@@ -38,7 +38,15 @@ function sanitizePesAppSettings(raw) {
     next.strongFocus = Boolean(raw.strongFocus);
     next.largeTouch = Boolean(raw.largeTouch);
     const pull = Number(raw.cloudPullIntervalSec);
-    if (pull === 0 || pull === 15 || pull === 30 || pull === 60) {
+    if (
+      pull === 0 ||
+      pull === 15 ||
+      pull === 30 ||
+      pull === 60 ||
+      pull === 1800 ||
+      pull === 3600 ||
+      pull === 7200
+    ) {
       next.cloudPullIntervalSec = pull;
     }
     next.confirmDangerousActions = raw.confirmDangerousActions !== false;

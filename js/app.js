@@ -3,6 +3,7 @@
  */
 
 let pesLeagueCloudPullIntervalId = null;
+let pesLastVisibilityCloudPullAt = 0;
 let pesDiscoveredTeamsFromApi = [];
 const PES_WIKIPEDIA_LOGO_CACHE = {};
 
@@ -303,9 +304,25 @@ function openCloudModal() {
   closeHeaderMobileMenu();
   closeAppSettingsModal();
   const settings = getPesLeagueCloudSettings();
-  document.getElementById("pes-cloud-supabase-url").value = settings.supabaseUrl;
-  document.getElementById("pes-cloud-supabase-anon-key").value = settings.supabaseAnonKey;
-  document.getElementById("pes-cloud-league-id").value = settings.leagueId;
+  const leagueEl = document.getElementById("pes-cloud-league-id");
+  const introSimple = document.getElementById("pes-cloud-intro-simple");
+  const introPresetMissing = document.getElementById("pes-cloud-intro-preset-missing");
+  const submitBtn = document.getElementById("pes-cloud-submit");
+
+  leagueEl.value = settings.leagueId;
+
+  const presetOk = isPesCloudPresetComplete();
+  if (presetOk) {
+    introSimple.classList.remove("hidden");
+    introPresetMissing.classList.add("hidden");
+  } else {
+    introSimple.classList.add("hidden");
+    introPresetMissing.classList.remove("hidden");
+  }
+  if (submitBtn) {
+    submitBtn.disabled = !presetOk;
+  }
+
   const modal = document.getElementById("pes-cloud-modal");
   modal.classList.remove("hidden");
   modal.classList.add("flex");
@@ -328,7 +345,7 @@ function restartCloudPullLoop() {
   const ms =
     typeof window.getPesCloudPullIntervalMs === "function"
       ? window.getPesCloudPullIntervalMs()
-      : 15000;
+      : 3600000;
   if (!ms || ms <= 0) {
     return;
   }
@@ -340,6 +357,48 @@ function restartCloudPullLoop() {
       showToastMessage(t("toast.cloudPulled"), "success");
     }
   }, ms);
+}
+
+function runCloudPullAfterTabVisible() {
+  if (!isPesLeagueCloudSyncEnabled()) {
+    return;
+  }
+  const intervalMs =
+    typeof window.getPesCloudPullIntervalMs === "function"
+      ? window.getPesCloudPullIntervalMs()
+      : 0;
+  if (!intervalMs || intervalMs <= 0) {
+    return;
+  }
+  const now = Date.now();
+  if (now - pesLastVisibilityCloudPullAt < 45000) {
+    return;
+  }
+  pesLastVisibilityCloudPullAt = now;
+  void (async () => {
+    const result = await pullCloudStateIfNewerAndReplaceLocal();
+    if (result.ok && result.changed) {
+      refreshEntireUi();
+      refreshCloudSyncStatusUi();
+      showToastMessage(t("toast.cloudPulled"), "success");
+    } else if (result.ok) {
+      refreshCloudSyncStatusUi();
+    }
+  })();
+}
+
+function bindVisibilityCloudPull() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") {
+      return;
+    }
+    runCloudPullAfterTabVisible();
+  });
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      runCloudPullAfterTabVisible();
+    }
+  });
 }
 
 function downloadTextFile(filename, text, mimeType) {
@@ -1378,9 +1437,18 @@ function bindCloudControls() {
   if (cloudForm) {
     cloudForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const supabaseUrl = document.getElementById("pes-cloud-supabase-url").value;
-      const supabaseAnonKey = document.getElementById("pes-cloud-supabase-anon-key").value;
-      const leagueId = document.getElementById("pes-cloud-league-id").value;
+      const leagueId = String(document.getElementById("pes-cloud-league-id").value || "").trim();
+      const preset = getPesCloudPresetDefaults();
+      const supabaseUrl = preset.supabaseUrl;
+      const supabaseAnonKey = preset.supabaseAnonKey;
+      if (!leagueId) {
+        showToastMessage(t("error.leagueIdRequired"), "error");
+        return;
+      }
+      if (!supabaseUrl || !supabaseAnonKey) {
+        showToastMessage(t("error.cloudIncomplete"), "error");
+        return;
+      }
       setPesLeagueCloudSettings(supabaseUrl, supabaseAnonKey, leagueId);
       const hydrateResult = await hydratePesLeagueStateFromCloudIfEnabled();
       if (!hydrateResult.ok) {
@@ -1441,6 +1509,7 @@ async function initializePesLeagueApplication() {
   bindAppSettingsModal();
   bindHeaderMobileMenu();
   bindTeamDiscoveryControls();
+  bindVisibilityCloudPull();
   document.addEventListener("pes-app-settings-changed", () => {
     applyPesI18nToDocument();
     refreshCloudSyncStatusUi();

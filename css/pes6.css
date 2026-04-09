@@ -55,6 +55,9 @@
 
 body.pes6-app {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
   background-color: var(--pes-bg-c);
   background-image:
     radial-gradient(ellipse 90% 70% at 5% 10%, var(--pes-swoosh) 0%, transparent 55%),
@@ -84,6 +87,12 @@ body.pes6-app::before {
 .pes6-app .pes6-root {
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-x: clip;
+  box-sizing: border-box;
 }
 
 /* --- Top bar (logo traka) --- */
@@ -228,6 +237,9 @@ body.pes6-app.pes6-header-menu-locked {
 /* --- Layout: sidebar + sadržaj --- */
 .pes6-app .pes6-layout {
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .pes6-app .pes6-sidebar {
@@ -235,6 +247,8 @@ body.pes6-app.pes6-header-menu-locked {
   box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35);
   border-color: rgba(0, 0, 0, 0.55) !important;
   position: relative;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pes6-app .pes6-sidebar::before {
@@ -337,11 +351,31 @@ body.pes6-app.pes6-header-menu-locked {
 /* --- Glavni panel (ugaoni „glass“ blok) --- */
 .pes6-app .pes6-content {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, transparent 12%);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pes6-app .pes6-main {
   flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   color: var(--pes-chrome-text);
+}
+
+/* Grid / flex unutar main — sprečava širenje širine od sadržaja (mobilni „pucanje“) */
+.pes6-app .pes6-main > section {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.pes6-app .pes6-main section > .grid {
+  min-width: 0;
+}
+
+.pes6-app .pes6-main section > .grid > * {
+  min-width: 0;
 }
 
 /* Naslovi ekrana — PES stil (svi h2 u glavnom sadržaju, i ugnježđeni u redovima) */
@@ -360,6 +394,8 @@ body.pes6-app.pes6-header-menu-locked {
     0 4px 0 #000;
   margin-bottom: 0.75rem;
   line-height: 1.1;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Sekundarni tekst u „tamnom“ delu (naslovi izvan kartica) */
@@ -757,7 +793,9 @@ body.pes6-app.pes6-header-menu-locked {
       max(0.5rem, env(safe-area-inset-right, 0));
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
-    mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+    /* Samo desni ivični fade — levo transparent je secao prvi link (Dashboard) */
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 14px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 14px), transparent 100%);
   }
 
   .pes6-app .pes6-side-nav .pes6-nav-btn {
@@ -770,6 +808,8 @@ body.pes6-app.pes6-header-menu-locked {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
+    /* skew izlazi van box-a i na uskim ekranima zbunjuje; na telefonu ravno */
+    transform: none;
   }
 
   .pes6-app .pes-header-tools-row {

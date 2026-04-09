@@ -138,6 +138,28 @@ function clearPesLeagueCloudSettings() {
   setPesLeagueCloudSettings("", "", "");
 }
 
+function getPesCloudPresetDefaults() {
+  try {
+    const preset = window.PES_CLOUD_PRESET;
+    if (!preset || typeof preset !== "object") {
+      return { supabaseUrl: "", supabaseAnonKey: "" };
+    }
+    return {
+      supabaseUrl: String(preset.supabaseUrl || "")
+        .trim()
+        .replace(/\/+$/, ""),
+      supabaseAnonKey: String(preset.supabaseAnonKey || "").trim(),
+    };
+  } catch {
+    return { supabaseUrl: "", supabaseAnonKey: "" };
+  }
+}
+
+function isPesCloudPresetComplete() {
+  const d = getPesCloudPresetDefaults();
+  return Boolean(d.supabaseUrl && d.supabaseAnonKey);
+}
+
 function isPesLeagueCloudSyncEnabled() {
   return Boolean(
     pesLeagueCloudSettings.supabaseUrl &&

@@ -65,6 +65,9 @@ const I18N_SR = {
   "settings.interval15": "Na 15 s",
   "settings.interval30": "Na 30 s",
   "settings.interval60": "Na 1 min",
+  "settings.interval30min": "Na 30 min",
+  "settings.interval1h": "Na 1 sat",
+  "settings.interval2h": "Na 2 sata",
   "settings.confirmDanger": "Pitaj pre brisanja / rizičnih akcija",
   "settings.toastDuration": "Trajanje obaveštenja (toast)",
   "settings.toastShort": "Kratko",
@@ -244,11 +247,14 @@ const I18N_SR = {
     "Podaci se čuvaju u localStorage (i opcionalno cloud sync preko Supabase) ključu {code}. Možete napraviti rezervnu kopiju preko exporta JSON-a u konzoli: {fn}",
 
   "cloud.modalTitle": "Cloud sync (Supabase + Netlify)",
-  "cloud.modalIntro":
-    "Svi uređaji moraju koristiti isti URL, anon key i League ID da bi delili istu ligu.",
+  "cloud.modalIntroSimple":
+    "Unesi samo League ID koji si dobio od admina lige. Ostalo je već u podešavanjima aplikacije (cloud-preset.js).",
+  "cloud.modalIntroPresetMissing":
+    "Ova verzija sajta nema podešen cloud server. Obrati se adminu lige (mora biti popunjen fajl cloud-preset.js u aplikaciji).",
   "cloud.url": "Supabase URL",
   "cloud.anon": "Supabase anon key",
-  "cloud.leagueId": "League ID (npr. seoski-liga-2026)",
+  "cloud.leagueId": "League ID (šifra lige)",
+  "cloud.leagueIdPlaceholder": "npr. PES - RISHUB",
   "cloud.disable": "Isključi cloud",
   "cloud.cancel": "Otkaži",
   "cloud.saveConnect": "Sačuvaj i poveži",
@@ -313,6 +319,9 @@ const I18N_SR = {
   "discovery.leagueCount": "{name} · timova: {n}",
 
   "error.cloudNotConfigured": "Cloud sync nije podešen.",
+  "error.cloudIncomplete":
+    "Nedostaje Supabase URL ili anon ključ u cloud-preset.js. Admin mora da ih doda i ponovo objavi sajt.",
+  "error.leagueIdRequired": "Unesi League ID (šifru lige).",
   "error.playerNameRequired": "Ime je obavezno.",
   "error.pickValidTeam": "Izaberite validan tim.",
   "error.playerNotFound": "Igrač nije pronađen.",
@@ -449,6 +458,9 @@ const I18N_EN = {
   "settings.interval15": "Every 15 s",
   "settings.interval30": "Every 30 s",
   "settings.interval60": "Every 1 min",
+  "settings.interval30min": "Every 30 min",
+  "settings.interval1h": "Every 1 hour",
+  "settings.interval2h": "Every 2 hours",
   "settings.confirmDanger": "Confirm before delete / risky actions",
   "settings.toastDuration": "Toast duration",
   "settings.toastShort": "Short",
@@ -640,10 +652,14 @@ const I18N_EN = {
     "Data is stored in localStorage (and optional cloud via Supabase) under {code}. Backup via JSON export in console: {fn}",
 
   "cloud.modalTitle": "Cloud sync (Supabase + Netlify)",
-  "cloud.modalIntro": "All devices need the same URL, anon key and League ID to share one league.",
+  "cloud.modalIntroSimple":
+    "Enter only the League ID from your league admin. The rest is set in the app (cloud-preset.js).",
+  "cloud.modalIntroPresetMissing":
+    "This site build has no cloud server configured. Contact your league admin (cloud-preset.js must be filled in the app).",
   "cloud.url": "Supabase URL",
   "cloud.anon": "Supabase anon key",
-  "cloud.leagueId": "League ID (e.g. village-2026)",
+  "cloud.leagueId": "League ID",
+  "cloud.leagueIdPlaceholder": "e.g. PES - RISHUB",
   "cloud.disable": "Disable cloud",
   "cloud.cancel": "Cancel",
   "cloud.saveConnect": "Save & connect",
@@ -708,6 +724,9 @@ const I18N_EN = {
   "discovery.leagueCount": "{name} · teams: {n}",
 
   "error.cloudNotConfigured": "Cloud sync is not configured.",
+  "error.cloudIncomplete":
+    "Supabase URL or anon key is missing from cloud-preset.js. The admin must add them and redeploy.",
+  "error.leagueIdRequired": "Enter the League ID.",
   "error.playerNameRequired": "First name is required.",
   "error.pickValidTeam": "Pick a valid team.",
   "error.playerNotFound": "Player not found.",
