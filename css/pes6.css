@@ -1,0 +1,696 @@
+/**
+ * PES 6 — konzolni meni (vertikalni sidebar, zlatna selekcija, „arcade“ tipografija).
+ * Učitati posle Tailwind CDN. Koren: body.pes6-app
+ */
+
+.pes6-app {
+  /* Pozadina — maslinasta / „menu BG“ */
+  --pes-bg-a: #8a8270;
+  --pes-bg-b: #6e6758;
+  --pes-bg-c: #4f4a3f;
+  --pes-swoosh: rgba(200, 192, 170, 0.35);
+
+  /* Zlatna traka (selection) */
+  --pes-gold-top: #fff6a8;
+  --pes-gold: #f0d040;
+  --pes-gold-deep: #b89418;
+  --pes-gold-edge: #5c4810;
+
+  /* PES plavi akcent (kontura menija) */
+  --pes-blue-mid: #2a4f78;
+  --pes-blue-dark: #152d4a;
+  --pes-blue-glow: #4a7dae;
+
+  --pes-ink: #141210;
+  --pes-ink-soft: #2c2a26;
+
+  /* Lista / panel kao Sound Settings */
+  --pes-list-a: #e2e6e2;
+  --pes-list-b: #d4d9d4;
+  --pes-list-head: linear-gradient(180deg, #c5ccc8 0%, #a8b0ab 100%);
+
+  --pes-sidebar: linear-gradient(180deg, #35393e 0%, #25282c 55%, #1a1c20 100%);
+  --pes-metal: linear-gradient(180deg, #eceee9 0%, #c9cfc9 45%, #aeb6ae 100%);
+
+  --pes-danger: #8b2e28;
+  --pes-ok: #2f5c42;
+  --pes-teal: #3ebfaf;
+
+  /* Tekst na tamnoj pozadini (glavni sadržaj, ivice ekrana) */
+  --pes-chrome-text: #e9ece4;
+  --pes-chrome-muted: rgba(232, 234, 228, 0.86);
+
+  --pes-font-arcade: "Bebas Neue", "Impact", "Arial Narrow", sans-serif;
+  --pes-font-ui: "Oswald", "Segoe UI", system-ui, sans-serif;
+}
+
+/* --- Baza --- */
+.pes6-app {
+  font-family: var(--pes-font-ui);
+  font-weight: 500;
+  color: var(--pes-chrome-text);
+  letter-spacing: 0.03em;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.pes6-app {
+  min-height: 100vh;
+  background-color: var(--pes-bg-c);
+  background-image:
+    radial-gradient(ellipse 90% 70% at 5% 10%, var(--pes-swoosh) 0%, transparent 55%),
+    radial-gradient(ellipse 75% 55% at 92% 85%, var(--pes-swoosh) 0%, transparent 50%),
+    linear-gradient(168deg, var(--pes-bg-a) 0%, var(--pes-bg-b) 45%, var(--pes-bg-c) 100%);
+}
+
+body.pes6-app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.035) 0px,
+      rgba(0, 0, 0, 0.035) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+.pes6-app #pes-app-root,
+.pes6-app .pes6-root {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Top bar (logo traka) --- */
+.pes6-app .pes6-top-bar {
+  border-bottom: 3px solid #0a0a0a !important;
+  background: linear-gradient(180deg, #3d4147 0%, #2a2d32 50%, #1f2125 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.45);
+  backdrop-filter: none !important;
+}
+
+.pes6-app .pes6-top-bar__inner label,
+.pes6-app .pes6-tagline {
+  color: #c8ccc9 !important;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.08em;
+}
+
+.pes6-app .pes6-tagline {
+  text-transform: none;
+  letter-spacing: 0.04em;
+  opacity:0.9;
+}
+
+.pes6-app .pes6-logo-title {
+  font-family: var(--pes-font-arcade);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  line-height: 1.05;
+  text-transform: uppercase;
+  font-size: clamp(1.6rem, 4vw, 2.15rem) !important;
+}
+
+.pes6-app .pes6-logo-gold {
+  color: #f5e878 !important;
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000,
+    0 3px 0 #000,
+    0 0 12px rgba(240, 208, 64, 0.55);
+}
+
+.pes6-app .pes6-logo-white {
+  color: #f7f8f5 !important;
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000,
+    0 3px 0 #000;
+}
+
+/* --- Layout: sidebar + sadržaj --- */
+.pes6-app .pes6-layout {
+  min-height: 0;
+}
+
+.pes6-app .pes6-sidebar {
+  background: var(--pes-sidebar);
+  box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35);
+  border-color: rgba(0, 0, 0, 0.55) !important;
+  position: relative;
+}
+
+.pes6-app .pes6-sidebar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--pes-blue-glow) 0%, var(--pes-blue-mid) 50%, var(--pes-blue-dark) 100%);
+  pointer-events: none;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.pes6-app .pes6-side-nav {
+  scrollbar-width: thin;
+}
+
+/* Konzolni dugmići — blago nagnuti kao PES lista */
+.pes6-app .pes6-nav-btn {
+  position: relative;
+  flex-shrink: 0;
+  display: block;
+  width: auto;
+  min-width: max(100%, 7rem);
+  margin-left: 0;
+  padding: 0.55rem 0.75rem 0.55rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #b9bdc0 !important;
+  font-family: var(--pes-font-arcade) !important;
+  font-weight: 400 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  text-align: left;
+  cursor: pointer;
+  transform: skewX(-6deg);
+  transition:
+    color 0.1s ease,
+    background 0.1s ease,
+    box-shadow 0.1s ease,
+    border-color 0.1s ease;
+}
+
+@media (min-width: 768px) {
+  .pes6-app .pes6-nav-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.pes6-app .pes6-nav-btn:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Aktivna stavka — zlatna traka (Tailwind + naša klasa) */
+.pes6-app .pes6-nav-btn.pes6-nav--active,
+.pes6-app .pes6-nav-btn.bg-indigo-600 {
+  color: #1a1204 !important;
+  border: 2px solid var(--pes-gold-edge) !important;
+  background: linear-gradient(
+    180deg,
+    var(--pes-gold-top) 0%,
+    var(--pes-gold) 38%,
+    var(--pes-gold-deep) 100%
+  ) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.2),
+    3px 3px 0 rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.pes6-app .pes6-nav-btn.text-white {
+  color: #1a1204 !important;
+}
+
+/* --- Glavni panel (ugaoni „glass“ blok) --- */
+.pes6-app .pes6-content {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, transparent 12%);
+}
+
+.pes6-app .pes6-main {
+  flex: 1;
+  color: var(--pes-chrome-text);
+}
+
+/* Naslovi ekrana — PES stil (svi h2 u glavnom sadržaju, i ugnježđeni u redovima) */
+.pes6-app .pes6-main h2 {
+  font-family: var(--pes-font-arcade);
+  font-weight: 400;
+  font-size: clamp(1.45rem, 4.2vw, 2.35rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fefefe !important;
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000,
+    0 4px 0 #000;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
+}
+
+/* Sekundarni tekst u „tamnom“ delu (naslovi izvan kartica) */
+.pes6-app .pes6-main section > p.text-slate-600,
+.pes6-app .pes6-main section > p.text-slate-500,
+.pes6-app .pes6-main section > p.text-sm.text-slate-600 {
+  color: var(--pes-chrome-muted) !important;
+}
+
+/* --- Dashboard: jedna „menu“ tabela od pločica --- */
+.pes6-app .pes6-dashboard-stats {
+  border: 2px solid #4a524e;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+  background: #2a2d2b;
+}
+
+.pes6-app .pes6-stat-tile {
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  position: relative;
+}
+
+.pes6-app .pes6-stat-tile__inner {
+  padding: 0.85rem 1rem;
+  min-height: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  background: var(--pes-metal);
+  border-right: 1px solid #7f8782;
+  border-bottom: 1px solid #7f8782;
+  margin: 0;
+}
+
+.pes6-app .pes6-dashboard-stats .pes6-stat-tile:nth-child(even) .pes6-stat-tile__inner {
+  background: linear-gradient(180deg, #e0e5e0 0%, #c5cdc5 100%);
+}
+
+.pes6-app .pes6-stat-tile__label {
+  font-family: var(--pes-font-ui) !important;
+  color: #6b4f08 !important;
+  letter-spacing: 0.12em !important;
+}
+
+.pes6-app .pes6-stat-tile__value {
+  font-family: var(--pes-font-arcade) !important;
+  font-size: 2rem !important;
+  line-height: 1 !important;
+  color: var(--pes-ink) !important;
+  letter-spacing: 0.06em;
+}
+
+.pes6-app .pes6-stat-tile__hint {
+  font-family: var(--pes-font-ui) !important;
+  font-weight: 400;
+  opacity: 0.88;
+}
+
+/* Panel „Brzi koraci“ — kao Sound Settings okvir */
+.pes6-app .pes6-menu-panel {
+  border-radius: 3px !important;
+  border: 2px solid #5c6460 !important;
+  background: rgba(230, 232, 228, 0.96) !important;
+  box-shadow:
+    inset 0 0 0 1px #fafcfa,
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+.pes6-app .pes6-panel-title {
+  font-family: var(--pes-font-arcade) !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.18em !important;
+  color: var(--pes-ink-soft) !important;
+  border-bottom: 2px solid #8a9390;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.pes6-app .pes6-help-list li {
+  font-weight: 500;
+}
+
+/* --- Kartice / form panele --- */
+.pes6-app .rounded-2xl.border,
+.pes6-app .rounded-xl.border,
+.pes6-app .rounded-lg.border.border-slate-200,
+.pes6-app .rounded-lg.border.border-slate-300 {
+  border-radius: 3px !important;
+  border: 2px solid #5c6460 !important;
+  background: rgba(224, 228, 224, 0.96) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.pes6-app h3.text-sm.font-semibold,
+.pes6-app .pes6-main h3 {
+  font-family: var(--pes-font-arcade) !important;
+  letter-spacing: 0.14em !important;
+  font-size: 0.85rem !important;
+  font-weight: 400 !important;
+  color: var(--pes-ink-soft) !important;
+}
+
+/* --- Form kontrole --- */
+.pes6-app input,
+.pes6-app select,
+.pes6-app textarea {
+  font-family: var(--pes-font-ui) !important;
+  border-radius: 2px !important;
+  color: var(--pes-ink) !important;
+  border: 2px solid #6d7672 !important;
+  background: linear-gradient(180deg, #fbfcfb 0%, #e5eae6 100%) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.07);
+}
+
+.pes6-app label.text-xs {
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4a524e !important;
+  font-size: 0.65rem !important;
+}
+
+/* --- Dugmad --- */
+.pes6-app button {
+  font-family: var(--pes-font-ui) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.07em !important;
+  font-size: 0.68rem !important;
+  border-radius: 2px !important;
+}
+
+.pes6-app button.bg-indigo-600,
+.pes6-app .bg-indigo-600 {
+  color: #120d02 !important;
+  border: 2px solid var(--pes-gold-edge) !important;
+  background: linear-gradient(180deg, var(--pes-gold-top), var(--pes-gold), var(--pes-gold-deep)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
+    0 3px 0 rgba(0, 0, 0, 0.22);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.pes6-app button.border.border-slate-300,
+.pes6-app button.rounded-lg.border {
+  color: var(--pes-ink-soft) !important;
+  border: 2px solid #5f6864 !important;
+  background: var(--pes-metal) !important;
+}
+
+.pes6-app .pes6-nav-btn {
+  font-size: 0.82rem !important;
+}
+
+/* --- Tabele --- */
+.pes6-app table thead,
+.pes6-app .bg-slate-50 {
+  background: var(--pes-list-head) !important;
+  color: var(--pes-ink-soft) !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pes6-app tbody tr:nth-child(odd) {
+  background: var(--pes-list-a);
+}
+
+.pes6-app tbody tr:nth-child(even) {
+  background: var(--pes-list-b);
+}
+
+.pes6-app tbody tr:hover td {
+  background: rgba(240, 208, 64, 0.22);
+}
+
+.pes6-app .border-t.border-slate-100,
+.pes6-app .border-t.border-slate-200,
+.pes6-app tr.border-t,
+.pes6-app .divide-y.divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #909892 !important;
+}
+
+.pes6-app .text-indigo-600,
+.pes6-app .text-indigo-500,
+.pes6-app .text-indigo-800 {
+  color: #5c4810 !important;
+}
+
+/* Tamna slova samo na svetlim panelima / modalima (ne na tamnoj pozadini maina) */
+.pes6-app .pes6-main
+  :is(
+    .border-slate-200.rounded-2xl,
+    .border-slate-200.rounded-xl,
+    div.overflow-x-auto.rounded-2xl.border-slate-200,
+    .pes6-menu-panel,
+    #pes-team-discovery-results,
+    .pes6-dashboard-stats .pes6-stat-tile,
+    #pes-player-profile-root
+  )
+  :is(.text-slate-900, .text-slate-800, .text-slate-700),
+.pes6-app .fixed.inset-0.z-50
+  :is(div.max-w-xl, div.max-w-md).rounded-2xl
+  :is(.text-slate-900, .text-slate-800, .text-slate-700) {
+  color: var(--pes-ink) !important;
+}
+
+.pes6-app .pes6-main
+  :is(
+    .border-slate-200.rounded-2xl,
+    .border-slate-200.rounded-xl,
+    div.overflow-x-auto.rounded-2xl.border-slate-200,
+    .pes6-menu-panel,
+    #pes-team-discovery-results,
+    .pes6-dashboard-stats .pes6-stat-tile,
+    #pes-player-profile-root
+  )
+  :is(.text-slate-600, .text-slate-500),
+.pes6-app .fixed.inset-0.z-50
+  :is(div.max-w-xl, div.max-w-md).rounded-2xl
+  :is(.text-slate-600, .text-slate-500) {
+  color: #4d524e !important;
+}
+
+.pes6-app .pes6-main
+  :is(
+    .border-slate-200.rounded-2xl,
+    .border-slate-200.rounded-xl,
+    div.overflow-x-auto.rounded-2xl.border-slate-200,
+    .pes6-menu-panel,
+    #pes-team-discovery-results,
+    .pes6-dashboard-stats .pes6-stat-tile,
+    #pes-player-profile-root
+  ),
+.pes6-app .fixed.inset-0.z-50 :is(div.max-w-xl, div.max-w-md).rounded-2xl {
+  color: var(--pes-ink);
+}
+
+.pes6-app .text-rose-600 {
+  color: var(--pes-danger) !important;
+}
+
+.pes6-app .text-white {
+  color: #f5f5f0 !important;
+}
+
+/* Hint tekst u tamnom traku ispod naslova (npr. sezona za poredak) */
+.pes6-app .pes6-main #pes-rankings-season-hint.text-slate-600,
+.pes6-app .pes6-main #pes-rankings-season-hint {
+  color: var(--pes-chrome-muted) !important;
+}
+
+/* Poruke „izaberite sezonu“ ubacuju se u #…-root kao jedini `<p>` — na tamnoj podlozi */
+.pes6-app .pes6-main section [id$="-root"] > p:is(.text-slate-600, .text-slate-500) {
+  color: var(--pes-chrome-muted) !important;
+}
+
+/* Filteri u dinamičkim root-ovima (raspored / rezultati) — labela na tamnoj podlozi */
+.pes6-app .pes6-main section [id$="-root"] label.text-slate-600,
+.pes6-app .pes6-main section [id$="-root"] label.font-medium.text-slate-600 {
+  color: rgba(210, 212, 206, 0.92) !important;
+}
+
+.pes6-app .pes6-main section [id$="-root"] .text-slate-600.flex,
+.pes6-app .pes6-main section [id$="-root"] label.flex.text-slate-600 {
+  color: rgba(210, 212, 206, 0.92) !important;
+}
+
+/* --- Pills / bedževi --- */
+.pes6-app .rounded-full.bg-slate-100,
+.pes6-app .bg-slate-100 {
+  background: linear-gradient(180deg, #eef1ee, #d2d8d3) !important;
+  border: 1px solid #828a85 !important;
+}
+
+.pes6-app #pes-cloud-status-pill {
+  border-radius: 2px !important;
+  background: linear-gradient(180deg, #2c3035, #1e2124) !important;
+  color: #dde1df !important;
+  border: 1px solid #000 !important;
+}
+
+/* --- Footer hint --- */
+.pes6-app footer,
+.pes6-app .pes6-footer-hint {
+  border-top: 3px solid #3a3f3c !important;
+  background: linear-gradient(180deg, #c9cfca 0%, #adb5b0 100%) !important;
+  color: var(--pes-ink-soft) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.58rem !important;
+  line-height: 1.55;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.pes6-app footer code {
+  text-transform: none;
+  letter-spacing: 0;
+  border: 1px solid #6d746f;
+  background: rgba(255, 255, 255, 0.75) !important;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* --- Modali --- */
+.pes6-app .fixed.inset-0.z-50 {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+.pes6-app .fixed.inset-0.z-50 .max-w-xl,
+.pes6-app .fixed.inset-0.z-50 .max-w-md {
+  border-radius: 4px !important;
+  border: 2px solid rgba(255, 255, 255, 0.85) !important;
+  background: rgba(228, 230, 226, 0.98) !important;
+  box-shadow:
+    0 0 0 2px #3d4542,
+    0 18px 48px rgba(0, 0, 0, 0.55);
+}
+
+.pes6-app .border-rose-200 { border-color: #c47b75 !important; }
+.pes6-app .bg-rose-50 {
+  background: linear-gradient(180deg, #f0dedc, #e0c4c1) !important;
+  color: #4a1814 !important;
+}
+
+/* --- Team discovery --- */
+.pes6-app #pes-team-discovery-results {
+  border: 2px solid #5a625e !important;
+  background: linear-gradient(180deg, var(--pes-list-b), #b9c0ba) !important;
+}
+
+/* --- Amber / emerald --- */
+.pes6-app .border-amber-300 { border-color: #b8982e !important; }
+.pes6-app .bg-amber-50 {
+  background: linear-gradient(180deg, #f5e8b8, #e6d18a) !important;
+}
+.pes6-app .text-amber-700,
+.pes6-app .text-amber-800 { color: #4a3b0c !important; }
+
+.pes6-app .border-emerald-200 { border-color: #4a8a6a !important; }
+.pes6-app .bg-emerald-50 {
+  background: linear-gradient(180deg, #d8ebe0, #b9d9c7) !important;
+}
+.pes6-app .text-emerald-700,
+.pes6-app .text-emerald-800 { color: var(--pes-ok) !important; }
+
+.pes6-app .shadow-sm {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.pes6-app *:focus-visible {
+  outline: 2px solid var(--pes-gold);
+  outline-offset: 2px;
+}
+
+/* Stari selektor za h1 u headeru — kompatibilnost */
+.pes6-app #pes-app-root > header h1:not(.pes6-logo-title) {
+  font-family: var(--pes-font-arcade);
+  text-transform: uppercase;
+}
+
+/* --- Telefon / mali ekran --- */
+@media (max-width: 767px) {
+  .pes6-app .pes6-root {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  .pes6-app .pes6-sidebar {
+    border-bottom-width: 2px;
+  }
+
+  .pes6-app .pes6-side-nav {
+    gap: 0.3rem;
+    padding: 0.5rem max(0.5rem, env(safe-area-inset-left, 0)) 0.5rem
+      max(0.5rem, env(safe-area-inset-right, 0));
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+  }
+
+  .pes6-app .pes6-side-nav .pes6-nav-btn {
+    scroll-snap-align: start;
+    min-width: auto !important;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.65rem 0.45rem 0.75rem;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.1em !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .pes6-app .pes6-top-bar__inner .flex.flex-wrap.items-center.gap-2 {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pes6-app .pes6-top-bar__inner .flex.flex-wrap.items-center.gap-2 > * {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+
+  .pes6-app .pes6-main {
+    padding-top: 0.85rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0));
+  }
+
+  .pes6-app #pes-toast-host {
+    right: max(1rem, env(safe-area-inset-right, 0));
+    bottom: max(1rem, env(safe-area-inset-bottom, 0));
+    left: auto;
+    max-width: min(22rem, calc(100vw - 1.5rem));
+  }
+
+  .pes6-app .pes6-footer-hint {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0));
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0));
+  }
+}
