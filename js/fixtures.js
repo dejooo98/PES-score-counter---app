@@ -145,11 +145,104 @@ function listMatchesForSeason(state, seasonId) {
     });
 }
 
+function parseMatchDisciplineFromResultForm(form) {
+  if (!form || !(form instanceof HTMLFormElement)) {
+    return { cards: [], injured: [] };
+  }
+  const cards = [];
+  form.querySelectorAll("[data-pes-card-row]").forEach((row) => {
+    const nameInput = row.querySelector(".pes-card-player-name");
+    const playerName = String(nameInput && nameInput.value ? nameInput.value : "").trim();
+    if (!playerName) {
+      return;
+    }
+    const yEl = row.querySelector(".pes-card-yellow");
+    let yellow = Number.parseInt(String(yEl && yEl.value != null ? yEl.value : "0"), 10);
+    if (!Number.isFinite(yellow) || yellow < 0) {
+      yellow = 0;
+    }
+    if (yellow > 2) {
+      yellow = 2;
+    }
+    const redEl = row.querySelector(".pes-card-red");
+    let red = 0;
+    if (redEl && redEl instanceof HTMLInputElement) {
+      if (redEl.type === "checkbox") {
+        red = redEl.checked ? 1 : 0;
+      } else {
+        red = Number.parseInt(String(redEl.value != null ? redEl.value : "0"), 10);
+        if (!Number.isFinite(red) || red < 0) {
+          red = 0;
+        }
+        if (red > 1) {
+          red = 1;
+        }
+      }
+    }
+    const carryEl = row.querySelector(".pes-card-carryover");
+    cards.push({
+      playerName,
+      yellow,
+      red,
+      carryoverNextRound: Boolean(carryEl && carryEl.checked),
+    });
+  });
+  const injured = [];
+  form.querySelectorAll("[data-pes-injury-row]").forEach((row) => {
+    const nameInput = row.querySelector(".pes-injured-name");
+    const playerName = String(nameInput && nameInput.value ? nameInput.value : "").trim();
+    if (playerName) {
+      injured.push({ playerName });
+    }
+  });
+  return sanitizeMatchDiscipline({ cards, injured });
+}
+
+function getCarriedPlayerNamesFromPreviousRound(state, seasonId, round) {
+  if (!seasonId || round <= 1) {
+    return [];
+  }
+  const prevMatches = listMatchesForSeason(state, seasonId).filter(
+    (m) => m.round === round - 1 && m.status === "played"
+  );
+  const names = [];
+  for (const m of prevMatches) {
+    const d = sanitizeMatchDiscipline(m.discipline);
+    for (const c of d.cards) {
+      if (c.carryoverNextRound && c.playerName) {
+        names.push(c.playerName.trim());
+      }
+    }
+  }
+  return names;
+}
+
+function playerDisplayNameMatchesCarryover(displayName, carriedNames) {
+  const a = String(displayName || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+  if (!a) {
+    return false;
+  }
+  return carriedNames.some((raw) => {
+    const b = String(raw || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+    if (!b || b.length < 2) {
+      return false;
+    }
+    return a === b || a.includes(b) || b.includes(a);
+  });
+}
+
 function saveMatchResult(
   state,
   matchId,
   homeScoreInput,
-  awayScoreInput
+  awayScoreInput,
+  disciplinePayload
 ) {
   const homeScore = parseNonNegativeIntegerOrNull(homeScoreInput);
   const awayScore = parseNonNegativeIntegerOrNull(awayScoreInput);
@@ -163,6 +256,10 @@ function saveMatchResult(
   if (matchIndex === -1) {
     return { ok: false, message: t("error.matchNotFound") };
   }
+  const discipline =
+    disciplinePayload !== undefined
+      ? sanitizeMatchDiscipline(disciplinePayload)
+      : { cards: [], injured: [] };
   const nextState = cloneDeepJson(state);
   const target = nextState.matches[matchIndex];
   nextState.matches[matchIndex] = {
@@ -171,6 +268,7 @@ function saveMatchResult(
     homeScore,
     awayScore,
     playedAt: new Date().toISOString(),
+    discipline,
   };
   return { ok: true, state: nextState };
 }
@@ -188,6 +286,7 @@ function skipMatchToPlayLater(state, matchId) {
     homeScore: null,
     awayScore: null,
     playedAt: null,
+    discipline: null,
   };
   return { ok: true, state: nextState };
 }
@@ -205,6 +304,7 @@ function revertMatchToScheduled(state, matchId) {
     homeScore: null,
     awayScore: null,
     playedAt: null,
+    discipline: null,
   };
   return { ok: true, state: nextState };
 }
@@ -225,7 +325,14 @@ function listOneVsOneMatchesSorted(state) {
     });
 }
 
-function recordOneVsOneMatchInState(state, homePlayerId, awayPlayerId, homeScoreInput, awayScoreInput) {
+function recordOneVsOneMatchInState(
+  state,
+  homePlayerId,
+  awayPlayerId,
+  homeScoreInput,
+  awayScoreInput,
+  disciplinePayload
+) {
   const homeId = String(homePlayerId || "").trim();
   const awayId = String(awayPlayerId || "").trim();
   if (!homeId || !awayId || homeId === awayId) {
@@ -244,6 +351,10 @@ function recordOneVsOneMatchInState(state, homePlayerId, awayPlayerId, homeScore
   if (!homePlayer || !awayPlayer) {
     return { ok: false, message: t("error.playerNotFound") };
   }
+  const discipline =
+    disciplinePayload !== undefined
+      ? sanitizeMatchDiscipline(disciplinePayload)
+      : { cards: [], injured: [] };
   const newMatch = {
     id: generateUniqueId(),
     matchKind: "oneVsOne",
@@ -257,6 +368,7 @@ function recordOneVsOneMatchInState(state, homePlayerId, awayPlayerId, homeScore
     homeScore,
     awayScore,
     playedAt: new Date().toISOString(),
+    discipline,
   };
   const nextState = cloneDeepJson(state);
   nextState.matches.push(newMatch);

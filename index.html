@@ -128,6 +128,16 @@
                 >
                   Zvuk: ON
                 </button>
+                <button
+                  id="pes-bg-music-toggle"
+                  type="button"
+                  class="rounded-lg border border-amber-400/80 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950 hover:bg-amber-100"
+                  aria-pressed="false"
+                  data-i18n-aria-label="music.ariaHint"
+                  aria-label="Pozadinska muzika (YouTube)"
+                >
+                  Muzika: OFF
+                </button>
               </div>
             </div>
           </div>
@@ -639,6 +649,7 @@
                     />
                   </div>
                 </div>
+                <div id="pes-one-vs-one-discipline-root"></div>
                 <button
                   type="submit"
                   class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-500"
@@ -650,14 +661,15 @@
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 class="text-sm font-semibold text-slate-800" data-i18n="oneVsOne.historyTitle">Poslednji mečevi 1 na 1</h3>
-              <div class="mt-3 overflow-x-auto">
-                <table class="min-w-full border-collapse text-left text-sm">
+              <div class="pes-onevsone-table-wrap mt-3 overflow-x-auto rounded-lg ring-1 ring-slate-200/80">
+                <table class="pes-onevsone-table min-w-[34rem] w-full border-collapse text-left text-sm">
                   <thead>
                     <tr class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
                       <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thDate">Datum</th>
                       <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thHome">Domaćin</th>
                       <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thAway">Gost</th>
                       <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thScore">Rez.</th>
+                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thDiscipline">Kartoni / povrede</th>
                     </tr>
                   </thead>
                   <tbody id="pes-one-vs-one-history-body"></tbody>
@@ -1113,6 +1125,10 @@
       class="pointer-events-none fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col gap-2"
     ></div>
 
+    <div id="pes-yt-player-host" class="pes-yt-player-host" aria-hidden="true">
+      <div id="pes-yt-player"></div>
+    </div>
+
     <script src="./js/helpers.js"></script>
     <script src="./js/app-settings.js"></script>
     <script src="./js/i18n.js"></script>
@@ -1126,6 +1142,7 @@
     <script src="./js/statistics.js"></script>
     <script src="./js/ui.js"></script>
     <script src="./js/pes6-ui-sounds.js"></script>
+    <script src="./js/pes6-bg-music.js"></script>
     <script src="./js/app.js"></script>
   </body>
 </html>

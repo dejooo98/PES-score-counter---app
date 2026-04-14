@@ -347,6 +347,114 @@ function renderPlayersView(state) {
   `;
 }
 
+function buildDisciplineCardRowHtml(showCarryover, c) {
+  const row = c && typeof c === "object" ? c : {};
+  const playerName = escapeHtml(String(row.playerName || ""));
+  let yellow = Number.parseInt(String(row.yellow ?? 0), 10);
+  if (!Number.isFinite(yellow) || yellow < 0) {
+    yellow = 0;
+  }
+  if (yellow > 2) {
+    yellow = 2;
+  }
+  const redVal = row.red ? 1 : 0;
+  const carry = Boolean(row.carryoverNextRound);
+  const carryBlock = showCarryover
+    ? `<label class="flex min-w-0 max-w-full cursor-pointer items-center gap-2 rounded-lg border border-amber-300/80 bg-amber-50/90 px-2 py-2 sm:max-w-[10rem] sm:flex-col sm:items-start sm:py-1.5">
+        <input type="checkbox" class="pes-card-carryover mt-0.5 h-4 w-4 shrink-0 rounded border-amber-500 text-amber-600" ${
+          carry ? "checked" : ""
+        } />
+        <span class="text-[10px] font-semibold leading-tight text-amber-900">${escapeHtml(
+          t("discipline.carryNext")
+        )}</span>
+      </label>`
+    : "";
+  return `<div data-pes-card-row class="pes-discipline-card-row rounded-xl border border-slate-200/90 bg-white p-3 shadow-sm ring-1 ring-slate-100">
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+      <label class="min-w-0 flex-1 basis-[min(100%,14rem)]">
+        <span class="block text-[11px] font-bold uppercase tracking-wide text-slate-600">${escapeHtml(
+          t("discipline.cardPlayer")
+        )}</span>
+        <input type="text" class="pes-card-player-name mt-1 w-full min-h-[2.75rem] rounded-lg border-2 border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-inner sm:text-sm" value="${playerName}" autocomplete="off" />
+      </label>
+      <div class="flex flex-wrap items-end gap-3">
+        <label class="shrink-0">
+          <span class="block text-[11px] font-bold uppercase text-amber-900">${escapeHtml(
+            t("discipline.yellowInputLabel")
+          )}</span>
+          <input type="number" min="0" max="2" step="1" class="pes-card-yellow mt-1 w-[3.5rem] min-h-[2.75rem] rounded-lg border-2 border-amber-500 bg-amber-50 px-1 text-center text-base font-bold text-amber-950 shadow-sm sm:text-sm" value="${yellow}" />
+        </label>
+        <label class="shrink-0">
+          <span class="block text-[11px] font-bold uppercase text-rose-900">${escapeHtml(
+            t("discipline.redInputLabel")
+          )}</span>
+          <input type="number" min="0" max="1" step="1" class="pes-card-red mt-1 w-[3.5rem] min-h-[2.75rem] rounded-lg border-2 border-rose-600 bg-rose-50 px-1 text-center text-base font-bold text-rose-950 shadow-sm sm:text-sm" value="${redVal}" />
+        </label>
+        ${carryBlock}
+        <button type="button" class="pes-discipline-remove-row ml-auto inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-slate-300 bg-slate-50 text-lg font-bold leading-none text-slate-600 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-800 sm:ml-0" title="${escapeHtml(
+          t("discipline.removeRow")
+        )}" aria-label="${escapeHtml(t("discipline.removeRow"))}">×</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildDisciplineInjuryRowHtml(row) {
+  const r = row && typeof row === "object" ? row : {};
+  const playerName = escapeHtml(String(r.playerName || ""));
+  return `<div data-pes-injury-row class="pes-discipline-injury-row flex flex-col gap-2 rounded-xl border border-slate-200/90 bg-white p-3 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-end">
+    <label class="min-w-0 flex-1">
+      <span class="block text-[11px] font-bold uppercase tracking-wide text-slate-600">${escapeHtml(
+        t("discipline.injuredPlayer")
+      )}</span>
+      <input type="text" class="pes-injured-name mt-1 w-full min-h-[2.75rem] rounded-lg border-2 border-slate-300 bg-white px-3 py-2 text-base text-slate-900 sm:text-sm" value="${playerName}" autocomplete="off" />
+    </label>
+    <button type="button" class="pes-discipline-remove-row inline-flex h-10 w-10 shrink-0 items-center justify-center self-end rounded-lg border-2 border-slate-300 bg-slate-50 text-lg font-bold leading-none text-slate-600 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-800 sm:self-auto" title="${escapeHtml(
+      t("discipline.removeRow")
+    )}" aria-label="${escapeHtml(t("discipline.removeRow"))}">×</button>
+  </div>`;
+}
+
+function buildDisciplineAddCardButtonHtml() {
+  return `<button type="button" class="pes-discipline-add-card mt-2 inline-flex min-h-[2.75rem] w-full items-center justify-center gap-1 rounded-lg border-2 border-amber-500/80 bg-gradient-to-b from-amber-50 to-amber-100/80 px-3 py-2 text-xs font-bold uppercase tracking-wide text-amber-950 shadow-sm hover:from-amber-100 hover:to-amber-100 sm:w-auto">${escapeHtml(
+    t("discipline.addCard")
+  )}</button>`;
+}
+
+function buildDisciplineAddInjuryButtonHtml() {
+  return `<button type="button" class="pes-discipline-add-injury mt-2 inline-flex min-h-[2.75rem] w-full items-center justify-center gap-1 rounded-lg border-2 border-slate-400/90 bg-gradient-to-b from-slate-50 to-slate-100/90 px-3 py-2 text-xs font-bold uppercase tracking-wide text-slate-800 shadow-sm hover:from-slate-100 hover:to-slate-100 sm:w-auto">${escapeHtml(
+    t("discipline.addInjury")
+  )}</button>`;
+}
+
+function buildOneVsOneDisciplineFormHtml() {
+  const cardsHtml = buildDisciplineCardRowHtml(false, {});
+  const injHtml = buildDisciplineInjuryRowHtml({});
+  return `
+  <details class="pes-1v1-discipline-details mt-2 w-full rounded-xl border border-amber-300/50 bg-gradient-to-b from-white to-amber-50/40 px-3 py-3 shadow-sm ring-1 ring-amber-200/50" open>
+    <summary class="cursor-pointer select-none text-sm font-bold text-slate-800">${escapeHtml(
+      t("discipline.sectionTitle")
+    )}</summary>
+    <p class="mt-2 text-xs leading-snug text-slate-600">${escapeHtml(t("oneVsOne.disciplineHint"))}</p>
+    <div data-pes-discipline-block class="mt-4 space-y-5">
+      <div>
+        <div class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-600">${escapeHtml(
+          t("discipline.cardsBlock")
+        )}</div>
+        <div data-pes-cards-list class="space-y-2">${cardsHtml}</div>
+        ${buildDisciplineAddCardButtonHtml()}
+      </div>
+      <div>
+        <div class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-600">${escapeHtml(
+          t("discipline.injuredBlock")
+        )}</div>
+        <div data-pes-injuries-list class="space-y-2">${injHtml}</div>
+        ${buildDisciplineAddInjuryButtonHtml()}
+      </div>
+    </div>
+  </details>`;
+}
+
 function fillOneVsOnePlayerSelects(state) {
   const homeSel = document.getElementById("pes-1v1-home");
   const awaySel = document.getElementById("pes-1v1-away");
@@ -377,13 +485,17 @@ function fillOneVsOnePlayerSelects(state) {
 
 function renderOneVsOneView(state) {
   fillOneVsOnePlayerSelects(state);
+  const discRoot = document.getElementById("pes-one-vs-one-discipline-root");
+  if (discRoot) {
+    discRoot.innerHTML = buildOneVsOneDisciplineFormHtml();
+  }
   const historyBody = document.getElementById("pes-one-vs-one-history-body");
   if (!historyBody) {
     return;
   }
   const matches = listOneVsOneMatchesSorted(state);
   if (!matches.length) {
-    historyBody.innerHTML = `<tr><td colspan="4" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
+    historyBody.innerHTML = `<tr><td colspan="5" class="px-3 py-6 text-center text-sm text-slate-500">${escapeHtml(
       t("oneVsOne.historyEmpty")
     )}</td></tr>`;
     return;
@@ -392,6 +504,16 @@ function renderOneVsOneView(state) {
     .map((match) => {
       const home = findPlayerById(state, match.homePlayerId);
       const away = findPlayerById(state, match.awayPlayerId);
+      const disc = sanitizeMatchDiscipline(match.discipline);
+      const discCell =
+        disc.cards.length > 0 || disc.injured.length > 0
+          ? escapeHtml(
+              t("fixtures.disciplineShort", {
+                cards: String(disc.cards.length),
+                inj: String(disc.injured.length),
+              })
+            )
+          : escapeHtml(t("common.dash"));
       return `<tr class="border-t border-slate-200">
         <td class="px-3 py-2 text-sm text-slate-600">${escapeHtml(
           formatDateOnly(match.playedAt)
@@ -403,6 +525,7 @@ function renderOneVsOneView(state) {
           away ? getPlayerDisplayName(away) : "—"
         )}</td>
         <td class="px-3 py-2 text-sm font-semibold text-slate-900">${match.homeScore} : ${match.awayScore}</td>
+        <td class="px-3 py-2 text-xs text-slate-600">${discCell}</td>
       </tr>`;
     })
     .join("");
@@ -539,6 +662,9 @@ function renderSeasonsView(state) {
             class="pes-clone-season ml-2 rounded px-1 py-0.5 text-indigo-800 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
             ${isFinished ? "" : "disabled"}>${escapeHtml(t("seasons.clone"))}</button>
+          <button type="button"
+            class="pes-delete-season ml-2 rounded px-1 py-0.5 text-rose-700 hover:underline"
+            data-season-id="${escapeHtml(season.id)}">${escapeHtml(t("seasons.delete"))}</button>
         </td>
       </tr>
     `;
@@ -649,6 +775,16 @@ function renderFixturesView(state, selectedSeasonId) {
           : match.status === "skipped"
             ? t("match.skipped")
             : t("fixtures.scheduled");
+      const disc = sanitizeMatchDiscipline(match.discipline);
+      const discShort =
+        match.status === "played" && (disc.cards.length > 0 || disc.injured.length > 0)
+          ? `<div class="mt-0.5 text-[10px] font-normal text-slate-500">${escapeHtml(
+              t("fixtures.disciplineShort", {
+                cards: String(disc.cards.length),
+                inj: String(disc.injured.length),
+              })
+            )}</div>`
+          : "";
       return `
       <tr class="border-t border-slate-100">
         <td class="px-3 py-2 text-xs text-slate-500">${match.round}</td>
@@ -663,17 +799,17 @@ function renderFixturesView(state, selectedSeasonId) {
         awayTeamName
       )})</span></td>
         <td class="px-3 py-2 text-xs">${escapeHtml(translateMatchStatus(match.status))}</td>
-        <td class="px-3 py-2 text-sm font-medium text-slate-800">${escapeHtml(
+        <td class="px-3 py-2 text-sm font-medium text-slate-800 align-top">${escapeHtml(
           statusLabel
-        )}</td>
+        )}${discShort}</td>
       </tr>
     `;
     })
     .join("");
   root.innerHTML = `
     ${filterHtml}
-    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+    <div class="pes-fixtures-table-wrap overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <table class="pes-fixtures-table min-w-[min(100%,36rem)] w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
             <th class="px-3 py-2">${escapeHtml(t("fixtures.th.round"))}</th>
@@ -704,6 +840,70 @@ function renderFixturesView(state, selectedSeasonId) {
   }
 }
 
+function buildMatchDisciplineEditorHtml(match, state, seasonId) {
+  const d = sanitizeMatchDiscipline(match.discipline);
+  const cardCount = Math.max(1, d.cards.length);
+  const injCount = Math.max(1, d.injured.length);
+  const carried = getCarriedPlayerNamesFromPreviousRound(state, seasonId, match.round);
+  let carryHint = "";
+  const notPlayedYet = match.status === "scheduled" || match.status === "skipped";
+  if (notPlayedYet && carried.length && seasonId && match.round > 1) {
+    const homeP = findPlayerById(state, match.homePlayerId);
+    const awayP = findPlayerById(state, match.awayPlayerId);
+    const hName = homeP ? getPlayerDisplayName(homeP) : "";
+    const aName = awayP ? getPlayerDisplayName(awayP) : "";
+    const hHit = playerDisplayNameMatchesCarryover(hName, carried);
+    const aHit = playerDisplayNameMatchesCarryover(aName, carried);
+    if (hHit || aHit) {
+      carryHint = `<p class="rounded-lg border border-amber-200 bg-amber-50 px-2 py-2 text-xs font-medium text-amber-900">${escapeHtml(
+        t("results.carryoverHint")
+      )}</p>`;
+    }
+  }
+  const cardsHtml = Array.from({ length: cardCount }, (_, i) =>
+    buildDisciplineCardRowHtml(true, d.cards[i] || {})
+  ).join("");
+  const injHtml = Array.from({ length: injCount }, (_, i) =>
+    buildDisciplineInjuryRowHtml(d.injured[i] || {})
+  ).join("");
+  const isPlayed = match.status === "played";
+  const summaryPlayed =
+    isPlayed && (d.cards.length > 0 || d.injured.length > 0)
+      ? `<p class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs text-slate-700">${escapeHtml(
+          t("discipline.savedSummary", {
+            cards: String(d.cards.length),
+            inj: String(d.injured.length),
+          })
+        )}</p>`
+      : "";
+  const detailsOpen =
+    isPlayed && (d.cards.length > 0 || d.injured.length > 0) ? " open" : "";
+  return `
+  <details class="pes-discipline-details mt-3 w-full max-w-2xl rounded-xl border-2 border-slate-300/80 bg-gradient-to-b from-slate-50 to-white px-3 py-2 shadow-sm ring-1 ring-slate-200/60"${detailsOpen}>
+    <summary class="cursor-pointer select-none text-sm font-bold text-slate-800">${escapeHtml(
+      t("discipline.sectionTitle")
+    )}</summary>
+    <div data-pes-discipline-block data-pes-discipline-carryover class="mt-3 space-y-5">
+      ${carryHint}
+      ${summaryPlayed}
+      <div>
+        <div class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-600">${escapeHtml(
+          t("discipline.cardsBlock")
+        )}</div>
+        <div data-pes-cards-list class="space-y-2">${cardsHtml}</div>
+        ${buildDisciplineAddCardButtonHtml()}
+      </div>
+      <div>
+        <div class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-600">${escapeHtml(
+          t("discipline.injuredBlock")
+        )}</div>
+        <div data-pes-injuries-list class="space-y-2">${injHtml}</div>
+        ${buildDisciplineAddInjuryButtonHtml()}
+      </div>
+    </div>
+  </details>`;
+}
+
 function renderResultsView(state, selectedSeasonId) {
   const root = document.getElementById("pes-results-root");
   if (!root) {
@@ -731,49 +931,73 @@ function renderResultsView(state, selectedSeasonId) {
         match.awayScore != null ? String(match.awayScore) : "";
       const isPlayed = match.status === "played";
       const isSkipped = match.status === "skipped";
+      const labelRound = escapeHtml(t("results.th.round"));
+      const labelHome = escapeHtml(t("results.th.home"));
+      const labelAway = escapeHtml(t("results.th.away"));
+      const labelInput = escapeHtml(t("results.th.input"));
+      const labelPlayed = escapeHtml(t("results.th.playedAt"));
       return `
-      <tr class="border-t border-slate-100">
-        <td class="px-3 py-2 text-xs text-slate-500">${match.round}</td>
-        <td class="px-3 py-2 text-sm text-slate-800">${escapeHtml(homeName)}</td>
-        <td class="px-3 py-2 text-sm text-slate-800">${escapeHtml(awayName)}</td>
-        <td class="px-3 py-2">
-          <form class="flex flex-wrap items-center gap-2 pes-result-form" data-match-id="${escapeHtml(
+      <tr class="pes-results-tr border-t border-slate-100">
+        <td class="pes-results-td px-3 py-2 text-xs text-slate-500 sm:text-sm" data-label="${labelRound}">${match.round}</td>
+        <td class="pes-results-td px-3 py-2 text-sm font-medium text-slate-800" data-label="${labelHome}">${escapeHtml(
+        homeName
+      )}</td>
+        <td class="pes-results-td px-3 py-2 text-sm font-medium text-slate-800" data-label="${labelAway}">${escapeHtml(
+        awayName
+      )}</td>
+        <td class="pes-results-td px-3 py-2 align-top" data-label="${labelInput}">
+          <form class="pes-result-form flex w-full min-w-0 max-w-2xl flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-3 shadow-inner sm:p-3" data-match-id="${escapeHtml(
             match.id
           )}">
-            <input name="homeScore" type="number" min="0" step="1" class="w-16 rounded border border-slate-300 px-2 py-1 text-sm" value="${escapeHtml(
+            <div class="flex flex-row items-end gap-2 sm:gap-3">
+            <label class="flex min-w-0 flex-1 flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wide text-slate-500 sm:hidden">${escapeHtml(
+                t("results.scoreHome")
+              )}</span>
+            <input name="homeScore" type="number" min="0" step="1" inputmode="numeric" class="min-h-[2.75rem] w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2 text-center text-lg font-bold text-slate-900 shadow-sm sm:w-[4.5rem] sm:text-base" value="${escapeHtml(
               homeScoreValue
             )}" />
-            <span class="text-slate-500">:</span>
-            <input name="awayScore" type="number" min="0" step="1" class="w-16 rounded border border-slate-300 px-2 py-1 text-sm" value="${escapeHtml(
+            </label>
+            <span class="shrink-0 pb-2.5 text-2xl font-bold leading-none text-slate-400 sm:pb-3" aria-hidden="true">:</span>
+            <label class="flex min-w-0 flex-1 flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wide text-slate-500 sm:hidden">${escapeHtml(
+                t("results.scoreAway")
+              )}</span>
+            <input name="awayScore" type="number" min="0" step="1" inputmode="numeric" class="min-h-[2.75rem] w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2 text-center text-lg font-bold text-slate-900 shadow-sm sm:w-[4.5rem] sm:text-base" value="${escapeHtml(
               awayScoreValue
             )}" />
-            <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500">${escapeHtml(
+            </label>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+            <button type="submit" class="min-h-[2.75rem] flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-indigo-500 sm:flex-none sm:px-5">${escapeHtml(
               t("results.save")
             )}</button>
             ${
               isPlayed
-                ? `<button type="button" class="rounded-lg border border-slate-300 px-3 py-1 text-xs pes-revert-match" data-match-id="${escapeHtml(
+                ? `<button type="button" class="min-h-[2.75rem] rounded-lg border-2 border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 pes-revert-match" data-match-id="${escapeHtml(
                     match.id
                   )}">${escapeHtml(t("results.revert"))}</button>`
                 : ""
             }
             ${
               !isPlayed
-                ? `<button type="button" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-1 text-xs text-amber-800 pes-skip-match" data-match-id="${escapeHtml(
+                ? `<button type="button" class="min-h-[2.75rem] rounded-lg border-2 border-amber-400 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 pes-skip-match" data-match-id="${escapeHtml(
                     match.id
                   )}">${escapeHtml(t("results.skip"))}</button>`
                 : ""
             }
             ${
               isSkipped
-                ? `<span class="text-[11px] font-medium text-amber-700">${escapeHtml(
+                ? `<span class="w-full text-xs font-medium text-amber-800 sm:w-auto">${escapeHtml(
                     t("results.skippedHint")
                   )}</span>`
                 : ""
             }
+            </div>
+            ${buildMatchDisciplineEditorHtml(match, state, season.id)}
           </form>
         </td>
-        <td class="px-3 py-2 text-xs text-slate-500">${formatIsoDateToDisplay(
+        <td class="pes-results-td px-3 py-2 text-xs text-slate-600 sm:text-sm" data-label="${labelPlayed}">${formatIsoDateToDisplay(
           match.playedAt
         )}</td>
       </tr>
@@ -781,15 +1005,15 @@ function renderResultsView(state, selectedSeasonId) {
     })
     .join("");
   root.innerHTML = `
-    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-        <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+    <div class="pes-results-table-wrap overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <table class="pes-results-table min-w-[min(100%,44rem)] w-full divide-y divide-slate-200 text-left text-sm">
+        <thead class="pes-results-thead bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
-            <th class="px-3 py-2">${escapeHtml(t("results.th.round"))}</th>
-            <th class="px-3 py-2">${escapeHtml(t("results.th.home"))}</th>
-            <th class="px-3 py-2">${escapeHtml(t("results.th.away"))}</th>
-            <th class="px-3 py-2">${escapeHtml(t("results.th.input"))}</th>
-            <th class="px-3 py-2">${escapeHtml(t("results.th.playedAt"))}</th>
+            <th class="px-3 py-3 sm:py-2">${escapeHtml(t("results.th.round"))}</th>
+            <th class="px-3 py-3 sm:py-2">${escapeHtml(t("results.th.home"))}</th>
+            <th class="px-3 py-3 sm:py-2">${escapeHtml(t("results.th.away"))}</th>
+            <th class="px-3 py-3 sm:py-2 min-w-[12rem]">${escapeHtml(t("results.th.input"))}</th>
+            <th class="px-3 py-3 sm:py-2 whitespace-nowrap">${escapeHtml(t("results.th.playedAt"))}</th>
           </tr>
         </thead>
         <tbody>

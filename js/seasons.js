@@ -141,3 +141,18 @@ function createNewDraftSeasonWithSamePlayersFromFinishedSeason(
 function getActiveSeasonOrNull(state) {
   return state.seasons.find((season) => season.status === "active") || null;
 }
+
+function deleteSeasonFromState(state, seasonId) {
+  const id = String(seasonId || "").trim();
+  if (!id) {
+    return { ok: false, message: t("error.seasonNotFound") };
+  }
+  const season = findSeasonById(state, id);
+  if (!season) {
+    return { ok: false, message: t("error.seasonNotFound") };
+  }
+  const nextState = cloneDeepJson(state);
+  nextState.seasons = nextState.seasons.filter((item) => item.id !== id);
+  nextState.matches = nextState.matches.filter((match) => match.seasonId !== id);
+  return { ok: true, state: nextState };
+}

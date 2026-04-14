@@ -241,6 +241,54 @@ function resolvePlayerAvatarUrl(player) {
   return buildDefaultPlayerAvatarDataUrl(name, seed);
 }
 
+/**
+ * Kartoni / povrede po meču (liga). playerName je slobodan unos (PES ime).
+ */
+function sanitizeMatchDiscipline(raw) {
+  if (!raw || typeof raw !== "object") {
+    return { cards: [], injured: [] };
+  }
+  const cards = [];
+  if (Array.isArray(raw.cards)) {
+    for (const item of raw.cards) {
+      if (!item || typeof item !== "object") {
+        continue;
+      }
+      const playerName = String(item.playerName || "").trim();
+      if (!playerName) {
+        continue;
+      }
+      let yellow = Number.parseInt(String(item.yellow ?? 0), 10);
+      if (!Number.isFinite(yellow) || yellow < 0) {
+        yellow = 0;
+      }
+      if (yellow > 2) {
+        yellow = 2;
+      }
+      const red = item.red ? 1 : 0;
+      cards.push({
+        playerName,
+        yellow,
+        red,
+        carryoverNextRound: Boolean(item.carryoverNextRound),
+      });
+    }
+  }
+  const injured = [];
+  if (Array.isArray(raw.injured)) {
+    for (const item of raw.injured) {
+      if (!item || typeof item !== "object") {
+        continue;
+      }
+      const playerName = String(item.playerName || "").trim();
+      if (playerName) {
+        injured.push({ playerName });
+      }
+    }
+  }
+  return { cards, injured };
+}
+
 function readImageFileAsAvatarDataUrl(file, maxSizePx) {
   return new Promise((resolve, reject) => {
     if (!file) {

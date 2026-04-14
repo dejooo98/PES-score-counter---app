@@ -348,6 +348,9 @@ function migratePesLeagueStateIfNeeded(parsed) {
           homeScore: shouldKeepScore ? match.homeScore : null,
           awayScore: shouldKeepScore ? match.awayScore : null,
           playedAt: shouldKeepScore ? match.playedAt || null : null,
+          discipline: shouldKeepScore
+            ? sanitizeMatchDiscipline(match.discipline)
+            : null,
         };
       })
     : base.matches;

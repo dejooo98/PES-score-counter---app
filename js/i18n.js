@@ -40,6 +40,9 @@ const I18N_SR = {
 
   "sound.on": "Zvuk: ON",
   "sound.off": "Zvuk: OFF",
+  "music.on": "Muzika: ON",
+  "music.off": "Muzika: OFF",
+  "music.ariaHint": "Pozadinska muzika sa YouTube-a; klik uključuje ili isključuje reprodukciju.",
 
   "settings.title": "Podešavanja aplikacije i prikaza",
   "settings.intro": "Ove opcije se čuvaju u pregledaču (localStorage) na ovom uređaju.",
@@ -164,6 +167,9 @@ const I18N_SR = {
   "oneVsOne.thHome": "Domaćin",
   "oneVsOne.thAway": "Gost",
   "oneVsOne.thScore": "Rez.",
+  "oneVsOne.thDiscipline": "Kartoni / povrede",
+  "oneVsOne.disciplineHint":
+    "Opciono: PES ime igrača, žuti/crveni karton; ispod unos povređenih.",
 
   "teams.website": "Sajt",
   "teams.edit": "Izmeni",
@@ -175,6 +181,7 @@ const I18N_SR = {
   "seasons.reset": "Reset",
   "seasons.finish": "Završi",
   "seasons.clone": "Nova",
+  "seasons.delete": "Obriši",
   "seasons.empty": "Nema sezona.",
 
   "fixtures.roundLabel": "Kolo",
@@ -188,7 +195,10 @@ const I18N_SR = {
   "fixtures.th.result": "Rezultat",
   "fixtures.empty": "Nema utakmica za prikaz.",
   "fixtures.scheduled": "Zakazano",
+  "fixtures.disciplineShort": "Kartoni: {cards} · Povrede: {inj}",
 
+  "results.carryoverHint":
+    "Prethodno kolo: neki igrači imaju karton koji se prenosi na ovo kolo — proverite učesnike.",
   "results.save": "Sačuvaj",
   "results.revert": "Poništi",
   "results.skip": "Preskoči",
@@ -199,6 +209,23 @@ const I18N_SR = {
   "results.th.input": "Unos",
   "results.th.playedAt": "Odigrano",
   "results.empty": "Nema utakmica.",
+
+  "discipline.sectionTitle": "Kartoni i povrede",
+  "discipline.cardsBlock": "Kartoni (ime u PES-u)",
+  "discipline.injuredBlock": "Povređeni igrači",
+  "discipline.cardPlayer": "Igrač",
+  "discipline.yellowShort": "Ž",
+  "discipline.redShort": "C",
+  "discipline.carryNext": "Nosi na sledeće kolo",
+  "discipline.injuredPlayer": "Ime",
+  "discipline.savedSummary": "Sačuvano: {cards} karton(a), {inj} povreda",
+  "discipline.addCard": "+ Karton",
+  "discipline.addInjury": "+ Povreda",
+  "discipline.removeRow": "Ukloni red",
+  "discipline.yellowInputLabel": "Žuti",
+  "discipline.redInputLabel": "Crveni",
+  "results.scoreHome": "Golovi domaćina",
+  "results.scoreAway": "Golovi gosta",
 
   "table.emptyData": "Nema podataka — unesite rezultate.",
   "table.th.hash": "#",
@@ -272,6 +299,8 @@ const I18N_SR = {
   "confirm.deletePlayer": "Da li ste sigurni da želite da obrišete igrača?",
   "confirm.deleteTeam": "Da li ste sigurni da želite da obrišete tim?",
   "confirm.resetSeason": "Resetovaćete raspored ove sezone (bez odigranih mečeva). Nastaviti?",
+  "confirm.deleteSeason":
+    "Trajno obrisati sezonu „{name}” i SVE njene mečeve? Ovaj korak se ne može poništiti.",
   "confirm.revertMatch": "Poništiti rezultat i vratiti meč u zakazano?",
   "confirm.disableCloud": "Isključiti cloud sync i ostati samo na localStorage režimu?",
 
@@ -289,6 +318,7 @@ const I18N_SR = {
   "toast.seasonDraftReset": "Sezona je vraćena u nacrt.",
   "toast.seasonFinished": "Sezona je označena kao završena.",
   "toast.seasonCloned": "Nova sezona (nacrt) je kreirana sa istim igračima.",
+  "toast.seasonDeleted": "Sezona je obrisana.",
   "toast.apiTeamMissing": "Izabrani API tim nije pronađen.",
   "toast.teamExists": "Tim već postoji u tvojoj listi.",
   "toast.teamAdded": "Tim \"{name}\" je dodat.",
@@ -434,6 +464,9 @@ const I18N_EN = {
 
   "sound.on": "Sound: ON",
   "sound.off": "Sound: OFF",
+  "music.on": "Music: ON",
+  "music.off": "Music: OFF",
+  "music.ariaHint": "Background music from YouTube; click to turn playback on or off.",
 
   "settings.title": "App & display settings",
   "settings.intro": "These options are stored in the browser (localStorage) on this device.",
@@ -570,6 +603,9 @@ const I18N_EN = {
   "oneVsOne.thHome": "Home",
   "oneVsOne.thAway": "Away",
   "oneVsOne.thScore": "Score",
+  "oneVsOne.thDiscipline": "Cards / injuries",
+  "oneVsOne.disciplineHint":
+    "Optional: PES player name, yellow/red card; injured players below.",
 
   "teams.website": "Site",
   "teams.edit": "Edit",
@@ -581,6 +617,7 @@ const I18N_EN = {
   "seasons.reset": "Reset",
   "seasons.finish": "Finish",
   "seasons.clone": "New",
+  "seasons.delete": "Delete",
   "seasons.empty": "No seasons.",
 
   "fixtures.roundLabel": "Round",
@@ -594,7 +631,10 @@ const I18N_EN = {
   "fixtures.th.result": "Result",
   "fixtures.empty": "No fixtures to show.",
   "fixtures.scheduled": "Scheduled",
+  "fixtures.disciplineShort": "Cards: {cards} · Injuries: {inj}",
 
+  "results.carryoverHint":
+    "Previous round: some players have a card carried over to this round — check participants.",
   "results.save": "Save",
   "results.revert": "Revert",
   "results.skip": "Skip",
@@ -605,6 +645,23 @@ const I18N_EN = {
   "results.th.input": "Input",
   "results.th.playedAt": "Played at",
   "results.empty": "No matches.",
+
+  "discipline.sectionTitle": "Cards and injuries",
+  "discipline.cardsBlock": "Cards (PES name)",
+  "discipline.injuredBlock": "Injured players",
+  "discipline.cardPlayer": "Player",
+  "discipline.yellowShort": "Y",
+  "discipline.redShort": "R",
+  "discipline.carryNext": "Carry to next round",
+  "discipline.injuredPlayer": "Name",
+  "discipline.savedSummary": "Saved: {cards} card row(s), {inj} injury row(s)",
+  "discipline.addCard": "+ Card",
+  "discipline.addInjury": "+ Injury",
+  "discipline.removeRow": "Remove row",
+  "discipline.yellowInputLabel": "Yellow",
+  "discipline.redInputLabel": "Red",
+  "results.scoreHome": "Home goals",
+  "results.scoreAway": "Away goals",
 
   "table.emptyData": "No data — enter results.",
   "table.th.hash": "#",
@@ -678,6 +735,8 @@ const I18N_EN = {
   "confirm.deletePlayer": "Delete this player?",
   "confirm.deleteTeam": "Delete this team?",
   "confirm.resetSeason": "Reset this season's schedule (no played matches). Continue?",
+  "confirm.deleteSeason":
+    "Permanently delete season \"{name}\" and ALL its matches? This cannot be undone.",
   "confirm.revertMatch": "Revert result and set match back to scheduled?",
   "confirm.disableCloud": "Disable cloud sync and stay on localStorage only?",
 
@@ -695,6 +754,7 @@ const I18N_EN = {
   "toast.seasonDraftReset": "Season reset to draft.",
   "toast.seasonFinished": "Season marked finished.",
   "toast.seasonCloned": "New draft season created with same players.",
+  "toast.seasonDeleted": "Season deleted.",
   "toast.apiTeamMissing": "API team not found.",
   "toast.teamExists": "Team already in your list.",
   "toast.teamAdded": "Team “{name}” added.",

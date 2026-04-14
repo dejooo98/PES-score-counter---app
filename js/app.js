@@ -713,12 +713,14 @@ function bindForms() {
       event.preventDefault();
       const formData = new FormData(oneVsOneForm);
       const state = getPesLeagueApplicationState();
+      const discipline = parseMatchDisciplineFromResultForm(oneVsOneForm);
       const result = recordOneVsOneMatchInState(
         state,
         formData.get("homePlayerId"),
         formData.get("awayPlayerId"),
         formData.get("homeScore"),
-        formData.get("awayScore")
+        formData.get("awayScore"),
+        discipline
       );
       if (!result.ok) {
         showToastMessage(result.message, "error");
@@ -1196,6 +1198,31 @@ function bindClickDelegation() {
       showToastMessage(t("toast.seasonCloned"), "success");
       return;
     }
+    const deleteSeasonButton = target.closest(".pes-delete-season");
+    if (deleteSeasonButton) {
+      const seasonId = deleteSeasonButton.getAttribute("data-season-id");
+      if (!seasonId) {
+        return;
+      }
+      const state = getPesLeagueApplicationState();
+      const seasonRow = findSeasonById(state, seasonId);
+      const seasonLabel = seasonRow ? seasonRow.name : seasonId;
+      if (!window.confirmPesDangerous(t("confirm.deleteSeason", { name: seasonLabel }))) {
+        return;
+      }
+      const result = deleteSeasonFromState(state, seasonId);
+      if (!result.ok) {
+        showToastMessage(result.message, "error");
+        return;
+      }
+      const stored = getSelectedSeasonIdFromSession();
+      if (stored === seasonId) {
+        setSelectedSeasonIdToSession(null);
+      }
+      applyPesLeagueStateAndRefresh(result.state);
+      showToastMessage(t("toast.seasonDeleted"), "success");
+      return;
+    }
 
     const discoveredTeamButton = target.closest(".pes-add-discovered-team");
     if (discoveredTeamButton) {
@@ -1235,6 +1262,64 @@ function bindClickDelegation() {
   });
 }
 
+function bindDisciplineDynamicRows() {
+  if (bindDisciplineDynamicRows._pesBound) {
+    return;
+  }
+  bindDisciplineDynamicRows._pesBound = true;
+  document.body.addEventListener("click", (event) => {
+    const el = event.target;
+    if (!(el instanceof HTMLElement)) {
+      return;
+    }
+    const addCardBtn = el.closest(".pes-discipline-add-card");
+    if (addCardBtn) {
+      event.preventDefault();
+      const block = addCardBtn.closest("[data-pes-discipline-block]");
+      if (!block) {
+        return;
+      }
+      const list = block.querySelector("[data-pes-cards-list]");
+      if (!list || typeof buildDisciplineCardRowHtml !== "function") {
+        return;
+      }
+      const showCarry = block.hasAttribute("data-pes-discipline-carryover");
+      list.insertAdjacentHTML("beforeend", buildDisciplineCardRowHtml(showCarry, {}));
+      return;
+    }
+    const addInjBtn = el.closest(".pes-discipline-add-injury");
+    if (addInjBtn) {
+      event.preventDefault();
+      const block = addInjBtn.closest("[data-pes-discipline-block]");
+      if (!block) {
+        return;
+      }
+      const list = block.querySelector("[data-pes-injuries-list]");
+      if (!list || typeof buildDisciplineInjuryRowHtml !== "function") {
+        return;
+      }
+      list.insertAdjacentHTML("beforeend", buildDisciplineInjuryRowHtml({}));
+      return;
+    }
+    const rmBtn = el.closest(".pes-discipline-remove-row");
+    if (rmBtn) {
+      event.preventDefault();
+      const row = rmBtn.closest("[data-pes-card-row], [data-pes-injury-row]");
+      if (!row || !row.parentElement) {
+        return;
+      }
+      const list = row.parentElement;
+      const sel = row.matches("[data-pes-card-row]")
+        ? "[data-pes-card-row]"
+        : "[data-pes-injury-row]";
+      if (list.querySelectorAll(sel).length <= 1) {
+        return;
+      }
+      row.remove();
+    }
+  });
+}
+
 function bindResultsDelegation() {
   document.body.addEventListener("submit", (event) => {
     const form = event.target;
@@ -1248,11 +1333,13 @@ function bindResultsDelegation() {
     const matchId = form.getAttribute("data-match-id");
     const formData = new FormData(form);
     const state = getPesLeagueApplicationState();
+    const discipline = parseMatchDisciplineFromResultForm(form);
     const result = saveMatchResult(
       state,
       matchId,
       formData.get("homeScore"),
-      formData.get("awayScore")
+      formData.get("awayScore"),
+      discipline
     );
     if (!result.ok) {
       showToastMessage(result.message, "error");
@@ -1497,12 +1584,16 @@ async function initializePesLeagueApplication() {
   if (typeof initPes6UiSounds === "function") {
     initPes6UiSounds();
   }
+  if (typeof window.initPes6BgMusic === "function") {
+    window.initPes6BgMusic();
+  }
   bindGlobalSeasonSelect();
   bindFixtureFilterDelegation();
   bindPlayerSearchInput();
   bindForms();
   bindClickDelegation();
   bindResultsDelegation();
+  bindDisciplineDynamicRows();
   bindExportButtons();
   bindModalControls();
   bindCloudControls();
@@ -1517,6 +1608,9 @@ async function initializePesLeagueApplication() {
     restartCloudPullLoop();
     if (typeof window.refreshPes6UiSoundLabels === "function") {
       window.refreshPes6UiSoundLabels();
+    }
+    if (typeof window.refreshPes6BgMusicLabels === "function") {
+      window.refreshPes6BgMusicLabels();
     }
   });
   window.addEventListener("hashchange", () => {
