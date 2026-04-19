@@ -251,3 +251,100 @@ function calculateOneVsOneProfileStatsForPlayer(state, playerId) {
   );
   return aggregateCareerStatsFromPlayedMatches(playedMatches, playerId);
 }
+
+/**
+ * League-only head-to-head vs each opponent (played matches), sorted by most games first.
+ */
+/**
+ * Head-to-head in one season between two players (league matches only).
+ * winsA / winsB are win counts for playerIdA and playerIdB respectively.
+ */
+function calculateLeagueHeadToHeadPairInSeason(state, seasonId, playerIdA, playerIdB) {
+  if (!seasonId || !playerIdA || !playerIdB || playerIdA === playerIdB) {
+    return { played: 0, winsA: 0, draws: 0, winsB: 0, goalsA: 0, goalsB: 0 };
+  }
+  const playedMatches = state.matches.filter((match) => {
+    if (match.seasonId !== seasonId) {
+      return false;
+    }
+    if (match.matchKind === "oneVsOne") {
+      return false;
+    }
+    if (match.status !== "played" || match.homeScore == null || match.awayScore == null) {
+      return false;
+    }
+    const h = match.homePlayerId;
+    const a = match.awayPlayerId;
+    return (h === playerIdA && a === playerIdB) || (h === playerIdB && a === playerIdA);
+  });
+  let winsA = 0;
+  let draws = 0;
+  let winsB = 0;
+  let goalsA = 0;
+  let goalsB = 0;
+  for (const m of playedMatches) {
+    const aHome = m.homePlayerId === playerIdA;
+    const gA = aHome ? m.homeScore : m.awayScore;
+    const gB = aHome ? m.awayScore : m.homeScore;
+    goalsA += gA;
+    goalsB += gB;
+    if (gA > gB) {
+      winsA += 1;
+    } else if (gB > gA) {
+      winsB += 1;
+    } else {
+      draws += 1;
+    }
+  }
+  return {
+    played: playedMatches.length,
+    winsA,
+    draws,
+    winsB,
+    goalsA,
+    goalsB,
+  };
+}
+
+function calculateLeagueHeadToHeadRecordsForPlayer(state, playerId) {
+  const playedMatches = filterPlayedCareerMatchesForPlayer(state, playerId, "league");
+  const byOpp = {};
+  for (const match of playedMatches) {
+    const isHome = match.homePlayerId === playerId;
+    const oppId = isHome ? match.awayPlayerId : match.homePlayerId;
+    if (!oppId) {
+      continue;
+    }
+    if (!byOpp[oppId]) {
+      byOpp[oppId] = {
+        opponentId: oppId,
+        played: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+      };
+    }
+    const row = byOpp[oppId];
+    row.played += 1;
+    const outcome = determineOutcomeForPlayer(match, playerId);
+    if (outcome === "win") {
+      row.wins += 1;
+    } else if (outcome === "draw") {
+      row.draws += 1;
+    } else if (outcome === "loss") {
+      row.losses += 1;
+    }
+    row.goalsFor += isHome ? match.homeScore : match.awayScore;
+    row.goalsAgainst += isHome ? match.awayScore : match.homeScore;
+  }
+  const list = Object.values(byOpp);
+  list.sort((a, b) => {
+    if (b.played !== a.played) {
+      return b.played - a.played;
+    }
+    return String(a.opponentId).localeCompare(String(b.opponentId));
+  });
+  return list;
+}

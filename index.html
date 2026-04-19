@@ -1,1176 +1,1646 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="google-site-verification"
-      content="DgEj4Nx9x44y37zekFAYng4BiyIM6QZeJ4e4vRh-VFs"
-    />
-    <meta
-      name="description"
-      id="pes-meta-description"
-      content="PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, statistika i cloud sync (Supabase)."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" id="pes-meta-og-title" content="PES liga — menadžer" />
-    <meta
-      property="og:description"
-      id="pes-meta-og-description"
-      content="PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, statistika i cloud sync (Supabase)."
-    />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" id="pes-meta-twitter-title" content="PES liga — menadžer" />
-    <meta
-      name="twitter:description"
-      id="pes-meta-twitter-description"
-      content="PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, statistika i cloud sync (Supabase)."
-    />
-    <meta name="theme-color" content="#1e293b" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <title>PES liga — menadžer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: [
-                "Oswald",
-                "Segoe UI",
-                "system-ui",
-                "sans-serif",
-              ],
-            },
-          },
-        },
-      };
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./css/pes6.css" />
-  </head>
-  <body class="pes6-app min-h-screen font-sans antialiased">
-    <div
-      id="pes-app-root"
-      class="pes6-root relative mx-auto flex min-h-screen w-full min-w-0 max-w-[1480px] flex-col pb-[env(safe-area-inset-bottom)]"
-    >
-      <header
-        class="pes6-top-bar sticky top-0 z-40 border-b border-slate-800 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70"
-      >
-        <div
-          class="pes6-top-bar__inner relative flex min-w-0 max-w-full flex-col gap-2 px-3 py-2 sm:gap-3 sm:py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4"
-          style="padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right))"
-        >
-          <div class="flex w-full min-w-0 items-center justify-between gap-2 sm:w-auto sm:justify-start">
-            <div class="pes6-brand min-w-0">
-              <h1 class="pes6-logo-title truncate text-xl font-bold tracking-tight text-slate-900">
-                <span class="pes6-logo-gold">PES</span>
-                <span class="pes6-logo-white"> mini liga </span>
-                <span class="pes6-logo-gold">PRO</span>
-              </h1>
-              <p
-                class="pes6-tagline mt-1 hidden text-xs text-slate-500 sm:block"
-                data-i18n="header.tagline"
-              >
-                Menadžer lige — lokalno ili cloud sync.
-              </p>
-            </div>
-            <button
-              type="button"
-              id="pes-header-menu-toggle"
-              class="pes6-header-menu-btn inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border-2 border-[#5f6864] sm:hidden"
-              aria-expanded="false"
-              aria-controls="pes-header-tools-panel"
-              data-i18n-aria-label="header.menuOpen"
-              aria-label="Otvori meni: sezona i cloud"
-            >
-              <span class="pes6-header-menu-bars" aria-hidden="true"
-                ><span></span><span></span><span></span
-              ></span>
-            </button>
-          </div>
-          <div
-            id="pes-header-tools-panel"
-            class="pes6-top-actions pes6-header-tools-panel flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end"
-            role="region"
-            data-i18n-aria-label="header.toolsRegionAria"
-            aria-label="Sezona i cloud"
-          >
-            <label
-              class="text-xs font-medium text-slate-600"
-              data-i18n="header.seasonLabel"
-              for="pes-global-season-select"
-              >Aktivna sezona za prikaz</label
-            >
-            <div class="pes-header-tools-row flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-              <select
-                id="pes-global-season-select"
-                class="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 sm:w-auto sm:min-w-[200px]"
-              >
-                <option value="">— izaberite sezonu —</option>
-              </select>
-              <span
-                id="pes-cloud-status-pill"
-                class="rounded-full border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-600"
-              >
-                Offline (localStorage)
-              </span>
-              <div class="pes-header-tools-quick grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
-                <button
-                  id="pes-app-settings-open"
-                  type="button"
-                  class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                  data-i18n="header.appSettings"
-                >
-                  Podešavanja aplikacije
-                </button>
-                <button
-                  id="pes-cloud-settings-open"
-                  type="button"
-                  class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                  data-i18n="header.cloudSettings"
-                >
-                  Cloud podešavanja
-                </button>
-                <button
-                  id="pes-cloud-sync-now"
-                  type="button"
-                  class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                  data-i18n="header.syncNow"
-                >
-                  Sync sada
-                </button>
-                <button
-                  id="pes-ui-sound-toggle"
-                  type="button"
-                  class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                  aria-pressed="true"
-                >
-                  Zvuk: ON
-                </button>
-                <button
-                  id="pes-bg-music-toggle"
-                  type="button"
-                  class="rounded-lg border border-amber-400/80 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950 hover:bg-amber-100"
-                  aria-pressed="false"
-                  data-i18n-aria-label="music.ariaHint"
-                  aria-label="Pozadinska muzika (YouTube)"
-                >
-                  Muzika: OFF
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      <div
-        id="pes-header-menu-backdrop"
-        class="pes6-header-menu-backdrop fixed inset-0 z-[35] hidden bg-black/45 sm:hidden"
-        aria-hidden="true"
-      ></div>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="google-site-verification"
+			content="DgEj4Nx9x44y37zekFAYng4BiyIM6QZeJ4e4vRh-VFs"
+		/>
+		<meta
+			name="description"
+			id="pes-meta-description"
+			content="PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, statistika i cloud sync (Supabase)."
+		/>
+		<meta property="og:type" content="website" />
+		<meta
+			property="og:title"
+			id="pes-meta-og-title"
+			content="PES liga — menadžer"
+		/>
+		<meta
+			property="og:description"
+			id="pes-meta-og-description"
+			content="PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, statistika i cloud sync (Supabase)."
+		/>
+		<meta name="twitter:card" content="summary" />
+		<meta
+			name="twitter:title"
+			id="pes-meta-twitter-title"
+			content="PES liga — menadžer"
+		/>
+		<meta
+			name="twitter:description"
+			id="pes-meta-twitter-description"
+			content="PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, statistika i cloud sync (Supabase)."
+		/>
+		<meta name="theme-color" content="#1e293b" />
+		<link rel="manifest" href="./manifest.webmanifest" />
+		<title>PES liga — menadžer</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						fontFamily: {
+							sans: ["Oswald", "Segoe UI", "system-ui", "sans-serif"],
+						},
+					},
+				},
+			};
+		</script>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="./css/pes6.css" />
+	</head>
+	<body class="pes6-app min-h-screen font-sans antialiased">
+		<div
+			id="pes-app-root"
+			class="pes6-root relative mx-auto flex min-h-screen w-full min-w-0 max-w-[1480px] flex-col pb-[env(safe-area-inset-bottom)]"
+		>
+			<header
+				class="pes6-top-bar sticky top-0 z-40 border-b border-slate-800 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70"
+			>
+				<div
+					class="pes6-top-bar__inner relative flex min-w-0 max-w-full flex-col gap-2 px-3 py-2 sm:gap-3 sm:py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4"
+					style="
+						padding-left: max(0.75rem, env(safe-area-inset-left));
+						padding-right: max(0.75rem, env(safe-area-inset-right));
+					"
+				>
+					<div
+						class="flex w-full min-w-0 items-center justify-between gap-2 sm:w-auto sm:justify-start"
+					>
+						<div class="pes6-brand min-w-0">
+							<h1
+								class="pes6-logo-title truncate text-xl font-bold tracking-tight text-slate-900"
+							>
+								<span class="pes6-logo-gold">PES</span>
+								<span class="pes6-logo-white"> mini liga </span>
+								<span class="pes6-logo-gold">PRO</span>
+							</h1>
+							<p
+								class="pes6-tagline mt-1 hidden text-xs text-slate-500 sm:block"
+								data-i18n="header.tagline"
+							>
+								Menadžer lige — lokalno ili cloud sync.
+							</p>
+						</div>
+						<button
+							type="button"
+							id="pes-header-menu-toggle"
+							class="pes6-header-menu-btn inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border-2 border-[#5f6864] sm:hidden"
+							aria-expanded="false"
+							aria-controls="pes-header-tools-panel"
+							data-i18n-aria-label="header.menuOpen"
+							aria-label="Otvori meni: sezona i cloud"
+						>
+							<span class="pes6-header-menu-bars" aria-hidden="true"
+								><span></span><span></span><span></span
+							></span>
+						</button>
+					</div>
+					<div
+						id="pes-header-tools-panel"
+						class="pes6-top-actions pes6-header-tools-panel flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end"
+						role="region"
+						data-i18n-aria-label="header.toolsRegionAria"
+						aria-label="Sezona i cloud"
+					>
+						<label
+							class="text-xs font-medium text-slate-600"
+							data-i18n="header.seasonLabel"
+							for="pes-global-season-select"
+							>Aktivna sezona za prikaz</label
+						>
+						<div
+							class="pes-header-tools-row flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
+						>
+							<select
+								id="pes-global-season-select"
+								class="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 sm:w-auto sm:min-w-[200px]"
+							>
+								<option value="">— izaberite sezonu —</option>
+							</select>
+							<span
+								id="pes-cloud-status-pill"
+								class="rounded-full border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-600"
+							>
+								Offline (localStorage)
+							</span>
+							<div
+								class="pes-header-tools-quick grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-2"
+							>
+								<button
+									id="pes-app-settings-open"
+									type="button"
+									class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+									data-i18n="header.appSettings"
+								>
+									Podešavanja aplikacije
+								</button>
+								<button
+									id="pes-cloud-settings-open"
+									type="button"
+									class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+									data-i18n="header.cloudSettings"
+								>
+									Cloud podešavanja
+								</button>
+								<button
+									id="pes-cloud-sync-now"
+									type="button"
+									class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+									data-i18n="header.syncNow"
+								>
+									Sync sada
+								</button>
+								<button
+									id="pes-ui-sound-toggle"
+									type="button"
+									class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+									aria-pressed="true"
+								>
+									Zvuk: ON
+								</button>
+								<button
+									id="pes-bg-music-toggle"
+									type="button"
+									class="rounded-lg border border-amber-400/80 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-950 hover:bg-amber-100"
+									aria-pressed="false"
+									data-i18n-aria-label="music.ariaHint"
+									aria-label="Pozadinska muzika (YouTube)"
+								>
+									Muzika: OFF
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</header>
+			<div
+				id="pes-header-menu-backdrop"
+				class="pes6-header-menu-backdrop fixed inset-0 z-[35] hidden bg-black/45 sm:hidden"
+				aria-hidden="true"
+			></div>
 
-      <div class="pes6-layout flex min-h-0 flex-1 flex-col md:flex-row">
-        <aside
-          class="pes6-sidebar border-b border-slate-900/40 md:w-[220px] md:flex-shrink-0 md:border-b-0 md:border-r"
-        >
-          <nav
-            class="pes6-side-nav flex max-w-full min-w-0 flex-row gap-1 overflow-x-auto px-2 py-2 md:flex-col md:gap-1 md:px-2 md:py-4"
-            data-i18n-aria-label="mainNav.aria"
-            aria-label="Glavni meni"
-          >
-            <button type="button" data-pes-nav="dashboard" class="pes6-nav-btn" data-i18n="nav.dashboard">
-              Dashboard
-            </button>
-            <button
-              type="button"
-              data-pes-nav="oneVsOne"
-              class="pes6-nav-btn pes6-nav-btn--duel"
-              data-i18n="nav.oneVsOne"
-              data-i18n-aria-label="nav.oneVsOneRegion"
-              aria-label="Brzi duel 1 na 1"
-            >
-              1 na 1
-            </button>
-            <button type="button" data-pes-nav="players" class="pes6-nav-btn" data-i18n="nav.players">
-              Igrači
-            </button>
-            <button type="button" data-pes-nav="teams" class="pes6-nav-btn" data-i18n="nav.teams">
-              Timovi
-            </button>
-            <button type="button" data-pes-nav="seasons" class="pes6-nav-btn" data-i18n="nav.seasons">
-              Sezone
-            </button>
-            <button type="button" data-pes-nav="fixtures" class="pes6-nav-btn" data-i18n="nav.fixtures">
-              Raspored
-            </button>
-            <button type="button" data-pes-nav="results" class="pes6-nav-btn" data-i18n="nav.results">
-              Rezultati
-            </button>
-            <button type="button" data-pes-nav="table" class="pes6-nav-btn" data-i18n="nav.table">
-              Tabela
-            </button>
-            <button type="button" data-pes-nav="rankings" class="pes6-nav-btn" data-i18n="nav.rankings">
-              Poredak
-            </button>
-            <button type="button" data-pes-nav="statistics" class="pes6-nav-btn" data-i18n="nav.statistics">
-              Statistika
-            </button>
-          </nav>
-        </aside>
+			<div class="pes6-layout flex min-h-0 flex-1 flex-col md:flex-row">
+				<aside
+					class="pes6-sidebar border-b border-slate-900/40 md:w-[220px] md:flex-shrink-0 md:border-b-0 md:border-r"
+				>
+					<nav
+						class="pes6-side-nav flex max-w-full min-w-0 flex-row gap-1 overflow-x-auto px-2 py-2 md:flex-col md:gap-1 md:px-2 md:py-4"
+						data-i18n-aria-label="mainNav.aria"
+						aria-label="Glavni meni"
+					>
+						<button
+							type="button"
+							data-pes-nav="dashboard"
+							class="pes6-nav-btn"
+							data-i18n="nav.dashboard"
+						>
+							Dashboard
+						</button>
+						<button
+							type="button"
+							data-pes-nav="oneVsOne"
+							class="pes6-nav-btn pes6-nav-btn--duel"
+							data-i18n="nav.oneVsOne"
+							data-i18n-aria-label="nav.oneVsOneRegion"
+							aria-label="Brzi duel 1 na 1"
+						>
+							1 na 1
+						</button>
+						<button
+							type="button"
+							data-pes-nav="players"
+							class="pes6-nav-btn"
+							data-i18n="nav.players"
+						>
+							Igrači
+						</button>
+						<button
+							type="button"
+							data-pes-nav="teams"
+							class="pes6-nav-btn"
+							data-i18n="nav.teams"
+						>
+							Timovi
+						</button>
+						<button
+							type="button"
+							data-pes-nav="seasons"
+							class="pes6-nav-btn"
+							data-i18n="nav.seasons"
+						>
+							Sezone
+						</button>
+						<button
+							type="button"
+							data-pes-nav="fixtures"
+							class="pes6-nav-btn"
+							data-i18n="nav.fixtures"
+						>
+							Raspored
+						</button>
+						<button
+							type="button"
+							data-pes-nav="results"
+							class="pes6-nav-btn"
+							data-i18n="nav.results"
+						>
+							Rezultati
+						</button>
+						<button
+							type="button"
+							data-pes-nav="table"
+							class="pes6-nav-btn"
+							data-i18n="nav.table"
+						>
+							Tabela
+						</button>
+						<button
+							type="button"
+							data-pes-nav="rankings"
+							class="pes6-nav-btn"
+							data-i18n="nav.rankings"
+						>
+							Poredak
+						</button>
+						<button
+							type="button"
+							data-pes-nav="statistics"
+							class="pes6-nav-btn"
+							data-i18n="nav.statistics"
+						>
+							Statistika
+						</button>
+					</nav>
+				</aside>
 
-        <div class="pes6-content flex min-w-0 flex-1 flex-col">
-          <main
-            class="pes6-main min-w-0 w-full max-w-full flex-1 px-3 py-4 sm:px-5 sm:py-6"
-            style="padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right))"
-          >
-        <section data-pes-section="dashboard" class="space-y-4">
-          <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.dashboard">Dashboard</h2>
-          <div id="pes-dashboard-root"></div>
-        </section>
+				<div class="pes6-content flex min-w-0 flex-1 flex-col">
+					<main
+						class="pes6-main min-w-0 w-full max-w-full flex-1 px-3 py-4 sm:px-5 sm:py-6"
+						style="
+							padding-left: max(0.75rem, env(safe-area-inset-left));
+							padding-right: max(0.75rem, env(safe-area-inset-right));
+						"
+					>
+						<section data-pes-section="dashboard" class="space-y-4">
+							<h2
+								class="text-lg font-semibold text-slate-800"
+								data-i18n="section.dashboard"
+							>
+								Dashboard
+							</h2>
+							<div id="pes-dashboard-root"></div>
+						</section>
 
-        <section data-pes-section="players" class="hidden space-y-4">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.players.h2">Igrači</h2>
-            <input
-              id="pes-player-search-input"
-              type="search"
-              data-i18n-placeholder="search.players.placeholder"
-              data-i18n-title="search.players.titleHint"
-              placeholder="Pretraga po imenu ili nadimku…"
-              title="Prečica: / za fokus"
-              class="w-full max-w-md rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-            />
-          </div>
-          <div class="grid gap-6 lg:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 class="text-sm font-semibold text-slate-800">Novi igrač</h3>
-              <form id="pes-add-player-form" class="mt-3 space-y-3">
-                <div>
-                  <label class="text-xs font-medium text-slate-600" for="pes-player-first-name"
-                    >Ime *</label
-                  >
-                  <input
-                    id="pes-player-first-name"
-                    name="firstName"
-                    required
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    class="text-xs font-medium text-slate-600"
-                    for="pes-player-last-name"
-                    >Prezime / nadimak</label
-                  >
-                  <input
-                    id="pes-player-last-name"
-                    name="lastNameOrNickname"
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-slate-600" for="pes-player-team-select"
-                    >Postojeći tim</label
-                  >
-                  <select
-                    id="pes-player-team-select"
-                    name="existingTeamId"
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                  >
-                    <option value="">— izaberite ili unesite novi ispod —</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-slate-600" for="pes-player-new-team"
-                    >Novi tim (ako ne birate iz liste)</label
-                  >
-                  <input
-                    id="pes-player-new-team"
-                    name="newTeamName"
-                    type="text"
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                    placeholder="npr. Real Madrid"
-                  />
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-slate-600" for="pes-player-avatar-file"
-                    >Profilna slika (opciono)</label
-                  >
-                  <input
-                    id="pes-player-avatar-file"
-                    name="avatarFile"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif"
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  class="w-full rounded-xl bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-                >
-                  Sačuvaj igrača
-                </button>
-              </form>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm">
-              <div id="pes-players-cards-root" class="space-y-2 p-2 md:hidden"></div>
-              <div class="hidden overflow-x-auto rounded-xl md:block">
-                <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-                  <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                    <tr>
-                      <th class="px-3 py-2" data-i18n="players.th.player">Igrač</th>
-                      <th class="px-3 py-2" data-i18n="players.th.team">Tim</th>
-                      <th class="px-3 py-2" data-i18n="players.th.added">Dodato</th>
-                      <th class="px-3 py-2 text-right" data-i18n="players.th.actions">Akcije</th>
-                    </tr>
-                  </thead>
-                  <tbody id="pes-players-table-body"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div id="pes-player-profile-root" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"></div>
-        </section>
+						<section data-pes-section="players" class="hidden space-y-4">
+							<div
+								class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+							>
+								<h2
+									class="text-lg font-semibold text-slate-800"
+									data-i18n="section.players.h2"
+								>
+									Igrači
+								</h2>
+								<input
+									id="pes-player-search-input"
+									type="search"
+									data-i18n-placeholder="search.players.placeholder"
+									data-i18n-title="search.players.titleHint"
+									placeholder="Pretraga po imenu ili nadimku…"
+									title="Prečica: / za fokus"
+									class="w-full max-w-md rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+								/>
+							</div>
+							<div class="grid gap-6 lg:grid-cols-2">
+								<div
+									class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+								>
+									<h3 class="text-sm font-semibold text-slate-800">
+										Novi igrač
+									</h3>
+									<form id="pes-add-player-form" class="mt-3 space-y-3">
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-player-first-name"
+												>Ime *</label
+											>
+											<input
+												id="pes-player-first-name"
+												name="firstName"
+												required
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+											/>
+										</div>
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-player-last-name"
+												>Prezime / nadimak</label
+											>
+											<input
+												id="pes-player-last-name"
+												name="lastNameOrNickname"
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+											/>
+										</div>
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-player-team-select"
+												>Postojeći tim</label
+											>
+											<select
+												id="pes-player-team-select"
+												name="existingTeamId"
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+											>
+												<option value="">
+													— izaberite ili unesite novi ispod —
+												</option>
+											</select>
+										</div>
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-player-new-team"
+												>Novi tim (ako ne birate iz liste)</label
+											>
+											<input
+												id="pes-player-new-team"
+												name="newTeamName"
+												type="text"
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+												placeholder="npr. Real Madrid"
+											/>
+										</div>
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-player-avatar-file"
+												>Profilna slika (opciono)</label
+											>
+											<input
+												id="pes-player-avatar-file"
+												name="avatarFile"
+												type="file"
+												accept="image/png,image/jpeg,image/webp,image/gif"
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+											/>
+										</div>
+										<button
+											type="submit"
+											class="w-full rounded-xl bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+										>
+											Sačuvaj igrača
+										</button>
+									</form>
+								</div>
+								<div
+									class="rounded-2xl border border-slate-200 bg-white p-0 shadow-sm"
+								>
+									<div
+										id="pes-players-cards-root"
+										class="space-y-2 p-2 md:hidden"
+									></div>
+									<div class="hidden overflow-x-auto rounded-xl md:block">
+										<table
+											class="min-w-full divide-y divide-slate-200 text-left text-sm"
+										>
+											<thead
+												class="bg-slate-50 text-xs uppercase text-slate-500"
+											>
+												<tr>
+													<th class="px-3 py-2" data-i18n="players.th.player">
+														Igrač
+													</th>
+													<th class="px-3 py-2" data-i18n="players.th.team">
+														Tim
+													</th>
+													<th class="px-3 py-2" data-i18n="players.th.added">
+														Dodato
+													</th>
+													<th
+														class="px-3 py-2 text-right"
+														data-i18n="players.th.actions"
+													>
+														Akcije
+													</th>
+												</tr>
+											</thead>
+											<tbody id="pes-players-table-body"></tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div
+								id="pes-player-profile-root"
+								class="scroll-mt-28 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+							></div>
+						</section>
 
-        <section data-pes-section="teams" class="hidden min-w-0 space-y-4">
-          <h2 class="min-w-0 text-lg font-semibold text-slate-800" data-i18n="section.teams">Timovi</h2>
-          <div class="grid min-w-0 gap-6 lg:grid-cols-2">
-            <div class="min-w-0 space-y-4">
-              <div class="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold text-slate-800">Novi tim</h3>
-                <form id="pes-add-team-form" class="mt-3 min-w-0 space-y-3">
-                  <div>
-                    <label class="text-xs font-medium text-slate-600" for="pes-team-name"
-                      >Naziv *</label
-                    >
-                    <input
-                      id="pes-team-name"
-                      name="name"
-                      required
-                      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label class="text-xs font-medium text-slate-600" for="pes-team-logo-url"
-                      >URL loga / slike (opciono)</label
-                    >
-                    <input
-                      id="pes-team-logo-url"
-                      name="logoUrl"
-                      type="url"
-                      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                      placeholder="https://…"
-                    />
-                  </div>
-                  <div class="grid min-w-0 gap-3 sm:grid-cols-2">
-                    <div class="min-w-0">
-                      <label class="text-xs font-medium text-slate-600" for="pes-team-league"
-                        >Liga</label
-                      >
-                      <input
-                        id="pes-team-league"
-                        name="league"
-                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                      />
-                    </div>
-                    <div class="min-w-0">
-                      <label class="text-xs font-medium text-slate-600" for="pes-team-country"
-                        >Država</label
-                      >
-                      <input
-                        id="pes-team-country"
-                        name="country"
-                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                      />
-                    </div>
-                    <div class="min-w-0">
-                      <label class="text-xs font-medium text-slate-600" for="pes-team-stadium"
-                        >Stadion</label
-                      >
-                      <input
-                        id="pes-team-stadium"
-                        name="stadium"
-                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                      />
-                    </div>
-                    <div class="min-w-0">
-                      <label class="text-xs font-medium text-slate-600" for="pes-team-founded"
-                        >Osnovan</label
-                      >
-                      <input
-                        id="pes-team-founded"
-                        name="foundedYear"
-                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label class="text-xs font-medium text-slate-600" for="pes-team-website"
-                      >Sajt</label
-                    >
-                    <input
-                      id="pes-team-website"
-                      name="website"
-                      type="url"
-                      placeholder="https://..."
-                      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    class="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-                  >
-                    Sačuvaj tim
-                  </button>
-                </form>
-              </div>
+						<section data-pes-section="teams" class="hidden min-w-0 space-y-4">
+							<h2
+								class="min-w-0 text-lg font-semibold text-slate-800"
+								data-i18n="section.teams"
+							>
+								Timovi
+							</h2>
+							<div class="grid min-w-0 gap-6 lg:grid-cols-2">
+								<div class="min-w-0 space-y-4">
+									<div
+										class="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+									>
+										<h3 class="text-sm font-semibold text-slate-800">
+											Novi tim
+										</h3>
+										<form id="pes-add-team-form" class="mt-3 min-w-0 space-y-3">
+											<div>
+												<label
+													class="text-xs font-medium text-slate-600"
+													for="pes-team-name"
+													>Naziv *</label
+												>
+												<input
+													id="pes-team-name"
+													name="name"
+													required
+													class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+												/>
+											</div>
+											<div>
+												<label
+													class="text-xs font-medium text-slate-600"
+													for="pes-team-logo-url"
+													>URL loga / slike (opciono)</label
+												>
+												<input
+													id="pes-team-logo-url"
+													name="logoUrl"
+													type="url"
+													class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+													placeholder="https://…"
+												/>
+											</div>
+											<div class="grid min-w-0 gap-3 sm:grid-cols-2">
+												<div class="min-w-0">
+													<label
+														class="text-xs font-medium text-slate-600"
+														for="pes-team-league"
+														>Liga</label
+													>
+													<input
+														id="pes-team-league"
+														name="league"
+														class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+													/>
+												</div>
+												<div class="min-w-0">
+													<label
+														class="text-xs font-medium text-slate-600"
+														for="pes-team-country"
+														>Država</label
+													>
+													<input
+														id="pes-team-country"
+														name="country"
+														class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+													/>
+												</div>
+												<div class="min-w-0">
+													<label
+														class="text-xs font-medium text-slate-600"
+														for="pes-team-stadium"
+														>Stadion</label
+													>
+													<input
+														id="pes-team-stadium"
+														name="stadium"
+														class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+													/>
+												</div>
+												<div class="min-w-0">
+													<label
+														class="text-xs font-medium text-slate-600"
+														for="pes-team-founded"
+														>Osnovan</label
+													>
+													<input
+														id="pes-team-founded"
+														name="foundedYear"
+														class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+													/>
+												</div>
+											</div>
+											<div>
+												<label
+													class="text-xs font-medium text-slate-600"
+													for="pes-team-website"
+													>Sajt</label
+												>
+												<input
+													id="pes-team-website"
+													name="website"
+													type="url"
+													placeholder="https://..."
+													class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+												/>
+											</div>
+											<button
+												type="submit"
+												class="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+											>
+												Sačuvaj tim
+											</button>
+										</form>
+									</div>
 
-              <div class="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold text-slate-800">Team Finder (API)</h3>
-                <p class="mt-1 text-xs text-slate-500">
-                  Pretraga timova po nazivu ili ligi. Jednim klikom dodaj tim u svoju bazu.
-                </p>
-                <form id="pes-team-search-form" class="mt-3 flex min-w-0 gap-2">
-                  <input
-                    id="pes-team-search-query"
-                    type="text"
-                    placeholder="npr. Manchester"
-                    class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                  />
-                  <button
-                    type="submit"
-                    class="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                  >
-                    Pretraži
-                  </button>
-                </form>
-                <form id="pes-league-browse-form" class="mt-2 flex min-w-0 gap-2">
-                  <select
-                    id="pes-team-league-select"
-                    class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                  ></select>
-                  <button
-                    type="submit"
-                    class="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                  >
-                    Prikaži ligu
-                  </button>
-                </form>
-                <div
-                  id="pes-team-discovery-status"
-                  class="mt-3 text-xs font-medium text-slate-500"
-                ></div>
-                <div
-                  id="pes-team-discovery-results"
-                  class="mt-3 max-h-72 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2"
-                ></div>
-              </div>
-            </div>
-            <div class="min-w-0 rounded-2xl border border-slate-200 bg-white p-0 shadow-sm">
-              <div class="max-w-full overflow-x-auto rounded-xl">
-                <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-                  <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                    <tr>
-                      <th class="px-3 py-2">Tim</th>
-                      <th class="px-3 py-2">Liga / država</th>
-                      <th class="px-3 py-2">Stadion</th>
-                      <th class="px-3 py-2">Osnovan</th>
-                      <th class="px-3 py-2 text-right">Akcije</th>
-                    </tr>
-                  </thead>
-                  <tbody id="pes-teams-table-body"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
+									<div
+										class="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+									>
+										<h3 class="text-sm font-semibold text-slate-800">
+											Team Finder (API)
+										</h3>
+										<p class="mt-1 text-xs text-slate-500">
+											Pretraga timova po nazivu ili ligi. Jednim klikom dodaj
+											tim u svoju bazu.
+										</p>
+										<form
+											id="pes-team-search-form"
+											class="mt-3 flex min-w-0 gap-2"
+										>
+											<input
+												id="pes-team-search-query"
+												type="text"
+												placeholder="npr. Manchester"
+												class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+											/>
+											<button
+												type="submit"
+												class="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+											>
+												Pretraži
+											</button>
+										</form>
+										<form
+											id="pes-league-browse-form"
+											class="mt-2 flex min-w-0 gap-2"
+										>
+											<select
+												id="pes-team-league-select"
+												class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+											></select>
+											<button
+												type="submit"
+												class="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+											>
+												Prikaži ligu
+											</button>
+										</form>
+										<div
+											id="pes-team-discovery-status"
+											class="mt-3 text-xs font-medium text-slate-500"
+										></div>
+										<div
+											id="pes-team-discovery-results"
+											class="mt-3 max-h-72 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2"
+										></div>
+									</div>
+								</div>
+								<div
+									class="min-w-0 rounded-2xl border border-slate-200 bg-white p-0 shadow-sm"
+								>
+									<div class="max-w-full overflow-x-auto rounded-xl">
+										<table
+											class="min-w-full divide-y divide-slate-200 text-left text-sm"
+										>
+											<thead
+												class="bg-slate-50 text-xs uppercase text-slate-500"
+											>
+												<tr>
+													<th class="px-3 py-2">Tim</th>
+													<th class="px-3 py-2">Liga / država</th>
+													<th class="px-3 py-2">Stadion</th>
+													<th class="px-3 py-2">Osnovan</th>
+													<th class="px-3 py-2 text-right">Akcije</th>
+												</tr>
+											</thead>
+											<tbody id="pes-teams-table-body"></tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</section>
 
-        <section data-pes-section="seasons" class="hidden space-y-4">
-          <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.seasons">Sezone / turniri</h2>
-          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 class="text-sm font-semibold text-slate-800">Nova sezona (nacrt)</h3>
-            <form id="pes-create-season-form" class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div class="flex-1">
-                <label class="text-xs font-medium text-slate-600" for="pes-season-name"
-                  >Naziv *</label
-                >
-                <input
-                  id="pes-season-name"
-                  name="name"
-                  required
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                  placeholder="npr. Proleće 2026"
-                />
-              </div>
-              <div class="flex-1">
-                <label
-                  class="text-xs font-medium text-slate-600"
-                  for="pes-season-participant-ids"
-                  >Učesnici (Ctrl+klik više) *</label
-                >
-                <select
-                  id="pes-season-participant-ids"
-                  multiple
-                  required
-                  size="6"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                ></select>
-              </div>
-              <button
-                type="submit"
-                class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-              >
-                Kreiraj sezonu
-              </button>
-            </form>
-            <p class="mt-2 text-xs text-slate-500">
-              Zatim u tabeli ispod koristite „Generiši” za random round-robin raspored (BYE ako je
-              neparan broj). „Dupli krug” uključuje povratne mečeve pre generisanja.
-            </p>
-          </div>
-          <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-              <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th class="px-3 py-2">Naziv</th>
-                  <th class="px-3 py-2">Kola</th>
-                  <th class="px-3 py-2">Učesnika</th>
-                  <th class="px-3 py-2">Kreirano</th>
-                  <th class="px-3 py-2">Status</th>
-                  <th class="px-3 py-2">Dupli</th>
-                  <th class="px-3 py-2 text-right">Akcije</th>
-                </tr>
-              </thead>
-              <tbody id="pes-seasons-table-body"></tbody>
-            </table>
-          </div>
-        </section>
+						<section data-pes-section="seasons" class="hidden space-y-4">
+							<h2
+								class="text-lg font-semibold text-slate-800"
+								data-i18n="section.seasons"
+							>
+								Sezone / turniri
+							</h2>
+							<div
+								class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+							>
+								<h3 class="text-sm font-semibold text-slate-800">
+									Nova sezona (nacrt)
+								</h3>
+								<form
+									id="pes-create-season-form"
+									class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end"
+								>
+									<div class="flex-1">
+										<label
+											class="text-xs font-medium text-slate-600"
+											for="pes-season-name"
+											>Naziv *</label
+										>
+										<input
+											id="pes-season-name"
+											name="name"
+											required
+											class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+											placeholder="npr. Proleće 2026"
+										/>
+									</div>
+									<div class="flex-1">
+										<label
+											class="text-xs font-medium text-slate-600"
+											for="pes-season-participant-ids"
+											>Učesnici (Ctrl+klik više) *</label
+										>
+										<select
+											id="pes-season-participant-ids"
+											multiple
+											required
+											size="6"
+											class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+										></select>
+									</div>
+									<button
+										type="submit"
+										class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+									>
+										Kreiraj sezonu
+									</button>
+								</form>
+								<p class="mt-2 text-xs text-slate-500">
+									Zatim u tabeli ispod koristite „Generiši” za random
+									round-robin raspored (BYE ako je neparan broj). „Dupli krug”
+									uključuje povratne mečeve pre generisanja.
+								</p>
+							</div>
+							<div
+								class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm"
+							>
+								<table
+									class="min-w-full divide-y divide-slate-200 text-left text-sm"
+								>
+									<thead class="bg-slate-50 text-xs uppercase text-slate-500">
+										<tr>
+											<th class="px-3 py-2">Naziv</th>
+											<th class="px-3 py-2">Kola</th>
+											<th class="px-3 py-2">Učesnika</th>
+											<th class="px-3 py-2">Kreirano</th>
+											<th class="px-3 py-2">Status</th>
+											<th class="px-3 py-2">Dupli</th>
+											<th class="px-3 py-2 text-right">Akcije</th>
+										</tr>
+									</thead>
+									<tbody id="pes-seasons-table-body"></tbody>
+								</table>
+							</div>
+						</section>
 
-        <section data-pes-section="fixtures" class="hidden space-y-4">
-          <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.fixtures">
-            Raspored utakmica
-          </h2>
-          <div id="pes-fixtures-root"></div>
-        </section>
+						<section data-pes-section="fixtures" class="hidden space-y-4">
+							<h2
+								class="text-lg font-semibold text-slate-800"
+								data-i18n="section.fixtures"
+							>
+								Raspored utakmica
+							</h2>
+							<div id="pes-fixtures-root"></div>
+						</section>
 
-        <section data-pes-section="results" class="hidden space-y-4">
-          <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.results">Unos rezultata</h2>
-          <div id="pes-results-root"></div>
-        </section>
+						<section data-pes-section="results" class="hidden space-y-4">
+							<h2
+								class="text-lg font-semibold text-slate-800"
+								data-i18n="section.results"
+							>
+								Unos rezultata
+							</h2>
+							<div id="pes-results-root"></div>
+						</section>
 
-        <section data-pes-section="table" class="hidden space-y-4">
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.table">Tabela</h2>
-            <button
-              id="pes-export-standings-csv"
-              type="button"
-              disabled
-              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-              data-i18n="export.standings"
-            >
-              Export CSV (tabela)
-            </button>
-          </div>
-          <div id="pes-table-root"></div>
-        </section>
+						<section data-pes-section="table" class="hidden space-y-4">
+							<div
+								class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+							>
+								<h2
+									class="text-lg font-semibold text-slate-800"
+									data-i18n="section.table"
+								>
+									Tabela
+								</h2>
+								<button
+									id="pes-export-standings-csv"
+									type="button"
+									disabled
+									class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+									data-i18n="export.standings"
+								>
+									Export CSV (tabela)
+								</button>
+							</div>
+							<div id="pes-table-root"></div>
+						</section>
 
-        <section data-pes-section="rankings" class="hidden space-y-4">
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.rankings">Poredak igrača</h2>
-            <button
-              id="pes-export-rankings-csv"
-              type="button"
-              disabled
-              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-              data-i18n="export.rankings"
-            >
-              Export CSV (poredak)
-            </button>
-          </div>
-          <p id="pes-rankings-season-hint" class="text-sm text-slate-600"></p>
-          <div id="pes-rankings-root"></div>
-        </section>
+						<section data-pes-section="rankings" class="hidden space-y-4">
+							<div
+								class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+							>
+								<h2
+									class="text-lg font-semibold text-slate-800"
+									data-i18n="section.rankings"
+								>
+									Poredak igrača
+								</h2>
+								<button
+									id="pes-export-rankings-csv"
+									type="button"
+									disabled
+									class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+									data-i18n="export.rankings"
+								>
+									Export CSV (poredak)
+								</button>
+							</div>
+							<p
+								id="pes-rankings-season-hint"
+								class="text-sm text-slate-600"
+							></p>
+							<div id="pes-rankings-root"></div>
+						</section>
 
-        <section data-pes-section="statistics" class="hidden space-y-4">
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.statistics">Statistika</h2>
-            <button
-              id="pes-export-results-csv"
-              type="button"
-              disabled
-              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-              data-i18n="export.results"
-            >
-              Export CSV (rezultati)
-            </button>
-          </div>
-          <div id="pes-statistics-root"></div>
-        </section>
+						<section data-pes-section="statistics" class="hidden space-y-4">
+							<div
+								class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+							>
+								<h2
+									class="text-lg font-semibold text-slate-800"
+									data-i18n="section.statistics"
+								>
+									Statistika
+								</h2>
+								<button
+									id="pes-export-results-csv"
+									type="button"
+									disabled
+									class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+									data-i18n="export.results"
+								>
+									Export CSV (rezultati)
+								</button>
+							</div>
+							<div id="pes-statistics-root"></div>
+						</section>
 
-        <section data-pes-section="oneVsOne" class="hidden space-y-4">
-          <div>
-            <h2 class="text-lg font-semibold text-slate-800" data-i18n="section.oneVsOne">1 na 1</h2>
-            <p class="mt-1 max-w-2xl text-sm text-slate-600" data-i18n="oneVsOne.intro">
-              Izaberite dva igrača i unesite rezultat. Ovi mečevi ne utiču na tabelu sezone; statistika se vodi u
-              profilu igrača.
-            </p>
-          </div>
-          <div class="grid gap-6 lg:grid-cols-2">
-            <div class="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent p-5 shadow-sm ring-1 ring-amber-500/15">
-              <h3 class="text-sm font-semibold text-slate-800" data-i18n="oneVsOne.formTitle">Novi meč 1 na 1</h3>
-              <form id="pes-one-vs-one-form" class="mt-4 space-y-3">
-                <div>
-                  <label class="text-xs font-medium text-slate-600" for="pes-1v1-home" data-i18n="oneVsOne.home"
-                    >Domaćin (kontroler 1)</label
-                  >
-                  <select
-                    id="pes-1v1-home"
-                    name="homePlayerId"
-                    required
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                  ></select>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-slate-600" for="pes-1v1-away" data-i18n="oneVsOne.away"
-                    >Gost (kontroler 2)</label
-                  >
-                  <select
-                    id="pes-1v1-away"
-                    name="awayPlayerId"
-                    required
-                    class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                  ></select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="text-xs font-medium text-slate-600" for="pes-1v1-home-score" data-i18n="oneVsOne.scoreHome"
-                      >Golovi domaćina</label
-                    >
-                    <input
-                      id="pes-1v1-home-score"
-                      name="homeScore"
-                      type="number"
-                      min="0"
-                      step="1"
-                      required
-                      class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label class="text-xs font-medium text-slate-600" for="pes-1v1-away-score" data-i18n="oneVsOne.scoreAway"
-                      >Golovi gosta</label
-                    >
-                    <input
-                      id="pes-1v1-away-score"
-                      name="awayScore"
-                      type="number"
-                      min="0"
-                      step="1"
-                      required
-                      class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                    />
-                  </div>
-                </div>
-                <div id="pes-one-vs-one-discipline-root"></div>
-                <button
-                  type="submit"
-                  class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-500"
-                  data-i18n="oneVsOne.submit"
-                >
-                  Sačuvaj rezultat
-                </button>
-              </form>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 class="text-sm font-semibold text-slate-800" data-i18n="oneVsOne.historyTitle">Poslednji mečevi 1 na 1</h3>
-              <div class="pes-onevsone-table-wrap mt-3 overflow-x-auto rounded-lg ring-1 ring-slate-200/80">
-                <table class="pes-onevsone-table min-w-[34rem] w-full border-collapse text-left text-sm">
-                  <thead>
-                    <tr class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
-                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thDate">Datum</th>
-                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thHome">Domaćin</th>
-                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thAway">Gost</th>
-                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thScore">Rez.</th>
-                      <th class="px-3 py-2 font-medium" data-i18n="oneVsOne.thDiscipline">Kartoni / povrede</th>
-                    </tr>
-                  </thead>
-                  <tbody id="pes-one-vs-one-history-body"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-          </main>
+						<section data-pes-section="oneVsOne" class="hidden space-y-4">
+							<div>
+								<h2
+									class="text-lg font-semibold text-slate-800"
+									data-i18n="section.oneVsOne"
+								>
+									1 na 1
+								</h2>
+								<p
+									class="mt-1 max-w-2xl text-sm text-slate-600"
+									data-i18n="oneVsOne.intro"
+								>
+									Izaberite dva igrača i unesite rezultat. Ovi mečevi ne utiču
+									na tabelu sezone; statistika se vodi u profilu igrača.
+								</p>
+							</div>
+							<div class="grid gap-6 lg:grid-cols-2">
+								<div
+									class="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent p-5 shadow-sm ring-1 ring-amber-500/15"
+								>
+									<h3
+										class="text-sm font-semibold text-slate-800"
+										data-i18n="oneVsOne.formTitle"
+									>
+										Novi meč 1 na 1
+									</h3>
+									<form id="pes-one-vs-one-form" class="mt-4 space-y-3">
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-1v1-home"
+												data-i18n="oneVsOne.home"
+												>Domaćin (kontroler 1)</label
+											>
+											<select
+												id="pes-1v1-home"
+												name="homePlayerId"
+												required
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+											></select>
+										</div>
+										<div>
+											<label
+												class="text-xs font-medium text-slate-600"
+												for="pes-1v1-away"
+												data-i18n="oneVsOne.away"
+												>Gost (kontroler 2)</label
+											>
+											<select
+												id="pes-1v1-away"
+												name="awayPlayerId"
+												required
+												class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+											></select>
+										</div>
+										<div class="grid grid-cols-2 gap-3">
+											<div>
+												<label
+													class="text-xs font-medium text-slate-600"
+													for="pes-1v1-home-score"
+													data-i18n="oneVsOne.scoreHome"
+													>Golovi domaćina</label
+												>
+												<input
+													id="pes-1v1-home-score"
+													name="homeScore"
+													type="number"
+													min="0"
+													step="1"
+													required
+													class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+												/>
+											</div>
+											<div>
+												<label
+													class="text-xs font-medium text-slate-600"
+													for="pes-1v1-away-score"
+													data-i18n="oneVsOne.scoreAway"
+													>Golovi gosta</label
+												>
+												<input
+													id="pes-1v1-away-score"
+													name="awayScore"
+													type="number"
+													min="0"
+													step="1"
+													required
+													class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+												/>
+											</div>
+										</div>
+										<div id="pes-one-vs-one-discipline-root"></div>
+										<button
+											type="submit"
+											class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-500"
+											data-i18n="oneVsOne.submit"
+										>
+											Sačuvaj rezultat
+										</button>
+									</form>
+								</div>
+								<div
+									class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+								>
+									<h3
+										class="text-sm font-semibold text-slate-800"
+										data-i18n="oneVsOne.historyTitle"
+									>
+										Poslednji mečevi 1 na 1
+									</h3>
+									<div
+										class="pes-onevsone-table-wrap mt-3 overflow-x-auto rounded-lg ring-1 ring-slate-200/80"
+									>
+										<table
+											class="pes-onevsone-table min-w-[34rem] w-full border-collapse text-left text-sm"
+										>
+											<thead>
+												<tr
+													class="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500"
+												>
+													<th
+														class="px-3 py-2 font-medium"
+														data-i18n="oneVsOne.thDate"
+													>
+														Datum
+													</th>
+													<th
+														class="px-3 py-2 font-medium"
+														data-i18n="oneVsOne.thHome"
+													>
+														Domaćin
+													</th>
+													<th
+														class="px-3 py-2 font-medium"
+														data-i18n="oneVsOne.thAway"
+													>
+														Gost
+													</th>
+													<th
+														class="px-3 py-2 font-medium"
+														data-i18n="oneVsOne.thScore"
+													>
+														Rez.
+													</th>
+													<th
+														class="px-3 py-2 font-medium"
+														data-i18n="oneVsOne.thDiscipline"
+													>
+														Kartoni / povrede
+													</th>
+												</tr>
+											</thead>
+											<tbody id="pes-one-vs-one-history-body"></tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</section>
+					</main>
 
-          <footer
-            id="pes-footer-hint"
-            class="pes6-footer-hint border-t border-slate-200 bg-white px-3 py-3 text-xs text-slate-500 sm:px-5"
-          >
-            Podaci se čuvaju u localStorage (i opcionalno cloud sync preko Supabase) ključu
-            <code class="rounded bg-slate-100 px-1">pesLeagueManagerState_v1</code>. Možete napraviti
-            rezervnu kopiju preko exporta JSON-a u konzoli:
-            <code class="rounded bg-slate-100 px-1">exportPesLeagueStateAsJsonString()</code>
-          </footer>
-        </div>
-      </div>
-    </div>
+					<footer
+						id="pes-footer-hint"
+						class="pes6-footer-hint border-t border-slate-200 bg-white px-3 py-3 text-xs text-slate-500 sm:px-5"
+					>
+						Podaci se čuvaju u localStorage (i opcionalno cloud sync preko
+						Supabase) pod ključem
+						<code class="rounded bg-slate-100 px-1"
+							>pesLeagueManagerState_v1</code
+						>. Rezervnu kopiju (JSON) preuzmite ili uvezite u Podešavanja
+						aplikacije → Rezervna kopija. Napredno u konzoli:
+						<code class="rounded bg-slate-100 px-1"
+							>exportPesLeagueStateAsJsonString()</code
+						>
+					</footer>
+				</div>
+			</div>
+		</div>
 
-    <div
-      id="pes-app-settings-modal"
-      class="fixed inset-0 z-[55] hidden items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="pes-app-settings-title"
-    >
-      <div class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 shadow-xl">
-        <h3 id="pes-app-settings-title" class="text-sm font-semibold text-slate-800" data-i18n="settings.title">
-          Podešavanja aplikacije i prikaza
-        </h3>
-        <p class="mt-1 text-xs text-slate-500" data-i18n="settings.intro">
-          Ove opcije se čuvaju u pregledaču (localStorage) na ovom uređaju.
-        </p>
-        <form id="pes-app-settings-form" class="mt-4 space-y-4">
-          <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600" data-i18n="settings.sectionUi">
-              Izgled
-            </h4>
-            <div class="mt-2 grid gap-3 sm:grid-cols-2">
-              <label class="block text-xs text-slate-600"
-                ><span data-i18n="settings.density">Gustina</span>
-                <select
-                  id="pes-app-set-density"
-                  name="uiDensity"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="comfortable" data-i18n="settings.densityComfortable">Udobno</option>
-                  <option value="compact" data-i18n="settings.densityCompact">Kompaktno</option>
-                </select>
-              </label>
-              <label class="block text-xs text-slate-600"
-                ><span data-i18n="settings.textScale">Tekst</span>
-                <select
-                  id="pes-app-set-text"
-                  name="textScale"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="sm" data-i18n="settings.textSm">Manja</option>
-                  <option value="md" data-i18n="settings.textMd">Standard</option>
-                  <option value="lg" data-i18n="settings.textLg">Veća</option>
-                </select>
-              </label>
-              <label class="block text-xs text-slate-600 sm:col-span-2"
-                ><span data-i18n="settings.reduceMotion">Animacije</span>
-                <select
-                  id="pes-app-set-motion"
-                  name="reduceMotion"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="system" data-i18n="settings.motionSystem">Sistem</option>
-                  <option value="on" data-i18n="settings.motionOn">Smanjene</option>
-                  <option value="off" data-i18n="settings.motionOff">Pune</option>
-                </select>
-              </label>
-              <label class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2">
-                <input id="pes-app-set-strong-focus" name="strongFocus" type="checkbox" class="rounded border-slate-300" />
-                <span data-i18n="settings.strongFocus">Jači fokus</span>
-              </label>
-              <label class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2">
-                <input id="pes-app-set-large-touch" name="largeTouch" type="checkbox" class="rounded border-slate-300" />
-                <span data-i18n="settings.largeTouch">Veći dodir</span>
-              </label>
-            </div>
-          </div>
-          <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600" data-i18n="settings.sectionBehavior">
-              Ponašanje
-            </h4>
-            <p class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed text-slate-600" data-i18n="settings.keyboardHint"></p>
-            <div class="mt-2 grid gap-3 sm:grid-cols-2">
-              <label class="block text-xs text-slate-600 sm:col-span-2"
-                ><span data-i18n="settings.cloudInterval">Cloud interval</span>
-                <select
-                  id="pes-app-set-cloud-pull"
-                  name="cloudPullIntervalSec"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="0" data-i18n="settings.intervalManual">Ručno</option>
-                  <option value="7200" data-i18n="settings.interval2h">Na 2 h</option>
-                  <option value="3600" data-i18n="settings.interval1h">Na 1 h</option>
-                  <option value="1800" data-i18n="settings.interval30min">Na 30 min</option>
-                  <option value="60" data-i18n="settings.interval60">Na 1 min</option>
-                  <option value="30" data-i18n="settings.interval30">Na 30 s</option>
-                  <option value="15" data-i18n="settings.interval15">Na 15 s</option>
-                </select>
-              </label>
-              <label class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2">
-                <input
-                  id="pes-app-set-confirm"
-                  name="confirmDangerousActions"
-                  type="checkbox"
-                  class="rounded border-slate-300"
-                  checked
-                />
-                <span data-i18n="settings.confirmDanger">Potvrde</span>
-              </label>
-              <label class="block text-xs text-slate-600 sm:col-span-2"
-                ><span data-i18n="settings.toastDuration">Toast</span>
-                <select
-                  id="pes-app-set-toast-dur"
-                  name="toastDurationKey"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="short" data-i18n="settings.toastShort">Kratko</option>
-                  <option value="normal" data-i18n="settings.toastNormal">Normalno</option>
-                  <option value="long" data-i18n="settings.toastLong">Dugo</option>
-                </select>
-              </label>
-              <label class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2">
-                <input id="pes-app-set-hide-success" name="suppressSuccessToasts" type="checkbox" class="rounded border-slate-300" />
-                <span data-i18n="settings.suppressSuccess">Bez toast uspeha</span>
-              </label>
-            </div>
-          </div>
-          <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600" data-i18n="settings.sectionData">
-              Datumi &amp; export
-            </h4>
-            <div class="mt-2 grid gap-3">
-              <label class="block text-xs text-slate-600"
-                ><span data-i18n="settings.dateFormat">Format datuma</span>
-                <select
-                  id="pes-app-set-date"
-                  name="dateFormat"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="eu" data-i18n="settings.dateEu">EU</option>
-                  <option value="iso" data-i18n="settings.dateIso">ISO</option>
-                </select>
-              </label>
-              <label class="block text-xs text-slate-600"
-                ><span data-i18n="settings.exportSlug">Prefiks CSV</span>
-                <input
-                  id="pes-app-set-slug"
-                  name="exportLeagueSlug"
-                  type="text"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                  placeholder="seoski-liga"
-                />
-                <span class="mt-1 block text-[11px] text-slate-500" data-i18n="settings.exportSlugHint"></span>
-              </label>
-            </div>
-          </div>
-          <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600" data-i18n="settings.sectionLang">
-              Jezik &amp; start
-            </h4>
-            <div class="mt-2 grid gap-3 sm:grid-cols-2">
-              <label class="block text-xs text-slate-600"
-                ><span data-i18n="settings.language">Jezik</span>
-                <select
-                  id="pes-app-set-lang"
-                  name="language"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="sr">Srpski</option>
-                  <option value="en">English</option>
-                </select>
-              </label>
-              <label class="block text-xs text-slate-600"
-                ><span data-i18n="settings.startupView">Start</span>
-                <select
-                  id="pes-app-set-startup"
-                  name="startupView"
-                  class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
-                >
-                  <option value="dashboard" data-i18n="settings.startDashboard">Dashboard</option>
-                  <option value="last" data-i18n="settings.startLast">Poslednji</option>
-                  <option value="players" data-i18n="settings.startView.players">Igrači</option>
-                  <option value="teams" data-i18n="settings.startView.teams">Timovi</option>
-                  <option value="seasons" data-i18n="settings.startView.seasons">Sezone</option>
-                  <option value="fixtures" data-i18n="settings.startView.fixtures">Raspored</option>
-                  <option value="results" data-i18n="settings.startView.results">Rezultati</option>
-                  <option value="table" data-i18n="settings.startView.table">Tabela</option>
-                  <option value="rankings" data-i18n="settings.startView.rankings">Poredak</option>
-                  <option value="statistics" data-i18n="settings.startView.statistics">Statistika</option>
-                  <option value="oneVsOne" data-i18n="settings.startView.oneVsOne">1 na 1</option>
-                </select>
-              </label>
-            </div>
-          </div>
-          <div class="flex justify-end gap-2 border-t border-slate-200 pt-3">
-            <button
-              type="button"
-              id="pes-app-settings-modal-close"
-              class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-              data-i18n="settings.cancel"
-            >
-              Zatvori
-            </button>
-            <button
-              type="submit"
-              class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-              data-i18n="settings.save"
-            >
-              Sačuvaj
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+		<div
+			id="pes-app-settings-modal"
+			class="fixed inset-0 z-[55] hidden items-center justify-center bg-black/40 p-4"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="pes-app-settings-title"
+		>
+			<div
+				class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 shadow-xl"
+			>
+				<h3
+					id="pes-app-settings-title"
+					class="text-sm font-semibold text-slate-800"
+					data-i18n="settings.title"
+				>
+					Podešavanja aplikacije i prikaza
+				</h3>
+				<p class="mt-1 text-xs text-slate-500" data-i18n="settings.intro">
+					Ove opcije se čuvaju u pregledaču (localStorage) na ovom uređaju.
+				</p>
+				<form id="pes-app-settings-form" class="mt-4 space-y-4">
+					<div>
+						<h4
+							class="text-xs font-semibold uppercase tracking-wide text-slate-600"
+							data-i18n="settings.sectionUi"
+						>
+							Izgled
+						</h4>
+						<div class="mt-2 grid gap-3 sm:grid-cols-2">
+							<label class="block text-xs text-slate-600"
+								><span data-i18n="settings.density">Gustina</span>
+								<select
+									id="pes-app-set-density"
+									name="uiDensity"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option
+										value="comfortable"
+										data-i18n="settings.densityComfortable"
+									>
+										Udobno
+									</option>
+									<option value="compact" data-i18n="settings.densityCompact">
+										Kompaktno
+									</option>
+								</select>
+							</label>
+							<label class="block text-xs text-slate-600"
+								><span data-i18n="settings.textScale">Tekst</span>
+								<select
+									id="pes-app-set-text"
+									name="textScale"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="sm" data-i18n="settings.textSm">Manja</option>
+									<option value="md" data-i18n="settings.textMd">
+										Standard
+									</option>
+									<option value="lg" data-i18n="settings.textLg">Veća</option>
+								</select>
+							</label>
+							<label class="block text-xs text-slate-600 sm:col-span-2"
+								><span data-i18n="settings.reduceMotion">Animacije</span>
+								<select
+									id="pes-app-set-motion"
+									name="reduceMotion"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="system" data-i18n="settings.motionSystem">
+										Sistem
+									</option>
+									<option value="on" data-i18n="settings.motionOn">
+										Smanjene
+									</option>
+									<option value="off" data-i18n="settings.motionOff">
+										Pune
+									</option>
+								</select>
+							</label>
+							<label
+								class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2"
+							>
+								<input
+									id="pes-app-set-strong-focus"
+									name="strongFocus"
+									type="checkbox"
+									class="rounded border-slate-300"
+								/>
+								<span data-i18n="settings.strongFocus">Jači fokus</span>
+							</label>
+							<label
+								class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2"
+							>
+								<input
+									id="pes-app-set-large-touch"
+									name="largeTouch"
+									type="checkbox"
+									class="rounded border-slate-300"
+								/>
+								<span data-i18n="settings.largeTouch">Veći dodir</span>
+							</label>
+						</div>
+					</div>
+					<div>
+						<h4
+							class="text-xs font-semibold uppercase tracking-wide text-slate-600"
+							data-i18n="settings.sectionBehavior"
+						>
+							Ponašanje
+						</h4>
+						<p
+							class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed text-slate-600"
+							data-i18n="settings.keyboardHint"
+						></p>
+						<div class="mt-2 grid gap-3 sm:grid-cols-2">
+							<label class="block text-xs text-slate-600 sm:col-span-2"
+								><span data-i18n="settings.cloudInterval">Cloud interval</span>
+								<select
+									id="pes-app-set-cloud-pull"
+									name="cloudPullIntervalSec"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="0" data-i18n="settings.intervalManual">
+										Ručno
+									</option>
+									<option value="7200" data-i18n="settings.interval2h">
+										Na 2 h
+									</option>
+									<option value="3600" data-i18n="settings.interval1h">
+										Na 1 h
+									</option>
+									<option value="1800" data-i18n="settings.interval30min">
+										Na 30 min
+									</option>
+									<option value="60" data-i18n="settings.interval60">
+										Na 1 min
+									</option>
+									<option value="30" data-i18n="settings.interval30">
+										Na 30 s
+									</option>
+									<option value="15" data-i18n="settings.interval15">
+										Na 15 s
+									</option>
+								</select>
+							</label>
+							<label
+								class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2"
+							>
+								<input
+									id="pes-app-set-confirm"
+									name="confirmDangerousActions"
+									type="checkbox"
+									class="rounded border-slate-300"
+									checked
+								/>
+								<span data-i18n="settings.confirmDanger">Potvrde</span>
+							</label>
+							<label class="block text-xs text-slate-600 sm:col-span-2"
+								><span data-i18n="settings.toastDuration">Toast</span>
+								<select
+									id="pes-app-set-toast-dur"
+									name="toastDurationKey"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="short" data-i18n="settings.toastShort">
+										Kratko
+									</option>
+									<option value="normal" data-i18n="settings.toastNormal">
+										Normalno
+									</option>
+									<option value="long" data-i18n="settings.toastLong">
+										Dugo
+									</option>
+								</select>
+							</label>
+							<label
+								class="flex items-center gap-2 text-xs text-slate-700 sm:col-span-2"
+							>
+								<input
+									id="pes-app-set-hide-success"
+									name="suppressSuccessToasts"
+									type="checkbox"
+									class="rounded border-slate-300"
+								/>
+								<span data-i18n="settings.suppressSuccess"
+									>Bez toast uspeha</span
+								>
+							</label>
+						</div>
+					</div>
+					<div>
+						<h4
+							class="text-xs font-semibold uppercase tracking-wide text-slate-600"
+							data-i18n="settings.sectionData"
+						>
+							Datumi &amp; export
+						</h4>
+						<div class="mt-2 grid gap-3">
+							<label class="block text-xs text-slate-600"
+								><span data-i18n="settings.dateFormat">Format datuma</span>
+								<select
+									id="pes-app-set-date"
+									name="dateFormat"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="eu" data-i18n="settings.dateEu">EU</option>
+									<option value="iso" data-i18n="settings.dateIso">ISO</option>
+								</select>
+							</label>
+							<label class="block text-xs text-slate-600"
+								><span data-i18n="settings.exportSlug">Prefiks CSV</span>
+								<input
+									id="pes-app-set-slug"
+									name="exportLeagueSlug"
+									type="text"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+									placeholder="seoski-liga"
+								/>
+								<span
+									class="mt-1 block text-[11px] text-slate-500"
+									data-i18n="settings.exportSlugHint"
+								></span>
+							</label>
+						</div>
+					</div>
+					<div>
+						<h4
+							class="text-xs font-semibold uppercase tracking-wide text-slate-600"
+							data-i18n="settings.sectionLang"
+						>
+							Jezik &amp; start
+						</h4>
+						<div class="mt-2 grid gap-3 sm:grid-cols-2">
+							<label class="block text-xs text-slate-600"
+								><span data-i18n="settings.language">Jezik</span>
+								<select
+									id="pes-app-set-lang"
+									name="language"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="sr">Srpski</option>
+									<option value="en">English</option>
+								</select>
+							</label>
+							<label class="block text-xs text-slate-600"
+								><span data-i18n="settings.startupView">Start</span>
+								<select
+									id="pes-app-set-startup"
+									name="startupView"
+									class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+								>
+									<option value="dashboard" data-i18n="settings.startDashboard">
+										Dashboard
+									</option>
+									<option value="last" data-i18n="settings.startLast">
+										Poslednji
+									</option>
+									<option
+										value="players"
+										data-i18n="settings.startView.players"
+									>
+										Igrači
+									</option>
+									<option value="teams" data-i18n="settings.startView.teams">
+										Timovi
+									</option>
+									<option
+										value="seasons"
+										data-i18n="settings.startView.seasons"
+									>
+										Sezone
+									</option>
+									<option
+										value="fixtures"
+										data-i18n="settings.startView.fixtures"
+									>
+										Raspored
+									</option>
+									<option
+										value="results"
+										data-i18n="settings.startView.results"
+									>
+										Rezultati
+									</option>
+									<option value="table" data-i18n="settings.startView.table">
+										Tabela
+									</option>
+									<option
+										value="rankings"
+										data-i18n="settings.startView.rankings"
+									>
+										Poredak
+									</option>
+									<option
+										value="statistics"
+										data-i18n="settings.startView.statistics"
+									>
+										Statistika
+									</option>
+									<option
+										value="oneVsOne"
+										data-i18n="settings.startView.oneVsOne"
+									>
+										1 na 1
+									</option>
+								</select>
+							</label>
+						</div>
+					</div>
+					<div class="border-t border-slate-200 pt-4">
+						<h4
+							class="text-xs font-semibold uppercase tracking-wide text-slate-600"
+							data-i18n="settings.sectionBackup"
+						>
+							Rezervna kopija
+						</h4>
+						<p
+							class="mt-1 text-[11px] leading-relaxed text-slate-500"
+							data-i18n="settings.backupIntro"
+						></p>
+						<div class="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+							<button
+								type="button"
+								id="pes-app-backup-download"
+								class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+								data-i18n="settings.backupDownload"
+							>
+								Preuzmi JSON
+							</button>
+							<label
+								for="pes-app-backup-file-input"
+								id="pes-app-backup-import-trigger"
+								class="inline-flex cursor-pointer items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 hover:bg-amber-100"
+								data-i18n="settings.backupImport"
+							>
+								Uvezi iz JSON fajla…
+							</label>
+							<input
+								id="pes-app-backup-file-input"
+								type="file"
+								accept="application/json,.json"
+								class="sr-only"
+							/>
+						</div>
+					</div>
+					<div class="flex justify-end gap-2 border-t border-slate-200 pt-3">
+						<button
+							type="button"
+							id="pes-app-settings-modal-close"
+							class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+							data-i18n="settings.cancel"
+						>
+							Zatvori
+						</button>
+						<button
+							type="submit"
+							class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+							data-i18n="settings.save"
+						>
+							Sačuvaj
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 
-    <div
-      id="pes-cloud-modal"
-      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="w-full max-w-xl rounded-2xl bg-white p-4 shadow-xl">
-        <h3 class="text-sm font-semibold text-slate-800" data-i18n="cloud.modalTitle">
-          Cloud sync (Supabase + Netlify)
-        </h3>
-        <p id="pes-cloud-intro-simple" class="mt-1 hidden text-xs text-slate-600" data-i18n="cloud.modalIntroSimple">
-          Unesi samo League ID koji si dobio od admina lige. Ostalo je već u podešavanjima aplikacije.
-        </p>
-        <p
-          id="pes-cloud-intro-preset-missing"
-          class="mt-1 hidden text-xs font-medium text-rose-700"
-          data-i18n="cloud.modalIntroPresetMissing"
-        >
-          Cloud server nije podešen u ovoj verziji aplikacije. Obrati se adminu lige.
-        </p>
-        <form id="pes-cloud-settings-form" class="mt-3 space-y-3">
-          <div id="pes-cloud-league-block">
-            <label class="text-xs font-medium text-slate-600" for="pes-cloud-league-id" data-i18n="cloud.leagueId"
-              >League ID</label>
-            <input
-              id="pes-cloud-league-id"
-              type="text"
-              autocomplete="off"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div class="flex items-center justify-between pt-2">
-            <button
-              id="pes-cloud-clear"
-              type="button"
-              class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
-            >
-              Isključi cloud
-            </button>
-            <div class="flex gap-2">
-              <button
-                id="pes-cloud-modal-close"
-                type="button"
-                class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-              >
-                Otkaži
-              </button>
-              <button
-                id="pes-cloud-submit"
-                type="submit"
-                class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Sačuvaj i poveži
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
+		<div
+			id="pes-cloud-modal"
+			class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
+			role="dialog"
+			aria-modal="true"
+		>
+			<div class="w-full max-w-xl rounded-2xl bg-white p-4 shadow-xl">
+				<h3
+					class="text-sm font-semibold text-slate-800"
+					data-i18n="cloud.modalTitle"
+				>
+					Cloud sync (Supabase + Netlify)
+				</h3>
+				<p
+					id="pes-cloud-intro-simple"
+					class="mt-1 hidden text-xs text-slate-600"
+					data-i18n="cloud.modalIntroSimple"
+				>
+					Unesi samo League ID koji si dobio od admina lige. Ostalo je već u
+					podešavanjima aplikacije.
+				</p>
+				<p
+					id="pes-cloud-intro-preset-missing"
+					class="mt-1 hidden text-xs font-medium text-rose-700"
+					data-i18n="cloud.modalIntroPresetMissing"
+				>
+					Cloud server nije podešen u ovoj verziji aplikacije. Obrati se adminu
+					lige.
+				</p>
+				<form id="pes-cloud-settings-form" class="mt-3 space-y-3">
+					<div id="pes-cloud-league-block">
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-cloud-league-id"
+							data-i18n="cloud.leagueId"
+							>League ID</label
+						>
+						<input
+							id="pes-cloud-league-id"
+							type="text"
+							autocomplete="off"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div class="flex items-center justify-between pt-2">
+						<button
+							id="pes-cloud-clear"
+							type="button"
+							class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
+						>
+							Isključi cloud
+						</button>
+						<div class="flex gap-2">
+							<button
+								id="pes-cloud-modal-close"
+								type="button"
+								class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+							>
+								Otkaži
+							</button>
+							<button
+								id="pes-cloud-submit"
+								type="submit"
+								class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+							>
+								Sačuvaj i poveži
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
 
-    <div
-      id="pes-player-modal"
-      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl">
-        <h3 class="text-sm font-semibold text-slate-800">Izmena igrača</h3>
-        <form id="pes-edit-player-form" class="mt-3 space-y-3">
-          <input type="hidden" id="pes-edit-player-id" />
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-player-first-name"
-              >Ime *</label
-            >
-            <input
-              id="pes-edit-player-first-name"
-              required
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-player-last-name"
-              >Prezime / nadimak</label
-            >
-            <input
-              id="pes-edit-player-last-name"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-player-team"
-              >Tim *</label
-            >
-            <select
-              id="pes-edit-player-team"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            ></select>
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-player-avatar"
-              >Profilna slika (opciono)</label
-            >
-            <input
-              id="pes-edit-player-avatar"
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div class="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              id="pes-player-modal-close"
-              class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-            >
-              Otkaži
-            </button>
-            <button
-              type="submit"
-              class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-            >
-              Sačuvaj
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+		<div
+			id="pes-player-modal"
+			class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
+			role="dialog"
+			aria-modal="true"
+		>
+			<div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl">
+				<h3 class="text-sm font-semibold text-slate-800">Izmena igrača</h3>
+				<form id="pes-edit-player-form" class="mt-3 space-y-3">
+					<input type="hidden" id="pes-edit-player-id" />
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-player-first-name"
+							>Ime *</label
+						>
+						<input
+							id="pes-edit-player-first-name"
+							required
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-player-last-name"
+							>Prezime / nadimak</label
+						>
+						<input
+							id="pes-edit-player-last-name"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-player-team"
+							>Tim *</label
+						>
+						<select
+							id="pes-edit-player-team"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						></select>
+					</div>
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-player-avatar"
+							>Profilna slika (opciono)</label
+						>
+						<input
+							id="pes-edit-player-avatar"
+							type="file"
+							accept="image/png,image/jpeg,image/webp,image/gif"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button
+							type="button"
+							id="pes-player-modal-close"
+							class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+						>
+							Otkaži
+						</button>
+						<button
+							type="submit"
+							class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+						>
+							Sačuvaj
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 
-    <div
-      id="pes-team-modal"
-      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl">
-        <h3 class="text-sm font-semibold text-slate-800">Izmena tima</h3>
-        <form id="pes-edit-team-form" class="mt-3 space-y-3">
-          <input type="hidden" id="pes-edit-team-id" />
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-team-name"
-              >Naziv *</label
-            >
-            <input
-              id="pes-edit-team-name"
-              required
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-team-logo"
-              >URL loga</label
-            >
-            <input
-              id="pes-edit-team-logo"
-              type="url"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label class="text-xs font-medium text-slate-600" for="pes-edit-team-league"
-                >Liga</label
-              >
-              <input
-                id="pes-edit-team-league"
-                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label class="text-xs font-medium text-slate-600" for="pes-edit-team-country"
-                >Država</label
-              >
-              <input
-                id="pes-edit-team-country"
-                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label class="text-xs font-medium text-slate-600" for="pes-edit-team-stadium"
-                >Stadion</label
-              >
-              <input
-                id="pes-edit-team-stadium"
-                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label class="text-xs font-medium text-slate-600" for="pes-edit-team-founded"
-                >Osnovan</label
-              >
-              <input
-                id="pes-edit-team-founded"
-                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-600" for="pes-edit-team-website"
-              >Sajt</label
-            >
-            <input
-              id="pes-edit-team-website"
-              type="url"
-              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div class="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              id="pes-team-modal-close"
-              class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-            >
-              Otkaži
-            </button>
-            <button
-              type="submit"
-              class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-            >
-              Sačuvaj
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+		<div
+			id="pes-team-modal"
+			class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
+			role="dialog"
+			aria-modal="true"
+		>
+			<div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl">
+				<h3 class="text-sm font-semibold text-slate-800">Izmena tima</h3>
+				<form id="pes-edit-team-form" class="mt-3 space-y-3">
+					<input type="hidden" id="pes-edit-team-id" />
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-team-name"
+							>Naziv *</label
+						>
+						<input
+							id="pes-edit-team-name"
+							required
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-team-logo"
+							>URL loga</label
+						>
+						<input
+							id="pes-edit-team-logo"
+							type="url"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div class="grid gap-3 sm:grid-cols-2">
+						<div>
+							<label
+								class="text-xs font-medium text-slate-600"
+								for="pes-edit-team-league"
+								>Liga</label
+							>
+							<input
+								id="pes-edit-team-league"
+								class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+							/>
+						</div>
+						<div>
+							<label
+								class="text-xs font-medium text-slate-600"
+								for="pes-edit-team-country"
+								>Država</label
+							>
+							<input
+								id="pes-edit-team-country"
+								class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+							/>
+						</div>
+						<div>
+							<label
+								class="text-xs font-medium text-slate-600"
+								for="pes-edit-team-stadium"
+								>Stadion</label
+							>
+							<input
+								id="pes-edit-team-stadium"
+								class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+							/>
+						</div>
+						<div>
+							<label
+								class="text-xs font-medium text-slate-600"
+								for="pes-edit-team-founded"
+								>Osnovan</label
+							>
+							<input
+								id="pes-edit-team-founded"
+								class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+							/>
+						</div>
+					</div>
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-edit-team-website"
+							>Sajt</label
+						>
+						<input
+							id="pes-edit-team-website"
+							type="url"
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						/>
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button
+							type="button"
+							id="pes-team-modal-close"
+							class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+						>
+							Otkaži
+						</button>
+						<button
+							type="submit"
+							class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+						>
+							Sačuvaj
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 
-    <div
-      id="pes-toast-host"
-      class="pointer-events-none fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col gap-2"
-    ></div>
+		<div
+			id="pes-toast-host"
+			class="pointer-events-none fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col gap-2"
+		></div>
 
-    <div id="pes-yt-player-host" class="pes-yt-player-host" aria-hidden="true">
-      <div id="pes-yt-player"></div>
-    </div>
+		<div id="pes-yt-player-host" class="pes-yt-player-host" aria-hidden="true">
+			<div id="pes-yt-player"></div>
+		</div>
 
-    <script src="./js/helpers.js"></script>
-    <script src="./js/app-settings.js"></script>
-    <script src="./js/i18n.js"></script>
-    <script src="./js/cloud-preset.js"></script>
-    <script src="./js/data-store.js"></script>
-    <script src="./js/teams.js"></script>
-    <script src="./js/players.js"></script>
-    <script src="./js/seasons.js"></script>
-    <script src="./js/fixtures.js"></script>
-    <script src="./js/standings.js"></script>
-    <script src="./js/statistics.js"></script>
-    <script src="./js/ui.js"></script>
-    <script src="./js/pes6-ui-sounds.js"></script>
-    <script src="./js/pes6-bg-music.js"></script>
-    <script src="./js/app.js"></script>
-  </body>
+		<script src="./js/helpers.js"></script>
+		<script src="./js/app-settings.js"></script>
+		<script src="./js/i18n.js"></script>
+		<script src="./js/cloud-preset.js"></script>
+		<script src="./js/data-store.js"></script>
+		<script src="./js/teams.js"></script>
+		<script src="./js/players.js"></script>
+		<script src="./js/seasons.js"></script>
+		<script src="./js/fixtures.js"></script>
+		<script src="./js/standings.js"></script>
+		<script src="./js/statistics.js"></script>
+		<script src="./js/ui.js"></script>
+		<script src="./js/pes6-ui-sounds.js"></script>
+		<script src="./js/pes6-bg-music.js"></script>
+		<script src="./js/app.js"></script>
+	</body>
 </html>
