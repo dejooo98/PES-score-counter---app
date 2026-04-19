@@ -536,6 +536,78 @@ function bindPlayerSearchInput() {
   });
 }
 
+function isPesKeyboardTypingTarget(node) {
+  if (!node || typeof node !== "object") {
+    return false;
+  }
+  const tag = node.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+    return true;
+  }
+  try {
+    if (node.isContentEditable) {
+      return true;
+    }
+  } catch {
+    // ignore
+  }
+  return false;
+}
+
+function isAnyPesDialogOpen() {
+  return ["pes-app-settings-modal", "pes-cloud-modal", "pes-player-modal", "pes-team-modal"].some(
+    (id) => {
+      const el = document.getElementById(id);
+      return el && el.classList.contains("flex");
+    }
+  );
+}
+
+function focusPesPlayerSearchInput() {
+  const input = document.getElementById("pes-player-search-input");
+  if (!input) {
+    return;
+  }
+  input.focus();
+  if (typeof input.select === "function" && input.type !== "number") {
+    try {
+      input.select();
+    } catch {
+      // ignore
+    }
+  }
+}
+
+function bindGlobalPlayerSearchShortcut() {
+  window.addEventListener("keydown", (event) => {
+    if (event.defaultPrevented) {
+      return;
+    }
+    if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+    if (isPesKeyboardTypingTarget(event.target)) {
+      return;
+    }
+    if (isAnyPesDialogOpen()) {
+      return;
+    }
+    event.preventDefault();
+    closeHeaderMobileMenu();
+    const viewId = typeof getViewIdFromHash === "function" ? getViewIdFromHash() : "dashboard";
+    if (viewId !== "players") {
+      navigateToView("players");
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          focusPesPlayerSearchInput();
+        });
+      });
+      return;
+    }
+    focusPesPlayerSearchInput();
+  });
+}
+
 function bindForms() {
   const addTeamForm = document.getElementById("pes-add-team-form");
   if (addTeamForm) {
@@ -1590,6 +1662,7 @@ async function initializePesLeagueApplication() {
   bindGlobalSeasonSelect();
   bindFixtureFilterDelegation();
   bindPlayerSearchInput();
+  bindGlobalPlayerSearchShortcut();
   bindForms();
   bindClickDelegation();
   bindResultsDelegation();

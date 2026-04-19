@@ -1,0 +1,10 @@
+{
+  "name": "PES mini liga PRO — menadžer",
+  "short_name": "PES liga",
+  "description": "Menadžer lokalne PES lige: igrači, timovi, sezone, raspored i statistika.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#1e293b",
+  "lang": "sr"
+}

@@ -66,6 +66,8 @@ function getViewIdFromHash() {
   return raw.split("/")[0] || "dashboard";
 }
 
+window.getViewIdFromHash = getViewIdFromHash;
+
 function showOnlySection(viewId) {
   const sections = document.querySelectorAll("[data-pes-section]");
   sections.forEach((section) => {

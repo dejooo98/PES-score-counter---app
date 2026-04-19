@@ -12,6 +12,8 @@ function getPesI18nLang() {
 
 const I18N_SR = {
   "meta.pageTitle": "PES liga — menadžer",
+  "meta.description":
+    "PES mini liga PRO — menadžer lokalne lige: igrači, timovi, sezone, raspored, rezultati, tabela, poredak, statistika, dueli 1 na 1 i opcioni cloud sync (Supabase). Podaci u pregledaču ili sinhronizacija.",
   "nav.dashboard": "Dashboard",
   "nav.players": "Igrači",
   "nav.teams": "Timovi",
@@ -151,6 +153,9 @@ const I18N_SR = {
   "players.careerLeague": "Liga i turniri",
   "players.careerOneVsOne": "1 na 1",
   "search.players.placeholder": "Pretraga po imenu ili nadimku…",
+  "search.players.titleHint": "Prečica: taster / za brzi fokus (van polja za unos)",
+  "settings.keyboardHint":
+    "Prečica: pritisnite / bilo gde u aplikaciji (osim u poljima za unos) da otvorite Igrače i fokusirate pretragu.",
 
   "oneVsOne.intro":
     "Izaberite dva igrača i unesite rezultat. Ovi mečevi ne utiču na tabelu sezone; statistika se vodi u profilu igrača.",
@@ -447,6 +452,8 @@ const I18N_SR = {
 
 const I18N_EN = {
   "meta.pageTitle": "PES league — manager",
+  "meta.description":
+    "PES mini league PRO — local league manager: players, teams, seasons, fixtures, results, table, rankings, statistics, 1v1 duels and optional cloud sync (Supabase). Browser storage or sync.",
   "header.tagline": "League manager — local or cloud sync.",
   "header.seasonLabel": "Active season for display",
   "header.chooseSeason": "— choose season —",
@@ -587,6 +594,9 @@ const I18N_EN = {
   "players.careerLeague": "League & cups",
   "players.careerOneVsOne": "1v1",
   "search.players.placeholder": "Search by name or nickname…",
+  "search.players.titleHint": "Shortcut: / to focus search (when not typing in a field)",
+  "settings.keyboardHint":
+    "Shortcut: press / anywhere in the app (except inside inputs) to open Players and focus the search field.",
 
   "oneVsOne.intro":
     "Pick two players and enter the score. These matches do not affect the season table; stats appear on each player profile.",
@@ -944,10 +954,22 @@ function applyPesI18nToDocument() {
     }
   });
   const docTitle = t("meta.pageTitle");
+  const docDesc = t("meta.description");
   const titleTag = document.querySelector("title");
   if (titleTag) {
     titleTag.textContent = docTitle;
   }
+  const setMetaContent = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.setAttribute("content", value);
+    }
+  };
+  setMetaContent("pes-meta-description", docDesc);
+  setMetaContent("pes-meta-og-title", docTitle);
+  setMetaContent("pes-meta-og-description", docDesc);
+  setMetaContent("pes-meta-twitter-title", docTitle);
+  setMetaContent("pes-meta-twitter-description", docDesc);
   const footer = document.getElementById("pes-footer-hint");
   if (footer) {
     const code1 =
