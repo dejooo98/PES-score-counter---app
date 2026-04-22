@@ -1697,6 +1697,38 @@ function bindResultsDelegation() {
 		if (!(form instanceof HTMLFormElement)) {
 			return;
 		}
+		if (form.classList.contains("pes-playoff-form")) {
+			event.preventDefault();
+			const stage = form.getAttribute("data-stage");
+			const formData = new FormData(form);
+			const state = getPesLeagueApplicationState();
+			const seasonId =
+				typeof resolveSelectedSeasonId === "function"
+					? resolveSelectedSeasonId(state)
+					: null;
+			if (!seasonId) {
+				showToastMessage(t("toast.pickSeason"), "error");
+				return;
+			}
+			if (typeof setPlayoffStageResultInState !== "function") {
+				return;
+			}
+			const result = setPlayoffStageResultInState(
+				state,
+				seasonId,
+				stage,
+				formData.get("homeScore"),
+				formData.get("awayScore"),
+				String(formData.get("penaltyWinner") || ""),
+			);
+			if (!result.ok) {
+				showToastMessage(result.message, "error");
+				return;
+			}
+			applyPesLeagueStateAndRefresh(result.state);
+			showToastMessage(t("playoff.toast.saved"), "success");
+			return;
+		}
 		if (!form.classList.contains("pes-result-form")) {
 			return;
 		}
@@ -1722,6 +1754,36 @@ function bindResultsDelegation() {
 	document.body.addEventListener("click", (event) => {
 		const target = event.target;
 		if (!(target instanceof HTMLElement)) {
+			return;
+		}
+		const playoffReset = target.closest(".pes-playoff-reset");
+		if (playoffReset) {
+			const stage = playoffReset.getAttribute("data-stage");
+			if (!stage) {
+				return;
+			}
+			if (!window.confirmPesDangerous(t("playoff.confirm.reset"))) {
+				return;
+			}
+			const state = getPesLeagueApplicationState();
+			const seasonId =
+				typeof resolveSelectedSeasonId === "function"
+					? resolveSelectedSeasonId(state)
+					: null;
+			if (!seasonId) {
+				showToastMessage(t("toast.pickSeason"), "error");
+				return;
+			}
+			if (typeof clearPlayoffStageInState !== "function") {
+				return;
+			}
+			const result = clearPlayoffStageInState(state, seasonId, stage);
+			if (!result.ok) {
+				showToastMessage(result.message, "error");
+				return;
+			}
+			applyPesLeagueStateAndRefresh(result.state);
+			showToastMessage(t("playoff.toast.cleared"), "success");
 			return;
 		}
 		const revertButton = target.closest(".pes-revert-match");

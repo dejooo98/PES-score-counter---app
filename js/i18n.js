@@ -521,6 +521,57 @@ const I18N_SR = {
 	"table.teams.th.stadium": "Stadion",
 	"table.teams.th.founded": "Osnovan",
 	"table.teams.th.actions": "Akcije",
+
+	"playoff.ariaLabel": "Plej-of bracket",
+	"playoff.title": "Plej-of",
+	"playoff.title.gold": "— Zlatni penis",
+	"playoff.sub.projection":
+		"Projekcija na osnovu trenutne tabele. Pravi plej-of se otključava kada se odigra ceo regularni deo.",
+	"playoff.sub.active":
+		"Regularni deo je završen. Unesite rezultate polufinala i finala.",
+	"playoff.sub.empty": "Potrebna su najmanje 4 igrača u tabeli za plej-of.",
+	"playoff.pill.projection": "Projekcija",
+	"playoff.pill.active": "Plej-of",
+	"playoff.pill.empty": "Nije moguće",
+	"playoff.empty":
+		"Kada tabela bude imala bar 4 igrača, ovde će se prikazati plej-of bracket.",
+	"playoff.sf1Title": "Polufinale 1",
+	"playoff.sf2Title": "Polufinale 2",
+	"playoff.finalTitle": "Finale",
+	"playoff.semifinalShort": "SF",
+	"playoff.finalShort": "F",
+	"playoff.slot.awaiting": "— čeka se —",
+	"playoff.finalWaiting":
+		"Odigrajte oba polufinala da bi se otključao unos finala.",
+	"playoff.form.save": "Sačuvaj",
+	"playoff.form.update": "Ažuriraj",
+	"playoff.form.reset": "Poništi",
+	"playoff.form.hint":
+		"Ako je rezultat nerešen, izaberite pobednika posle penala.",
+	"playoff.form.homeScoreAria": "Golovi domaćina",
+	"playoff.form.awayScoreAria": "Golovi gosta",
+	"playoff.form.penaltyAria": "Pobednik posle penala",
+	"playoff.form.penaltyNone": "Penali: —",
+	"playoff.form.penaltyHome": "Penali: domaćin",
+	"playoff.form.penaltyAway": "Penali: gost",
+	"playoff.penaltyWon": "Penali: {who}",
+	"playoff.trophy.name": "🏆 Zlatni penis",
+	"playoff.champion.headline": "Šampion",
+	"playoff.champion.pending": "— još nije poznat —",
+	"playoff.champion.projection": "— odigrajte regularni deo —",
+	"playoff.toast.saved": "Plej-of rezultat sačuvan.",
+	"playoff.toast.cleared": "Plej-of rezultat poništen.",
+	"playoff.confirm.reset":
+		"Da li sigurno želite da poništite rezultat ove utakmice plej-ofa?",
+	"playoff.err.badStage": "Nevažeća faza plej-ofa.",
+	"playoff.err.notReady":
+		"Plej-of nije dostupan dok se ne odigra ceo regularni deo.",
+	"playoff.err.finalBlocked":
+		"Finale nije moguće pre nego što se odigraju oba polufinala.",
+	"playoff.err.penaltyPick":
+		"Za nerešen rezultat morate izabrati pobednika posle penala.",
+	"playoff.badge.title": "{trophy} × {n}",
+	"playoff.cabinet.title": "Osvojeni trofeji ({n})",
 };
 
 const I18N_EN = {
@@ -1029,6 +1080,55 @@ const I18N_EN = {
 	"table.teams.th.actions": "Actions",
 
 	"discovery.leagueBrowse": "Browse league",
+
+	"playoff.ariaLabel": "Playoff bracket",
+	"playoff.title": "Playoff",
+	"playoff.title.gold": "— The Golden Penis",
+	"playoff.sub.projection":
+		"Projection based on the current table. The real playoff unlocks once the regular season is finished.",
+	"playoff.sub.active":
+		"Regular season is complete. Enter the semifinal and final results.",
+	"playoff.sub.empty": "At least 4 players are required for a playoff.",
+	"playoff.pill.projection": "Projection",
+	"playoff.pill.active": "Playoff",
+	"playoff.pill.empty": "Not available",
+	"playoff.empty":
+		"Once the table has at least 4 players, the playoff bracket will show up here.",
+	"playoff.sf1Title": "Semifinal 1",
+	"playoff.sf2Title": "Semifinal 2",
+	"playoff.finalTitle": "Final",
+	"playoff.semifinalShort": "SF",
+	"playoff.finalShort": "F",
+	"playoff.slot.awaiting": "— awaiting —",
+	"playoff.finalWaiting": "Play both semifinals to unlock the final.",
+	"playoff.form.save": "Save",
+	"playoff.form.update": "Update",
+	"playoff.form.reset": "Reset",
+	"playoff.form.hint": "If the score is a draw, pick the penalty shootout winner.",
+	"playoff.form.homeScoreAria": "Home goals",
+	"playoff.form.awayScoreAria": "Away goals",
+	"playoff.form.penaltyAria": "Penalty shootout winner",
+	"playoff.form.penaltyNone": "Penalties: —",
+	"playoff.form.penaltyHome": "Penalties: home",
+	"playoff.form.penaltyAway": "Penalties: away",
+	"playoff.penaltyWon": "Penalties: {who}",
+	"playoff.trophy.name": "🏆 The Golden Penis",
+	"playoff.champion.headline": "Champion",
+	"playoff.champion.pending": "— not yet decided —",
+	"playoff.champion.projection": "— play the regular season —",
+	"playoff.toast.saved": "Playoff result saved.",
+	"playoff.toast.cleared": "Playoff result cleared.",
+	"playoff.confirm.reset":
+		"Are you sure you want to clear this playoff result?",
+	"playoff.err.badStage": "Invalid playoff stage.",
+	"playoff.err.notReady":
+		"Playoff is not available until the regular season is finished.",
+	"playoff.err.finalBlocked":
+		"The final can only be entered after both semifinals are played.",
+	"playoff.err.penaltyPick":
+		"For a draw you must pick the penalty shootout winner.",
+	"playoff.badge.title": "{trophy} × {n}",
+	"playoff.cabinet.title": "Trophies won ({n})",
 };
 
 function t(key, vars) {

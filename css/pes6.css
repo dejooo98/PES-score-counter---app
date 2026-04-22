@@ -988,3 +988,644 @@ body.pes6-app.pes6-setting-text-lg {
   opacity: 0.02;
   z-index: 0;
 }
+
+/* ======================================================================
+ * PLEJ-OF (bracket) — kostur Lige šampiona, u PES6 stilu
+ * ====================================================================== */
+
+.pes6-playoff {
+  position: relative;
+  margin-top: 1.25rem;
+  border-radius: 1rem;
+  padding: 1.1rem 1rem 1.25rem;
+  color: var(--pes-ink);
+  background:
+    radial-gradient(ellipse 120% 85% at 18% 0%, rgba(240, 208, 64, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 110% 90% at 92% 100%, rgba(74, 125, 174, 0.22) 0%, transparent 58%),
+    linear-gradient(180deg, #f6f3ea 0%, #e8e4d6 100%);
+  border: 1px solid rgba(92, 72, 16, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 8px rgba(21, 45, 74, 0.18);
+}
+
+.pes6-playoff__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed rgba(21, 45, 74, 0.35);
+  margin-bottom: 1rem;
+}
+
+.pes6-playoff__title {
+  font-family: var(--pes-font-arcade);
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--pes-blue-dark);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.pes6-playoff__title-gold {
+  color: var(--pes-gold-deep);
+  text-shadow:
+    0 1px 0 var(--pes-gold-top),
+    0 2px 0 rgba(92, 72, 16, 0.35);
+}
+
+.pes6-playoff__subtitle {
+  font-size: 0.8rem;
+  color: rgba(21, 45, 74, 0.8);
+  margin: 0;
+  max-width: 58ch;
+}
+
+.pes6-playoff__phase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  color: #1e293b;
+  background: linear-gradient(180deg, #fff6a8 0%, #f0d040 55%, #b89418 100%);
+  border: 1px solid var(--pes-gold-edge);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.pes6-playoff__phase-pill--projection {
+  background: linear-gradient(180deg, #e6edf5 0%, #bcc8d8 60%, #6d7e93 100%);
+  border-color: rgba(21, 45, 74, 0.5);
+  color: #0b1a2b;
+}
+
+.pes6-playoff__phase-pill--empty {
+  background: linear-gradient(180deg, #f1efe8 0%, #d8d3c4 60%, #948c79 100%);
+  border-color: rgba(88, 78, 50, 0.5);
+  color: #3a3326;
+}
+
+.pes6-playoff__empty {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px dashed rgba(21, 45, 74, 0.35);
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+/* Grid: SF column | connectors | Final + Champion */
+.pes6-playoff__bracket {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 0.95fr);
+  gap: 0.85rem 0;
+  align-items: stretch;
+}
+
+.pes6-playoff__col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 2rem;
+  min-width: 0;
+}
+
+.pes6-playoff__col--final {
+  justify-content: center;
+}
+
+.pes6-playoff__connector {
+  position: relative;
+  min-width: 0;
+}
+
+.pes6-playoff__connector::before,
+.pes6-playoff__connector::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 50%;
+  height: 2px;
+  background: var(--pes-blue-dark);
+  opacity: 0.75;
+}
+
+.pes6-playoff__connector--top::before {
+  top: 25%;
+}
+.pes6-playoff__connector--top::after {
+  top: 25%;
+  bottom: auto;
+  left: calc(50% - 2px);
+  right: auto;
+  width: 2px;
+  height: 25%;
+}
+
+.pes6-playoff__connector--bottom::before {
+  bottom: 25%;
+  top: auto;
+}
+.pes6-playoff__connector--bottom::after {
+  bottom: 25%;
+  top: auto;
+  left: calc(50% - 2px);
+  right: auto;
+  width: 2px;
+  height: 25%;
+}
+
+.pes6-playoff__connector--final-out::before {
+  top: 50%;
+  right: 0;
+  left: 0;
+  transform: translateY(-1px);
+}
+.pes6-playoff__connector--final-out::after {
+  display: none;
+}
+
+/* Match card */
+.pes6-playoff__match {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1ef 100%);
+  border: 1px solid rgba(21, 45, 74, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 3px rgba(21, 45, 74, 0.14);
+}
+
+.pes6-playoff__match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.65rem;
+  background: linear-gradient(90deg, var(--pes-blue-dark) 0%, var(--pes-blue-mid) 100%);
+  color: var(--pes-chrome-text);
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.pes6-playoff__match-header--final {
+  background: linear-gradient(90deg, #5c4810 0%, #b89418 45%, #f0d040 100%);
+  color: #1a1406;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.pes6-playoff__match-badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.pes6-playoff__match-slot {
+  display: grid;
+  grid-template-columns: 1.55rem minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.82rem;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.pes6-playoff__match-slot + .pes6-playoff__match-slot {
+  border-top: 1px solid rgba(148, 163, 184, 0.45);
+}
+
+.pes6-playoff__match-slot--winner {
+  background: linear-gradient(90deg, rgba(240, 208, 64, 0.22) 0%, rgba(240, 208, 64, 0.06) 100%);
+  font-weight: 600;
+}
+
+.pes6-playoff__match-slot--loser {
+  color: #64748b;
+}
+
+.pes6-playoff__match-slot--empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.pes6-playoff__seed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  font-family: var(--pes-font-arcade);
+  font-size: 0.78rem;
+  color: #1a1406;
+  background: linear-gradient(180deg, #fff6a8 0%, #f0d040 60%, #b89418 100%);
+  border: 1px solid var(--pes-gold-edge);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.pes6-playoff__participant {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  overflow: hidden;
+}
+
+.pes6-playoff__participant-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pes6-playoff__participant-team {
+  font-size: 0.7rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pes6-playoff__score-cell {
+  text-align: right;
+  font-family: var(--pes-font-arcade);
+  font-size: 1.05rem;
+  color: #0f172a;
+  letter-spacing: 0.04em;
+}
+
+.pes6-playoff__score-cell--pending {
+  color: #94a3b8;
+}
+
+.pes6-playoff__score-cell--penalty {
+  font-size: 0.7rem;
+  color: rgba(21, 45, 74, 0.7);
+  font-family: var(--pes-font-ui);
+  margin-top: 0.1rem;
+}
+
+/* Entry form (inline) */
+.pes6-playoff__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+  padding: 0.55rem 0.6rem 0.65rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(241, 245, 249, 0.65);
+}
+
+.pes6-playoff__form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.pes6-playoff__form-score {
+  width: 3.2rem;
+  padding: 0.25rem 0.4rem;
+  font-family: var(--pes-font-arcade);
+  font-size: 0.95rem;
+  text-align: center;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(21, 45, 74, 0.45);
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.pes6-playoff__form-score:focus {
+  outline: 2px solid var(--pes-gold);
+  outline-offset: 1px;
+}
+
+.pes6-playoff__form-vs {
+  font-family: var(--pes-font-arcade);
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+.pes6-playoff__form-penalty {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(21, 45, 74, 0.45);
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.pes6-playoff__form-submit {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.72rem;
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 0.45rem;
+  border: 1px solid var(--pes-gold-edge);
+  background: linear-gradient(180deg, #fff6a8 0%, #f0d040 55%, #b89418 100%);
+  color: #1a1406;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.pes6-playoff__form-submit:hover {
+  filter: brightness(1.06);
+}
+
+.pes6-playoff__form-reset {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(139, 46, 40, 0.55);
+  background: #fef2f2;
+  color: #7f1d1d;
+  cursor: pointer;
+}
+
+.pes6-playoff__form-reset:hover {
+  background: #fee2e2;
+}
+
+.pes6-playoff__form-hint {
+  font-size: 0.68rem;
+  color: rgba(21, 45, 74, 0.7);
+  line-height: 1.3;
+}
+
+/* Trophy / Champion panel */
+.pes6-playoff__champion {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1.25rem 0.85rem 1.35rem;
+  border-radius: 0.95rem;
+  min-height: 22rem;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 246, 168, 0.72) 0%, transparent 58%),
+    linear-gradient(180deg, #3a2a08 0%, #221604 100%);
+  border: 1px solid var(--pes-gold-edge);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 168, 0.4),
+    0 6px 22px rgba(0, 0, 0, 0.35);
+  color: #fff6d6;
+  text-align: center;
+  overflow: hidden;
+}
+
+.pes6-playoff__champion::before {
+  content: "";
+  position: absolute;
+  inset: -20% -30%;
+  background:
+    conic-gradient(
+      from 220deg,
+      rgba(255, 246, 168, 0) 0deg,
+      rgba(255, 246, 168, 0.1) 90deg,
+      rgba(255, 246, 168, 0) 180deg,
+      rgba(255, 246, 168, 0.06) 270deg,
+      rgba(255, 246, 168, 0) 360deg
+    );
+  pointer-events: none;
+  animation: pes-trophy-spin 18s linear infinite;
+  z-index: 0;
+}
+
+.pes6-playoff__champion > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes pes-trophy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pes6-playoff__trophy {
+  width: 7.5rem;
+  height: 10.6rem;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.4)) drop-shadow(0 0 12px rgba(240, 208, 64, 0.45));
+}
+
+.pes6-playoff__trophy svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pes6-playoff__trophy--won {
+  animation: pes-trophy-bob 3.2s ease-in-out infinite;
+}
+
+@keyframes pes-trophy-bob {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+}
+
+.pes6-playoff__champion-trophy-label {
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--pes-gold);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
+}
+
+.pes6-playoff__champion-headline {
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: rgba(255, 246, 214, 0.75);
+}
+
+.pes6-playoff__champion-name {
+  font-family: var(--pes-font-arcade);
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  line-height: 1.05;
+  color: #fff6a8;
+  text-shadow:
+    0 1px 0 #5c4810,
+    0 2px 10px rgba(240, 208, 64, 0.5);
+}
+
+.pes6-playoff__champion-team {
+  font-size: 0.72rem;
+  color: rgba(255, 246, 214, 0.75);
+  letter-spacing: 0.04em;
+}
+
+.pes6-playoff__champion--placeholder {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
+    linear-gradient(180deg, #2c313b 0%, #1b1f27 100%);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.pes6-playoff__champion--placeholder .pes6-playoff__trophy {
+  opacity: 0.55;
+}
+
+.pes6-playoff__champion--placeholder .pes6-playoff__champion-name {
+  color: rgba(255, 255, 255, 0.45);
+  text-shadow: none;
+}
+
+/* Responsive — stack vertically on narrow */
+@media (max-width: 839px) {
+  .pes6-playoff__bracket {
+    grid-template-columns: 1fr;
+  }
+  .pes6-playoff__connector {
+    display: none;
+  }
+  .pes6-playoff__col {
+    gap: 0.85rem;
+  }
+  .pes6-playoff__col--final {
+    gap: 0.85rem;
+  }
+  .pes6-playoff__trophy {
+    width: 6.25rem;
+    height: 9rem;
+  }
+  .pes6-playoff__champion {
+    min-height: 0;
+  }
+}
+
+/* ======================================================================
+ * Šampionski badge pored imena + kabinet trofeja u profilu
+ * ====================================================================== */
+
+.pes-name-with-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.pes-champ-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  vertical-align: -0.2em;
+  line-height: 1;
+}
+
+.pes-champ-badges svg {
+  display: inline-block;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+}
+
+.pes-champ-badges--compact {
+  gap: 0.2rem;
+  padding: 0.05rem 0.35rem 0.05rem 0.1rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff6a8 0%, #f0d040 55%, #b89418 100%);
+  border: 1px solid var(--pes-gold-edge);
+  color: #1a1406;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.pes-champ-badges__count {
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.04em;
+  color: #1a1406;
+}
+
+.pes-trophy-cabinet {
+  padding: 0.75rem 0.85rem 0.85rem;
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(180deg, rgba(255, 246, 168, 0.18) 0%, rgba(184, 148, 24, 0.08) 100%),
+    #ffffff;
+  border: 1px solid rgba(92, 72, 16, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.pes-trophy-cabinet__title {
+  margin: 0 0 0.55rem;
+  font-family: var(--pes-font-arcade);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: #5c4810;
+}
+
+.pes-trophy-cabinet__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.5rem;
+}
+
+.pes-trophy-cabinet__item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  border: 1px solid rgba(92, 72, 16, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.pes-trophy-cabinet__icon {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 2.65rem;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3));
+}
+
+.pes-trophy-cabinet__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pes-trophy-cabinet__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pes-trophy-cabinet__season {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pes-trophy-cabinet__date {
+  font-size: 0.68rem;
+  color: #64748b;
+}

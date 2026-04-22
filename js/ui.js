@@ -524,6 +524,45 @@ function renderPesStatCompareOutput(state, seasonId, idA, idB) {
     </div>`;
 }
 
+function buildPlayerTrophiesCabinetHtml(state, playerId) {
+	if (typeof listChampionshipTitlesForPlayer !== "function") {
+		return "";
+	}
+	const titles = listChampionshipTitlesForPlayer(state, playerId);
+	if (!titles.length) {
+		return "";
+	}
+	const trophyLabel = t("playoff.trophy.name");
+	const trophies = titles
+		.map((title) => {
+			const svg =
+				typeof buildGoldenPenisTrophySvg === "function"
+					? buildGoldenPenisTrophySvg("md")
+					: "";
+			const seasonName = title.seasonName || "";
+			const dateStr = title.at ? formatDateOnly(title.at) : "";
+			const tooltip = `${trophyLabel} — ${seasonName}${dateStr ? " · " + dateStr : ""}`;
+			return `
+        <li class="pes-trophy-cabinet__item" title="${escapeHtml(tooltip)}">
+          <span class="pes-trophy-cabinet__icon">${svg}</span>
+          <span class="pes-trophy-cabinet__meta">
+            <span class="pes-trophy-cabinet__season">${escapeHtml(seasonName)}</span>
+            ${dateStr ? `<span class="pes-trophy-cabinet__date">${escapeHtml(dateStr)}</span>` : ""}
+          </span>
+        </li>
+      `;
+		})
+		.join("");
+	return `
+    <div class="pes-trophy-cabinet mt-3">
+      <p class="pes-trophy-cabinet__title">${escapeHtml(t("playoff.cabinet.title", { n: String(titles.length), trophy: trophyLabel }))}</p>
+      <ul class="pes-trophy-cabinet__list">
+        ${trophies}
+      </ul>
+    </div>
+  `;
+}
+
 function renderPlayersView(state) {
 	const tableBody = document.getElementById("pes-players-table-body");
 	const cardsRoot = document.getElementById("pes-players-cards-root");
@@ -540,12 +579,16 @@ function renderPlayersView(state) {
 			const team = findTeamById(state, player.teamId);
 			const teamLabel = team ? team.name : "—";
 			const avatarUrl = resolvePlayerAvatarUrl(player);
+			const badges =
+				typeof buildPlayerChampionshipBadgesHtml === "function"
+					? buildPlayerChampionshipBadgesHtml(state, player.id, { size: "inline" })
+					: "";
 			return `
       <tr class="border-t border-slate-200">
         <td class="px-3 py-2 text-sm text-slate-800">
           <div class="flex items-center gap-2">
             <img src="${escapeHtml(avatarUrl)}" alt="" class="h-8 w-8 rounded-lg object-cover ring-1 ring-slate-200" />
-            <span>${escapeHtml(getPlayerDisplayName(player))}</span>
+            <span class="pes-name-with-badges">${escapeHtml(getPlayerDisplayName(player))}${badges}</span>
           </div>
         </td>
         <td class="px-3 py-2 text-sm text-slate-600">${escapeHtml(teamLabel)}</td>
@@ -580,13 +623,17 @@ function renderPlayersView(state) {
 				const teamLabel = team ? team.name : "—";
 				const avatarUrl = resolvePlayerAvatarUrl(player);
 				const name = escapeHtml(getPlayerDisplayName(player));
+				const badges =
+					typeof buildPlayerChampionshipBadgesHtml === "function"
+						? buildPlayerChampionshipBadgesHtml(state, player.id, { size: "inline" })
+						: "";
 				const dateStr = formatDateOnly(player.createdAt);
 				return `
       <article class="pes-player-card rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <div class="flex gap-3">
           <img src="${escapeHtml(avatarUrl)}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover ring-1 ring-slate-200" />
           <div class="min-w-0 flex-1">
-            <div class="text-base font-semibold leading-snug text-slate-900">${name}</div>
+            <div class="text-base font-semibold leading-snug text-slate-900 pes-name-with-badges">${name}${badges}</div>
             <div class="mt-1 text-sm text-slate-600">
               <span class="font-medium text-slate-500">${escapeHtml(t("players.card.team"))}</span>
               ${escapeHtml(teamLabel)}
@@ -694,12 +741,17 @@ function renderPlayersView(state) {
         class="h-24 w-24 rounded-xl object-cover ring-1 ring-slate-200"
       />
       <div>
-        <div class="text-lg font-semibold text-slate-900">${escapeHtml(
+        <div class="text-lg font-semibold text-slate-900 pes-name-with-badges">${escapeHtml(
 					getPlayerDisplayName(selectedPlayer),
-				)}</div>
+				)}${
+					typeof buildPlayerChampionshipBadgesHtml === "function"
+						? buildPlayerChampionshipBadgesHtml(state, selectedPlayer.id, { size: "md" })
+						: ""
+				}</div>
         <div class="text-sm text-slate-600">${escapeHtml(t("players.teamPrefix"))} ${escapeHtml(
 					selectedTeam ? selectedTeam.name : t("common.dash"),
 				)}</div>
+        ${buildPlayerTrophiesCabinetHtml(state, selectedPlayer.id)}
         <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">${escapeHtml(
 					t("players.careerLeague"),
 				)}</p>
@@ -1464,12 +1516,16 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
 			const team = player ? findTeamById(state, player.teamId) : null;
 			const playerLabel = player ? getPlayerDisplayName(player) : "?";
 			const teamLabel = team ? team.name : "?";
+			const badges =
+				typeof buildPlayerChampionshipBadgesHtml === "function"
+					? buildPlayerChampionshipBadgesHtml(state, row.playerId, { size: "inline" })
+					: "";
 			return `
       <tr class="border-t border-slate-100">
         <td class="px-3 py-2 text-sm font-semibold text-slate-900">${row.position}</td>
-        <td class="px-3 py-2 text-sm text-slate-800">${escapeHtml(
+        <td class="px-3 py-2 text-sm text-slate-800"><span class="pes-name-with-badges">${escapeHtml(
 					playerLabel,
-				)}</td>
+				)}${badges}</span></td>
         <td class="px-3 py-2 text-sm text-slate-600">${escapeHtml(teamLabel)}</td>
         <td class="px-3 py-2 text-sm text-slate-700">${row.played}</td>
         <td class="px-3 py-2 text-sm text-slate-700">${row.wins}</td>
@@ -1528,6 +1584,295 @@ function renderTableView(state, selectedSeasonId) {
 	}
 	const built = buildStandingsTableHtml(state, selectedSeasonId);
 	root.innerHTML = built.html;
+	renderPlayoffBracketView(state, selectedSeasonId);
+}
+
+function buildPlayoffParticipantMarkup(state, playerId, options) {
+	const opts = options || {};
+	if (!playerId) {
+		const label = opts.emptyLabel || t("playoff.slot.awaiting");
+		return `
+      <span class="pes6-playoff__participant">
+        <span class="pes6-playoff__participant-name">${escapeHtml(label)}</span>
+      </span>
+    `;
+	}
+	const player = findPlayerById(state, playerId);
+	const team = player ? findTeamById(state, player.teamId) : null;
+	const playerLabel = player ? getPlayerDisplayName(player) : "?";
+	const teamLabel = team ? team.name : "";
+	return `
+    <span class="pes6-playoff__participant">
+      <span class="pes6-playoff__participant-name">${escapeHtml(playerLabel)}</span>
+      ${
+				teamLabel
+					? `<span class="pes6-playoff__participant-team">${escapeHtml(teamLabel)}</span>`
+					: ""
+			}
+    </span>
+  `;
+}
+
+function buildPlayoffMatchCardHtml(state, stage, title, config) {
+	const isFinal = stage.stage === "final";
+	const headerCls = isFinal
+		? "pes6-playoff__match-header pes6-playoff__match-header--final"
+		: "pes6-playoff__match-header";
+	const badge = config && config.badge ? config.badge : "";
+	const phase = config && config.phase ? config.phase : "empty";
+	const winnerId = stage.winnerPlayerId || null;
+	const hasScore = stage.data && stage.data.homeScore != null;
+	const drawPenalty = stage.data && stage.data.homeScore === stage.data.awayScore;
+
+	function seedCell(seedLabel) {
+		if (!seedLabel) {
+			return "";
+		}
+		return `<span class="pes6-playoff__seed">${seedLabel}</span>`;
+	}
+
+	function slotHtml(playerId, seedLabel, isHome) {
+		const isWinner = winnerId && playerId === winnerId;
+		const isLoser = winnerId && playerId && playerId !== winnerId;
+		let slotCls = "pes6-playoff__match-slot";
+		if (!playerId) {
+			slotCls += " pes6-playoff__match-slot--empty";
+		} else if (isWinner) {
+			slotCls += " pes6-playoff__match-slot--winner";
+		} else if (isLoser) {
+			slotCls += " pes6-playoff__match-slot--loser";
+		}
+		const score = hasScore
+			? isHome
+				? stage.data.homeScore
+				: stage.data.awayScore
+			: null;
+		const scoreCls =
+			score == null
+				? "pes6-playoff__score-cell pes6-playoff__score-cell--pending"
+				: "pes6-playoff__score-cell";
+		const scoreText = score == null ? "–" : String(score);
+		return `
+      <div class="${slotCls}">
+        ${seedCell(seedLabel)}
+        ${buildPlayoffParticipantMarkup(state, playerId)}
+        <span class="${scoreCls}">${scoreText}</span>
+      </div>
+    `;
+	}
+
+	const seedHome = stage.seedHomeLabel || null;
+	const seedAway = stage.seedAwayLabel || null;
+
+	let formHtml = "";
+	if (phase === "active" && (!isFinal || stage.canEnter)) {
+		formHtml = buildPlayoffFormHtml(stage, drawPenalty);
+	} else if (phase === "active" && isFinal && !stage.canEnter) {
+		formHtml = `
+      <div class="pes6-playoff__form">
+        <p class="pes6-playoff__form-hint">${escapeHtml(t("playoff.finalWaiting"))}</p>
+      </div>
+    `;
+	} else if (phase === "projection") {
+		formHtml = "";
+	}
+
+	const penaltyInfo =
+		hasScore && drawPenalty && stage.data && stage.data.penaltyWinner
+			? `
+      <div class="pes6-playoff__match-slot pes6-playoff__score-cell--penalty" style="justify-content:flex-end;">
+        <span></span>
+        <span></span>
+        <span>${escapeHtml(t("playoff.penaltyWon", { who: stage.data.penaltyWinner === "home" ? "↑" : "↓" }))}</span>
+      </div>`
+			: "";
+
+	return `
+    <article class="pes6-playoff__match">
+      <header class="${headerCls}">
+        <span>${escapeHtml(title)}</span>
+        ${badge ? `<span class="pes6-playoff__match-badge">${escapeHtml(badge)}</span>` : ""}
+      </header>
+      ${slotHtml(stage.homePlayerId, seedHome, true)}
+      ${slotHtml(stage.awayPlayerId, seedAway, false)}
+      ${penaltyInfo}
+      ${formHtml}
+    </article>
+  `;
+}
+
+function buildPlayoffFormHtml(stage, isDraw) {
+	const data = stage.data || {};
+	const homeScore = data.homeScore != null ? data.homeScore : "";
+	const awayScore = data.awayScore != null ? data.awayScore : "";
+	const penaltyWinner = data.penaltyWinner || "";
+	const submitLabel = stage.data
+		? t("playoff.form.update")
+		: t("playoff.form.save");
+	return `
+    <form class="pes6-playoff__form pes-playoff-form" data-stage="${escapeHtml(stage.stage)}">
+      <div class="pes6-playoff__form-row">
+        <input
+          type="number"
+          min="0"
+          step="1"
+          name="homeScore"
+          class="pes6-playoff__form-score"
+          aria-label="${escapeHtml(t("playoff.form.homeScoreAria"))}"
+          value="${homeScore === "" ? "" : escapeHtml(String(homeScore))}"
+          required
+        />
+        <span class="pes6-playoff__form-vs">:</span>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          name="awayScore"
+          class="pes6-playoff__form-score"
+          aria-label="${escapeHtml(t("playoff.form.awayScoreAria"))}"
+          value="${awayScore === "" ? "" : escapeHtml(String(awayScore))}"
+          required
+        />
+        <select name="penaltyWinner" class="pes6-playoff__form-penalty" aria-label="${escapeHtml(t("playoff.form.penaltyAria"))}">
+          <option value="">${escapeHtml(t("playoff.form.penaltyNone"))}</option>
+          <option value="home"${penaltyWinner === "home" ? " selected" : ""}>${escapeHtml(t("playoff.form.penaltyHome"))}</option>
+          <option value="away"${penaltyWinner === "away" ? " selected" : ""}>${escapeHtml(t("playoff.form.penaltyAway"))}</option>
+        </select>
+        <button type="submit" class="pes6-playoff__form-submit">${escapeHtml(submitLabel)}</button>
+        ${
+					stage.data
+						? `<button type="button" class="pes6-playoff__form-reset pes-playoff-reset" data-stage="${escapeHtml(stage.stage)}">${escapeHtml(t("playoff.form.reset"))}</button>`
+						: ""
+				}
+      </div>
+      <p class="pes6-playoff__form-hint">${escapeHtml(t("playoff.form.hint"))}</p>
+    </form>
+  `;
+}
+
+function buildPlayoffChampionPanelHtml(state, bracket) {
+	const championId = bracket.championPlayerId;
+	const trophyLabel = t("playoff.trophy.name");
+	const svg =
+		typeof buildGoldenPenisTrophySvg === "function"
+			? buildGoldenPenisTrophySvg("hero")
+			: "";
+
+	if (!championId) {
+		const placeholder =
+			bracket.phase === "projection"
+				? t("playoff.champion.projection")
+				: t("playoff.champion.pending");
+		return `
+      <div class="pes6-playoff__champion pes6-playoff__champion--placeholder">
+        <div class="pes6-playoff__trophy">${svg}</div>
+        <div class="pes6-playoff__champion-trophy-label">${escapeHtml(trophyLabel)}</div>
+        <div class="pes6-playoff__champion-headline">${escapeHtml(t("playoff.champion.headline"))}</div>
+        <div class="pes6-playoff__champion-name">${escapeHtml(placeholder)}</div>
+      </div>
+    `;
+	}
+
+	const player = findPlayerById(state, championId);
+	const team = player ? findTeamById(state, player.teamId) : null;
+	const name = player ? getPlayerDisplayName(player) : "?";
+	const teamName = team ? team.name : "";
+	return `
+    <div class="pes6-playoff__champion pes6-playoff__champion--crowned">
+      <div class="pes6-playoff__trophy pes6-playoff__trophy--won">${svg}</div>
+      <div class="pes6-playoff__champion-trophy-label">${escapeHtml(trophyLabel)}</div>
+      <div class="pes6-playoff__champion-headline">${escapeHtml(t("playoff.champion.headline"))}</div>
+      <div class="pes6-playoff__champion-name">${escapeHtml(name)}</div>
+      ${teamName ? `<div class="pes6-playoff__champion-team">${escapeHtml(teamName)}</div>` : ""}
+    </div>
+  `;
+}
+
+function buildPlayoffBracketHtml(state, seasonId) {
+	if (!seasonId) {
+		return "";
+	}
+	if (typeof getPlayoffBracketForSeason !== "function") {
+		return "";
+	}
+	const bracket = getPlayoffBracketForSeason(state, seasonId);
+
+	const titleHtml = `
+    <div class="pes6-playoff__header">
+      <div>
+        <h3 class="pes6-playoff__title">${escapeHtml(t("playoff.title"))} <span class="pes6-playoff__title-gold">${escapeHtml(t("playoff.title.gold"))}</span></h3>
+        <p class="pes6-playoff__subtitle">${escapeHtml(
+					bracket.phase === "projection"
+						? t("playoff.sub.projection")
+						: bracket.phase === "active"
+							? t("playoff.sub.active")
+							: t("playoff.sub.empty"),
+				)}</p>
+      </div>
+      <span class="pes6-playoff__phase-pill pes6-playoff__phase-pill--${bracket.phase}">${escapeHtml(
+				bracket.phase === "projection"
+					? t("playoff.pill.projection")
+					: bracket.phase === "active"
+						? t("playoff.pill.active")
+						: t("playoff.pill.empty"),
+			)}</span>
+    </div>
+  `;
+
+	if (bracket.phase === "empty") {
+		return `
+      <section class="pes6-playoff" aria-label="${escapeHtml(t("playoff.ariaLabel"))}">
+        ${titleHtml}
+        <div class="pes6-playoff__empty">${escapeHtml(t("playoff.empty"))}</div>
+      </section>
+    `;
+	}
+
+	const sf1Html = buildPlayoffMatchCardHtml(state, bracket.sf1, t("playoff.sf1Title"), {
+		badge: t("playoff.semifinalShort"),
+		phase: bracket.phase,
+	});
+	const sf2Html = buildPlayoffMatchCardHtml(state, bracket.sf2, t("playoff.sf2Title"), {
+		badge: t("playoff.semifinalShort"),
+		phase: bracket.phase,
+	});
+	const finalHtml = buildPlayoffMatchCardHtml(state, bracket.final, t("playoff.finalTitle"), {
+		badge: t("playoff.finalShort"),
+		phase: bracket.phase,
+	});
+	const championHtml = buildPlayoffChampionPanelHtml(state, bracket);
+
+	return `
+    <section class="pes6-playoff" aria-label="${escapeHtml(t("playoff.ariaLabel"))}">
+      ${titleHtml}
+      <div class="pes6-playoff__bracket">
+        <div class="pes6-playoff__col pes6-playoff__col--sf">
+          ${sf1Html}
+          ${sf2Html}
+        </div>
+        <div class="pes6-playoff__connector pes6-playoff__connector--top" aria-hidden="true"></div>
+        <div class="pes6-playoff__col pes6-playoff__col--final">
+          ${finalHtml}
+        </div>
+        <div class="pes6-playoff__connector pes6-playoff__connector--final-out" aria-hidden="true"></div>
+        <div class="pes6-playoff__col pes6-playoff__col--champion">
+          ${championHtml}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderPlayoffBracketView(state, selectedSeasonId) {
+	const root = document.getElementById("pes-playoff-root");
+	if (!root) {
+		return;
+	}
+	if (!selectedSeasonId) {
+		root.innerHTML = "";
+		return;
+	}
+	root.innerHTML = buildPlayoffBracketHtml(state, selectedSeasonId);
 }
 
 function renderRankingsView(state, selectedSeasonId) {
