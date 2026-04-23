@@ -1384,7 +1384,62 @@ function renderResultsView(state, selectedSeasonId) {
 		root.innerHTML = `<p class="text-sm text-rose-600">${escapeHtml(t("common.seasonNotFound"))}</p>`;
 		return;
 	}
-	const matches = listMatchesForSeason(state, season.id);
+	const allMatches = listMatchesForSeason(state, season.id);
+	const playerFilterEl = document.getElementById("pes-results-player-filter");
+	const selectedPlayerId = playerFilterEl ? playerFilterEl.value : "";
+	const playerIdsInSeason = new Set();
+	allMatches.forEach((match) => {
+		if (match.homePlayerId) {
+			playerIdsInSeason.add(match.homePlayerId);
+		}
+		if (match.awayPlayerId) {
+			playerIdsInSeason.add(match.awayPlayerId);
+		}
+	});
+	const playerFilterOptions = Array.from(playerIdsInSeason)
+		.map((id) => {
+			const player = findPlayerById(state, id);
+			return {
+				id,
+				name: player ? getPlayerDisplayName(player) : "?",
+			};
+		})
+		.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+	const hasSelectedPlayer = Boolean(
+		selectedPlayerId && playerIdsInSeason.has(selectedPlayerId),
+	);
+	const effectivePlayerId = hasSelectedPlayer ? selectedPlayerId : "";
+	const matches = effectivePlayerId
+		? allMatches.filter(
+				(match) =>
+					match.homePlayerId === effectivePlayerId ||
+					match.awayPlayerId === effectivePlayerId,
+			)
+		: allMatches;
+	const playerFilterHtml = `
+    <div class="mb-3 flex flex-wrap items-end gap-3">
+      <label class="text-xs font-medium text-slate-600">${escapeHtml(t("results.playerFilter.label"))}
+        <select id="pes-results-player-filter" class="mt-1 block rounded-lg border border-slate-300 px-2 py-1 text-sm">
+          <option value="">${escapeHtml(t("results.playerFilter.all"))}</option>
+          ${playerFilterOptions
+						.map(
+							(option) =>
+								`<option value="${escapeHtml(option.id)}" ${
+									option.id === effectivePlayerId ? "selected" : ""
+								}>${escapeHtml(option.name)}</option>`,
+						)
+						.join("")}
+        </select>
+      </label>
+      ${
+				effectivePlayerId
+					? `<button type="button" id="pes-results-player-filter-clear" class="rounded-lg border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50">${escapeHtml(
+							t("results.playerFilter.clear"),
+						)}</button>`
+					: ""
+			}
+    </div>
+  `;
 	const rows = matches
 		.map((match) => {
 			const homePlayer = findPlayerById(state, match.homePlayerId);
@@ -1471,6 +1526,7 @@ function renderResultsView(state, selectedSeasonId) {
 		})
 		.join("");
 	root.innerHTML = `
+    ${playerFilterHtml}
     <div class="pes-results-table-wrap overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
       <table class="pes-results-table min-w-[min(100%,44rem)] w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="pes-results-thead bg-slate-50 text-xs uppercase tracking-wide text-slate-500">

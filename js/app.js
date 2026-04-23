@@ -607,6 +607,26 @@ function bindFixtureFilterDelegation() {
 		) {
 			refreshEntireUi();
 		}
+		if (target.id === "pes-results-player-filter") {
+			const state = getPesLeagueApplicationState();
+			const selectedSeasonId = resolveSelectedSeasonId(state);
+			renderResultsView(state, selectedSeasonId);
+		}
+	});
+	document.body.addEventListener("click", (event) => {
+		const target = event.target;
+		if (!target || !(target instanceof Element)) {
+			return;
+		}
+		if (target.id === "pes-results-player-filter-clear") {
+			const select = document.getElementById("pes-results-player-filter");
+			if (select) {
+				select.value = "";
+			}
+			const state = getPesLeagueApplicationState();
+			const selectedSeasonId = resolveSelectedSeasonId(state);
+			renderResultsView(state, selectedSeasonId);
+		}
 	});
 }
 

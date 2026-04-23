@@ -255,6 +255,9 @@ const I18N_SR = {
 	"results.th.input": "Unos",
 	"results.th.playedAt": "Odigrano",
 	"results.empty": "Nema utakmica.",
+	"results.playerFilter.label": "Filter po igraču",
+	"results.playerFilter.all": "Svi igrači",
+	"results.playerFilter.clear": "Ukloni filter",
 
 	"discipline.sectionTitle": "Kartoni i povrede",
 	"discipline.cardsBlock": "Kartoni (ime u PES-u)",
@@ -817,6 +820,9 @@ const I18N_EN = {
 	"results.th.input": "Input",
 	"results.th.playedAt": "Played at",
 	"results.empty": "No matches.",
+	"results.playerFilter.label": "Filter by player",
+	"results.playerFilter.all": "All players",
+	"results.playerFilter.clear": "Clear filter",
 
 	"discipline.sectionTitle": "Cards and injuries",
 	"discipline.cardsBlock": "Cards (PES name)",
