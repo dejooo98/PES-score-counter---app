@@ -1259,6 +1259,39 @@ body.pes6-app.pes6-setting-text-lg {
   text-overflow: ellipsis;
 }
 
+.pes6-playoff__participant--with-swap {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pes6-playoff__participant-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pes-replace-season-player--compact {
+  flex-shrink: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(184, 148, 24, 0.7);
+  background: linear-gradient(180deg, #fff6a8 0%, #f0d040 60%, #b89418 100%);
+  color: #1a1406;
+  font-size: 0.85rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pes-replace-season-player--compact:hover {
+  filter: brightness(1.06);
+}
+
 .pes6-playoff__score-cell {
   text-align: right;
   font-family: var(--pes-font-arcade);

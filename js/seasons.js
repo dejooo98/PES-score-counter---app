@@ -142,6 +142,127 @@ function getActiveSeasonOrNull(state) {
   return state.seasons.find((season) => season.status === "active") || null;
 }
 
+function canReplacePlayerInSeason(state, seasonId) {
+  const season = findSeasonById(state, seasonId);
+  if (!season || season.status !== "active") {
+    return false;
+  }
+  if (typeof getSeasonChampionPlayerIdOrNull === "function") {
+    if (getSeasonChampionPlayerIdOrNull(state, seasonId)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function listPlayersInSeasonSortedByName(state, seasonId) {
+  const season = findSeasonById(state, seasonId);
+  const ids = season && Array.isArray(season.playerIds) ? season.playerIds : [];
+  const players = ids
+    .map((playerId) => findPlayerById(state, playerId))
+    .filter(Boolean);
+  players.sort((a, b) =>
+    getPlayerDisplayName(a).localeCompare(getPlayerDisplayName(b), undefined, {
+      sensitivity: "base",
+    }),
+  );
+  return players;
+}
+
+function listPlayersAvailableToJoinSeason(state, seasonId) {
+  const season = findSeasonById(state, seasonId);
+  const inSeason = new Set(
+    season && Array.isArray(season.playerIds) ? season.playerIds : [],
+  );
+  const players = listAllPlayersSortedByCreatedAt(state).filter(
+    (player) => !inSeason.has(player.id),
+  );
+  players.sort((a, b) =>
+    getPlayerDisplayName(a).localeCompare(getPlayerDisplayName(b), undefined, {
+      sensitivity: "base",
+    }),
+  );
+  return players;
+}
+
+function replacePlayerInSeasonInState(
+  state,
+  seasonId,
+  outgoingPlayerId,
+  incomingPlayerId,
+) {
+  const season = findSeasonById(state, seasonId);
+  if (!season) {
+    return { ok: false, message: t("error.seasonNotFound") };
+  }
+  if (season.status !== "active") {
+    return { ok: false, message: t("error.replaceSeasonNotActive") };
+  }
+  if (
+    typeof getSeasonChampionPlayerIdOrNull === "function" &&
+    getSeasonChampionPlayerIdOrNull(state, seasonId)
+  ) {
+    return { ok: false, message: t("error.replaceSeasonChampionSet") };
+  }
+  const outgoingId = String(outgoingPlayerId || "").trim();
+  const incomingId = String(incomingPlayerId || "").trim();
+  if (!outgoingId || !incomingId) {
+    return { ok: false, message: t("error.replacePickBoth") };
+  }
+  if (outgoingId === incomingId) {
+    return { ok: false, message: t("error.replaceSamePlayer") };
+  }
+  const playerIds = Array.isArray(season.playerIds) ? season.playerIds : [];
+  if (!playerIds.includes(outgoingId)) {
+    return { ok: false, message: t("error.replaceOutgoingNotInSeason") };
+  }
+  if (playerIds.includes(incomingId)) {
+    return { ok: false, message: t("error.replaceIncomingInSeason") };
+  }
+  const outgoingPlayer = findPlayerById(state, outgoingId);
+  const incomingPlayer = findPlayerById(state, incomingId);
+  if (!outgoingPlayer || !incomingPlayer) {
+    return { ok: false, message: t("error.playerNotFound") };
+  }
+  const nextState = cloneDeepJson(state);
+  const seasonIndex = nextState.seasons.findIndex((item) => item.id === seasonId);
+  if (seasonIndex === -1) {
+    return { ok: false, message: t("error.seasonNotFound") };
+  }
+  const nextPlayerIds = playerIds.map((id) =>
+    id === outgoingId ? incomingId : id,
+  );
+  nextState.seasons[seasonIndex] = {
+    ...nextState.seasons[seasonIndex],
+    playerIds: nextPlayerIds,
+    participantCount: nextPlayerIds.length,
+  };
+  nextState.matches = nextState.matches.map((match) => {
+    if (match.seasonId !== seasonId || match.matchKind === "oneVsOne") {
+      return match;
+    }
+    let changed = false;
+    const nextMatch = { ...match };
+    if (nextMatch.homePlayerId === outgoingId) {
+      nextMatch.homePlayerId = incomingId;
+      nextMatch.homeTeamId = incomingPlayer.teamId;
+      changed = true;
+    }
+    if (nextMatch.awayPlayerId === outgoingId) {
+      nextMatch.awayPlayerId = incomingId;
+      nextMatch.awayTeamId = incomingPlayer.teamId;
+      changed = true;
+    }
+    return changed ? nextMatch : match;
+  });
+  return {
+    ok: true,
+    state: nextState,
+    outgoingPlayer,
+    incomingPlayer,
+  };
+}
+
 function deleteSeasonFromState(state, seasonId) {
   const id = String(seasonId || "").trim();
   if (!id) {

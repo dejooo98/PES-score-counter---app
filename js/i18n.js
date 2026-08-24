@@ -228,6 +228,7 @@ const I18N_SR = {
 	"seasons.finish": "Završi",
 	"seasons.clone": "Nova",
 	"seasons.delete": "Obriši",
+	"seasons.replacePlayer": "Zameni igrača",
 	"seasons.empty": "Nema sezona.",
 
 	"fixtures.roundLabel": "Kolo",
@@ -288,6 +289,10 @@ const I18N_SR = {
 	"table.th.ga": "PG",
 	"table.th.gd": "GR",
 	"table.th.pts": "B",
+	"table.th.actions": "Akcije",
+	"table.replace": "Zameni",
+	"table.replaceHint":
+		"Zamena je moguća dok je sezona aktivna i dok šampion nije proglašen u plej-ofu. Novi igrač preuzima sve rezultate.",
 
 	"rankings.hint": "Aktivna sezona u zaglavlju: {name} ({status})",
 
@@ -359,6 +364,18 @@ const I18N_SR = {
 	"playerModal.cancel": "Otkaži",
 	"playerModal.save": "Sačuvaj",
 
+	"replaceModal.title": "Zamena igrača u sezoni",
+	"replaceModal.intro":
+		"Novi igrač preuzima sve mečeve, mesto u tabeli i plej-of. Moguće je samo dok je sezona aktivna i dok šampion nije proglašen.",
+	"replaceModal.outgoing": "Igrač koji izlazi",
+	"replaceModal.incoming": "Novi igrač",
+	"replaceModal.pickOutgoing": "— izaberite igrača —",
+	"replaceModal.pickIncoming": "— izaberite zamenu —",
+	"replaceModal.noIncoming":
+		"Nema slobodnih igrača za zamenu. Prvo dodajte igrača u listu Igrači.",
+	"replaceModal.cancel": "Otkaži",
+	"replaceModal.submit": "Zameni",
+
 	"teamModal.title": "Izmena tima",
 
 	"prompt.newSeasonName": "Naziv nove sezone:",
@@ -375,6 +392,8 @@ const I18N_SR = {
 		"Isključiti cloud sync i ostati samo na localStorage režimu?",
 	"confirm.importBackup":
 		"Uvesti ovaj JSON i ZAMENITI SVE lokalne podatke lige (igrači, timovi, sezone, mečevi)? Ovo se ne može automatski poništiti.",
+	"confirm.replaceSeasonPlayer":
+		"Zameniti „{from}” sa „{to}”? Novi igrač preuzima sve mečeve i mesto u tabeli/plej-ofu.",
 
 	"toast.cloudPulled": "Učitane su izmene iz clouda.",
 	"toast.teamSaved": "Tim je sačuvan.",
@@ -389,6 +408,7 @@ const I18N_SR = {
 	"toast.doubleOff": "Dupli krug: ISKLJUČEN.",
 	"toast.seasonDraftReset": "Sezona je vraćena u nacrt.",
 	"toast.seasonFinished": "Sezona je označena kao završena.",
+	"toast.playerReplaced": "{from} je zamenjen sa {to}.",
 	"toast.seasonCloned": "Nova sezona (nacrt) je kreirana sa istim igračima.",
 	"toast.seasonDeleted": "Sezona je obrisana.",
 	"toast.apiTeamMissing": "Izabrani API tim nije pronađen.",
@@ -467,6 +487,18 @@ const I18N_SR = {
 	"error.oneVsOnePickTwo": "Izaberite dva različita igrača.",
 	"error.resetHasPlayed":
 		"Reset nije moguć jer postoje odigrane utakmice. Završite ili arhivirajte sezonu drugačije.",
+	"error.replaceSeasonNotActive":
+		"Igrača možete zameniti samo u aktivnoj sezoni.",
+	"error.replaceSeasonChampionSet":
+		"Zamena nije moguća jer je plej-of završen i šampion je proglašen.",
+	"error.replacePickBoth":
+		"Izaberite igrača koji izlazi i igrača koji ulazi.",
+	"error.replaceSamePlayer": "Izaberite dva različita igrača.",
+	"error.replaceOutgoingNotInSeason":
+		"Izabrani igrač nije učesnik ove sezone.",
+	"error.replaceIncomingInSeason": "Taj igrač je već u ovoj sezoni.",
+	"error.replaceNoCandidates":
+		"Nema drugih igrača za zamenu. Dodajte novog igrača u listu Igrači.",
 
 	"section.dashboard": "Dashboard",
 	"section.players": "Igrači",
@@ -793,6 +825,7 @@ const I18N_EN = {
 	"seasons.finish": "Finish",
 	"seasons.clone": "New",
 	"seasons.delete": "Delete",
+	"seasons.replacePlayer": "Replace player",
 	"seasons.empty": "No seasons.",
 
 	"fixtures.roundLabel": "Round",
@@ -853,6 +886,10 @@ const I18N_EN = {
 	"table.th.ga": "GA",
 	"table.th.gd": "GD",
 	"table.th.pts": "Pts",
+	"table.th.actions": "Actions",
+	"table.replace": "Replace",
+	"table.replaceHint":
+		"Replacement is allowed while the season is active and the playoff has no champion. The new player inherits all results.",
 
 	"rankings.hint": "Active season in header: {name} ({status})",
 
@@ -924,6 +961,18 @@ const I18N_EN = {
 	"playerModal.cancel": "Cancel",
 	"playerModal.save": "Save",
 
+	"replaceModal.title": "Replace player in season",
+	"replaceModal.intro":
+		"The new player inherits all matches, table place and playoff slot. Only while the season is active and no champion has been crowned.",
+	"replaceModal.outgoing": "Player leaving",
+	"replaceModal.incoming": "New player",
+	"replaceModal.pickOutgoing": "— pick a player —",
+	"replaceModal.pickIncoming": "— pick a replacement —",
+	"replaceModal.noIncoming":
+		"No free players to swap in. Add a player on the Players page first.",
+	"replaceModal.cancel": "Cancel",
+	"replaceModal.submit": "Replace",
+
 	"teamModal.title": "Edit team",
 
 	"prompt.newSeasonName": "New season name:",
@@ -939,6 +988,8 @@ const I18N_EN = {
 	"confirm.disableCloud": "Disable cloud sync and stay on localStorage only?",
 	"confirm.importBackup":
 		"Import this JSON and REPLACE ALL local league data (players, teams, seasons, matches)? This cannot be automatically undone.",
+	"confirm.replaceSeasonPlayer":
+		'Replace "{from}" with "{to}"? The new player inherits all matches and the table/playoff place.',
 
 	"toast.cloudPulled": "Loaded changes from cloud.",
 	"toast.teamSaved": "Team saved.",
@@ -953,6 +1004,7 @@ const I18N_EN = {
 	"toast.doubleOff": "Double round: OFF.",
 	"toast.seasonDraftReset": "Season reset to draft.",
 	"toast.seasonFinished": "Season marked finished.",
+	"toast.playerReplaced": "{from} was replaced with {to}.",
 	"toast.seasonCloned": "New draft season created with same players.",
 	"toast.seasonDeleted": "Season deleted.",
 	"toast.apiTeamMissing": "API team not found.",
@@ -1027,6 +1079,17 @@ const I18N_EN = {
 	"error.oneVsOnePickTwo": "Pick two different players.",
 	"error.resetHasPlayed":
 		"Cannot reset: there are played matches. Finish or archive the season differently.",
+	"error.replaceSeasonNotActive":
+		"You can only replace a player in an active season.",
+	"error.replaceSeasonChampionSet":
+		"Replacement is blocked because the playoff is finished and a champion has been crowned.",
+	"error.replacePickBoth": "Pick the player leaving and the player coming in.",
+	"error.replaceSamePlayer": "Pick two different players.",
+	"error.replaceOutgoingNotInSeason":
+		"The selected player is not in this season.",
+	"error.replaceIncomingInSeason": "That player is already in this season.",
+	"error.replaceNoCandidates":
+		"No other players to swap in. Add a new player on the Players page first.",
 
 	"section.dashboard": "Dashboard",
 	"section.players": "Players",

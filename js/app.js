@@ -154,6 +154,107 @@ function closeTeamModal() {
 	modal.classList.remove("flex");
 }
 
+function fillReplaceSeasonPlayerSelect(
+	selectEl,
+	players,
+	placeholder,
+	selectedId,
+) {
+	if (!selectEl) {
+		return;
+	}
+	selectEl.innerHTML = "";
+	const placeholderOption = document.createElement("option");
+	placeholderOption.value = "";
+	placeholderOption.textContent = placeholder;
+	selectEl.appendChild(placeholderOption);
+	for (const player of players) {
+		const option = document.createElement("option");
+		option.value = player.id;
+		option.textContent = getPlayerDisplayName(player);
+		selectEl.appendChild(option);
+	}
+	if (
+		selectedId &&
+		Array.from(selectEl.options).some((option) => option.value === selectedId)
+	) {
+		selectEl.value = selectedId;
+	}
+}
+
+function openReplaceSeasonPlayerModal(seasonId, outgoingPlayerId) {
+	const state = getPesLeagueApplicationState();
+	const resolvedSeasonId =
+		seasonId ||
+		(typeof resolveSelectedSeasonId === "function"
+			? resolveSelectedSeasonId(state)
+			: "");
+	if (!resolvedSeasonId) {
+		showToastMessage(t("toast.pickSeason"), "error");
+		return;
+	}
+	if (
+		typeof canReplacePlayerInSeason !== "function" ||
+		!canReplacePlayerInSeason(state, resolvedSeasonId)
+	) {
+		const champion =
+			typeof getSeasonChampionPlayerIdOrNull === "function"
+				? getSeasonChampionPlayerIdOrNull(state, resolvedSeasonId)
+				: null;
+		showToastMessage(
+			champion
+				? t("error.replaceSeasonChampionSet")
+				: t("error.replaceSeasonNotActive"),
+			"error",
+		);
+		return;
+	}
+	const incomingPlayers = listPlayersAvailableToJoinSeason(
+		state,
+		resolvedSeasonId,
+	);
+	if (!incomingPlayers.length) {
+		showToastMessage(t("error.replaceNoCandidates"), "error");
+		return;
+	}
+	const modal = document.getElementById("pes-replace-season-player-modal");
+	const seasonInput = document.getElementById("pes-replace-season-id");
+	const outgoingSelect = document.getElementById("pes-replace-outgoing-player");
+	const incomingSelect = document.getElementById("pes-replace-incoming-player");
+	if (!modal || !seasonInput || !outgoingSelect || !incomingSelect) {
+		return;
+	}
+	seasonInput.value = resolvedSeasonId;
+	fillReplaceSeasonPlayerSelect(
+		outgoingSelect,
+		listPlayersInSeasonSortedByName(state, resolvedSeasonId),
+		t("replaceModal.pickOutgoing"),
+		outgoingPlayerId || "",
+	);
+	fillReplaceSeasonPlayerSelect(
+		incomingSelect,
+		incomingPlayers,
+		t("replaceModal.pickIncoming"),
+		"",
+	);
+	modal.classList.remove("hidden");
+	modal.classList.add("flex");
+	if (outgoingSelect.value) {
+		incomingSelect.focus();
+	} else {
+		outgoingSelect.focus();
+	}
+}
+
+function closeReplaceSeasonPlayerModal() {
+	const modal = document.getElementById("pes-replace-season-player-modal");
+	if (!modal) {
+		return;
+	}
+	modal.classList.add("hidden");
+	modal.classList.remove("flex");
+}
+
 function navigateToView(viewId) {
 	window.location.hash = `#/${viewId}`;
 }
@@ -665,6 +766,7 @@ function isAnyPesDialogOpen() {
 		"pes-cloud-modal",
 		"pes-player-modal",
 		"pes-team-modal",
+		"pes-replace-season-player-modal",
 	].some((id) => {
 		const el = document.getElementById(id);
 		return el && el.classList.contains("flex");
@@ -969,6 +1071,50 @@ function bindForms() {
 			applyPesLeagueStateAndRefresh(result.state);
 			closeTeamModal();
 			showToastMessage(t("toast.teamUpdated"), "success");
+		});
+	}
+
+	const replaceSeasonPlayerForm = document.getElementById(
+		"pes-replace-season-player-form",
+	);
+	if (replaceSeasonPlayerForm) {
+		replaceSeasonPlayerForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const seasonId = document.getElementById("pes-replace-season-id").value;
+			const outgoingId = document.getElementById(
+				"pes-replace-outgoing-player",
+			).value;
+			const incomingId = document.getElementById(
+				"pes-replace-incoming-player",
+			).value;
+			const state = getPesLeagueApplicationState();
+			const outgoingPlayer = findPlayerById(state, outgoingId);
+			const incomingPlayer = findPlayerById(state, incomingId);
+			const fromName = getPlayerDisplayName(outgoingPlayer);
+			const toName = getPlayerDisplayName(incomingPlayer);
+			if (
+				!window.confirmPesDangerous(
+					t("confirm.replaceSeasonPlayer", { from: fromName, to: toName }),
+				)
+			) {
+				return;
+			}
+			const result = replacePlayerInSeasonInState(
+				state,
+				seasonId,
+				outgoingId,
+				incomingId,
+			);
+			if (!result.ok) {
+				showToastMessage(result.message, "error");
+				return;
+			}
+			applyPesLeagueStateAndRefresh(result.state);
+			closeReplaceSeasonPlayerModal();
+			showToastMessage(
+				t("toast.playerReplaced", { from: fromName, to: toName }),
+				"success",
+			);
 		});
 	}
 
@@ -1550,6 +1696,18 @@ function bindClickDelegation() {
 			showToastMessage(t("toast.seasonFinished"), "success");
 			return;
 		}
+		const replaceSeasonPlayerButton = target.closest(
+			".pes-replace-season-player",
+		);
+		if (replaceSeasonPlayerButton) {
+			if (replaceSeasonPlayerButton.hasAttribute("disabled")) {
+				return;
+			}
+			const seasonId = replaceSeasonPlayerButton.getAttribute("data-season-id");
+			const playerId = replaceSeasonPlayerButton.getAttribute("data-player-id");
+			openReplaceSeasonPlayerModal(seasonId, playerId);
+			return;
+		}
 		const cloneSeasonButton = target.closest(".pes-clone-season");
 		if (cloneSeasonButton) {
 			const seasonId = cloneSeasonButton.getAttribute("data-season-id");
@@ -1926,6 +2084,14 @@ function bindModalControls() {
 			closeTeamModal();
 		});
 	}
+	const closeReplace = document.getElementById(
+		"pes-replace-season-player-modal-close",
+	);
+	if (closeReplace) {
+		closeReplace.addEventListener("click", () => {
+			closeReplaceSeasonPlayerModal();
+		});
+	}
 	const playerModal = document.getElementById("pes-player-modal");
 	if (playerModal) {
 		playerModal.addEventListener("click", (event) => {
@@ -1939,6 +2105,16 @@ function bindModalControls() {
 		teamModal.addEventListener("click", (event) => {
 			if (event.target === teamModal) {
 				closeTeamModal();
+			}
+		});
+	}
+	const replaceModal = document.getElementById(
+		"pes-replace-season-player-modal",
+	);
+	if (replaceModal) {
+		replaceModal.addEventListener("click", (event) => {
+			if (event.target === replaceModal) {
+				closeReplaceSeasonPlayerModal();
 			}
 		});
 	}

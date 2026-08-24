@@ -751,15 +751,26 @@
 								>
 									Tabela
 								</h2>
-								<button
-									id="pes-export-standings-csv"
-									type="button"
-									disabled
-									class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-									data-i18n="export.standings"
-								>
-									Export CSV (tabela)
-								</button>
+								<div class="flex flex-wrap items-center gap-2">
+									<button
+										id="pes-replace-season-player-open"
+										type="button"
+										disabled
+										class="pes-replace-season-player rounded-xl border border-amber-400/70 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 shadow-sm hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40"
+										data-i18n="seasons.replacePlayer"
+									>
+										Zameni igrača
+									</button>
+									<button
+										id="pes-export-standings-csv"
+										type="button"
+										disabled
+										class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+										data-i18n="export.standings"
+									>
+										Export CSV (tabela)
+									</button>
+								</div>
 							</div>
 							<div id="pes-table-root"></div>
 							<div id="pes-playoff-root" class="mt-4"></div>
@@ -1613,6 +1624,75 @@
 							class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500"
 						>
 							Sačuvaj
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div
+			id="pes-replace-season-player-modal"
+			class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4"
+			role="dialog"
+			aria-modal="true"
+		>
+			<div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl">
+				<h3
+					class="text-sm font-semibold text-slate-800"
+					data-i18n="replaceModal.title"
+				>
+					Zamena igrača u sezoni
+				</h3>
+				<p
+					class="mt-2 text-xs leading-relaxed text-slate-600"
+					data-i18n="replaceModal.intro"
+				>
+					Novi igrač preuzima sve mečeve, mesto u tabeli i plej-of. Moguće je
+					samo dok je sezona aktivna i dok šampion nije proglašen.
+				</p>
+				<form id="pes-replace-season-player-form" class="mt-3 space-y-3">
+					<input type="hidden" id="pes-replace-season-id" />
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-replace-outgoing-player"
+							data-i18n="replaceModal.outgoing"
+							>Igrač koji izlazi</label
+						>
+						<select
+							id="pes-replace-outgoing-player"
+							required
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						></select>
+					</div>
+					<div>
+						<label
+							class="text-xs font-medium text-slate-600"
+							for="pes-replace-incoming-player"
+							data-i18n="replaceModal.incoming"
+							>Novi igrač</label
+						>
+						<select
+							id="pes-replace-incoming-player"
+							required
+							class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+						></select>
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button
+							type="button"
+							id="pes-replace-season-player-modal-close"
+							class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+							data-i18n="replaceModal.cancel"
+						>
+							Otkaži
+						</button>
+						<button
+							type="submit"
+							class="rounded-lg bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-500"
+							data-i18n="replaceModal.submit"
+						>
+							Zameni
 						</button>
 					</div>
 				</form>

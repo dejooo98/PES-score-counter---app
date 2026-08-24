@@ -1118,6 +1118,14 @@ function renderSeasonsView(state) {
             class="pes-finish-season ml-2 rounded px-1 py-0.5 text-emerald-800 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
             ${isActive ? "" : "disabled"}>${escapeHtml(t("seasons.finish"))}</button>
+          ${
+						typeof canReplacePlayerInSeason === "function" &&
+						canReplacePlayerInSeason(state, season.id)
+							? `<button type="button"
+            class="pes-replace-season-player ml-2 rounded px-1 py-0.5 text-amber-800 hover:underline"
+            data-season-id="${escapeHtml(season.id)}">${escapeHtml(t("seasons.replacePlayer"))}</button>`
+							: ""
+					}
           <button type="button"
             class="pes-clone-season ml-2 rounded px-1 py-0.5 text-indigo-800 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
             data-season-id="${escapeHtml(season.id)}"
@@ -1551,6 +1559,22 @@ function renderResultsView(state, selectedSeasonId) {
   `;
 }
 
+function buildReplaceSeasonPlayerButtonHtml(seasonId, playerId, variant) {
+	const compact = variant === "compact";
+	const playerAttr = playerId
+		? ` data-player-id="${escapeHtml(playerId)}"`
+		: "";
+	const label = compact ? "⇄" : t("table.replace");
+	const cls = compact
+		? "pes-replace-season-player pes-replace-season-player--compact"
+		: "pes-replace-season-player text-xs font-semibold uppercase tracking-wide text-amber-800 hover:underline";
+	return `<button type="button" class="${cls}" data-season-id="${escapeHtml(
+		seasonId,
+	)}"${playerAttr} title="${escapeHtml(t("table.replace"))}" aria-label="${escapeHtml(
+		t("table.replace"),
+	)}">${compact ? label : escapeHtml(label)}</button>`;
+}
+
 function buildStandingsTableHtml(state, selectedSeasonId) {
 	if (!selectedSeasonId) {
 		return {
@@ -1565,6 +1589,10 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
 			html: `<p class="text-sm text-rose-600">${escapeHtml(t("common.seasonNotFound"))}</p>`,
 		};
 	}
+	const canReplace =
+		typeof canReplacePlayerInSeason === "function" &&
+		canReplacePlayerInSeason(state, selectedSeasonId);
+	const colCount = canReplace ? 12 : 11;
 	const standings = calculateStandingsForSeason(state, selectedSeasonId);
 	const rows = standings
 		.map((row) => {
@@ -1576,6 +1604,12 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
 				typeof buildPlayerChampionshipBadgesHtml === "function"
 					? buildPlayerChampionshipBadgesHtml(state, row.playerId, { size: "inline" })
 					: "";
+			const replaceCell = canReplace
+				? `<td class="px-3 py-2 text-right">${buildReplaceSeasonPlayerButtonHtml(
+						selectedSeasonId,
+						row.playerId,
+					)}</td>`
+				: "";
 			return `
       <tr class="border-t border-slate-100">
         <td class="px-3 py-2 text-sm font-semibold text-slate-900">${row.position}</td>
@@ -1591,6 +1625,7 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
         <td class="px-3 py-2 text-sm text-slate-700">${row.goalsAgainst}</td>
         <td class="px-3 py-2 text-sm text-slate-700">${row.goalDifference}</td>
         <td class="px-3 py-2 text-sm font-bold text-slate-900">${row.points}</td>
+        ${replaceCell}
       </tr>
     `;
 		})
@@ -1598,6 +1633,11 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
 	return {
 		ok: true,
 		html: `
+    ${
+			canReplace
+				? `<p class="mb-2 text-xs text-slate-500">${escapeHtml(t("table.replaceHint"))}</p>`
+				: ""
+		}
     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
       <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
         <thead class="bg-slate-50 text-xs uppercase text-slate-500">
@@ -1613,12 +1653,17 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
             <th class="px-3 py-2">${escapeHtml(t("table.th.ga"))}</th>
             <th class="px-3 py-2">${escapeHtml(t("table.th.gd"))}</th>
             <th class="px-3 py-2">${escapeHtml(t("table.th.pts"))}</th>
+            ${
+							canReplace
+								? `<th class="px-3 py-2 text-right">${escapeHtml(t("table.th.actions"))}</th>`
+								: ""
+						}
           </tr>
         </thead>
         <tbody>
           ${
 						rows ||
-						`<tr><td colspan="11" class="px-3 py-6 text-center text-slate-500">${escapeHtml(
+						`<tr><td colspan="${colCount}" class="px-3 py-6 text-center text-slate-500">${escapeHtml(
 							t("table.emptyData"),
 						)}</td></tr>`
 					}
@@ -1632,11 +1677,26 @@ function buildStandingsTableHtml(state, selectedSeasonId) {
 function renderTableView(state, selectedSeasonId) {
 	const root = document.getElementById("pes-table-root");
 	const exportButton = document.getElementById("pes-export-standings-csv");
+	const replaceOpenButton = document.getElementById(
+		"pes-replace-season-player-open",
+	);
 	if (!root) {
 		return;
 	}
 	if (exportButton) {
 		exportButton.disabled = !selectedSeasonId;
+	}
+	if (replaceOpenButton) {
+		const allowed =
+			Boolean(selectedSeasonId) &&
+			typeof canReplacePlayerInSeason === "function" &&
+			canReplacePlayerInSeason(state, selectedSeasonId);
+		replaceOpenButton.disabled = !allowed;
+		if (selectedSeasonId) {
+			replaceOpenButton.setAttribute("data-season-id", selectedSeasonId);
+		} else {
+			replaceOpenButton.removeAttribute("data-season-id");
+		}
 	}
 	const built = buildStandingsTableHtml(state, selectedSeasonId);
 	root.innerHTML = built.html;
@@ -1657,14 +1717,27 @@ function buildPlayoffParticipantMarkup(state, playerId, options) {
 	const team = player ? findTeamById(state, player.teamId) : null;
 	const playerLabel = player ? getPlayerDisplayName(player) : "?";
 	const teamLabel = team ? team.name : "";
+	const seasonId = opts.seasonId || "";
+	const showReplace =
+		seasonId &&
+		typeof canReplacePlayerInSeason === "function" &&
+		canReplacePlayerInSeason(state, seasonId);
+	const replaceBtn = showReplace
+		? buildReplaceSeasonPlayerButtonHtml(seasonId, playerId, "compact")
+		: "";
 	return `
-    <span class="pes6-playoff__participant">
-      <span class="pes6-playoff__participant-name">${escapeHtml(playerLabel)}</span>
-      ${
-				teamLabel
-					? `<span class="pes6-playoff__participant-team">${escapeHtml(teamLabel)}</span>`
-					: ""
-			}
+    <span class="pes6-playoff__participant${
+			replaceBtn ? " pes6-playoff__participant--with-swap" : ""
+		}">
+      <span class="pes6-playoff__participant-text">
+        <span class="pes6-playoff__participant-name">${escapeHtml(playerLabel)}</span>
+        ${
+					teamLabel
+						? `<span class="pes6-playoff__participant-team">${escapeHtml(teamLabel)}</span>`
+						: ""
+				}
+      </span>
+      ${replaceBtn}
     </span>
   `;
 }
@@ -1711,7 +1784,9 @@ function buildPlayoffMatchCardHtml(state, stage, title, config) {
 		return `
       <div class="${slotCls}">
         ${seedCell(seedLabel)}
-        ${buildPlayoffParticipantMarkup(state, playerId)}
+        ${buildPlayoffParticipantMarkup(state, playerId, {
+					seasonId: config && config.seasonId,
+				})}
         <span class="${scoreCls}">${scoreText}</span>
       </div>
     `;
@@ -1887,14 +1962,17 @@ function buildPlayoffBracketHtml(state, seasonId) {
 	const sf1Html = buildPlayoffMatchCardHtml(state, bracket.sf1, t("playoff.sf1Title"), {
 		badge: t("playoff.semifinalShort"),
 		phase: bracket.phase,
+		seasonId,
 	});
 	const sf2Html = buildPlayoffMatchCardHtml(state, bracket.sf2, t("playoff.sf2Title"), {
 		badge: t("playoff.semifinalShort"),
 		phase: bracket.phase,
+		seasonId,
 	});
 	const finalHtml = buildPlayoffMatchCardHtml(state, bracket.final, t("playoff.finalTitle"), {
 		badge: t("playoff.finalShort"),
 		phase: bracket.phase,
+		seasonId,
 	});
 	const championHtml = buildPlayoffChampionPanelHtml(state, bracket);
 
