@@ -1203,6 +1203,18 @@ body.pes6-app.pes6-setting-text-lg {
   background: #ffffff;
 }
 
+.pes6-playoff__match-slot > .pes6-playoff__seed {
+  grid-column: 1;
+}
+
+.pes6-playoff__match-slot > .pes6-playoff__participant {
+  grid-column: 2;
+}
+
+.pes6-playoff__match-slot > .pes6-playoff__score-cell {
+  grid-column: 3;
+}
+
 .pes6-playoff__match-slot + .pes6-playoff__match-slot {
   border-top: 1px solid rgba(148, 163, 184, 0.45);
 }
@@ -1234,6 +1246,13 @@ body.pes6-app.pes6-setting-text-lg {
   background: linear-gradient(180deg, #fff6a8 0%, #f0d040 60%, #b89418 100%);
   border: 1px solid var(--pes-gold-edge);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.pes6-playoff__seed--blank {
+  visibility: hidden;
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .pes6-playoff__participant {

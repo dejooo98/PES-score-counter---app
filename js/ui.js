@@ -1755,9 +1755,9 @@ function buildPlayoffMatchCardHtml(state, stage, title, config) {
 
 	function seedCell(seedLabel) {
 		if (!seedLabel) {
-			return "";
+			return `<span class="pes6-playoff__seed pes6-playoff__seed--blank" aria-hidden="true"></span>`;
 		}
-		return `<span class="pes6-playoff__seed">${seedLabel}</span>`;
+		return `<span class="pes6-playoff__seed">${escapeHtml(String(seedLabel))}</span>`;
 	}
 
 	function slotHtml(playerId, seedLabel, isHome) {
